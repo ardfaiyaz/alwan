@@ -5,6 +5,7 @@
  * Section 1: Mission intro; Section 2: Core values cards; Section 3: Team grid.
  */
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 const coreValues = [
@@ -46,7 +47,13 @@ const developers = [
 function TeamMemberImage({ src, name }: { src: string; name: string }) {
   return (
     <div className="aspect-square bg-slate-200 rounded-xl overflow-hidden flex items-center justify-center text-slate-500 text-sm font-medium">
-      Add image
+      <Image
+        src={src}
+        alt={name}
+        width={400}
+        height={400}
+        className="w-full h-full object-cover"
+      />
     </div>
   )
 }
@@ -54,8 +61,8 @@ function TeamMemberImage({ src, name }: { src: string; name: string }) {
 export default function AboutPage() {
   return (
     <>
-      {/* Section 1: Mission/Intro */}
-      <section className="py-24 bg-white">
+      {/* Section 1: Mission/Intro - gentle bg */}
+      <section className="py-24 bg-[#faf9fc]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -63,11 +70,11 @@ export default function AboutPage() {
             transition={{ duration: 0.6 }}
             className="max-w-3xl"
           >
-            <p className="text-slate-500 font-medium uppercase tracking-wider mb-4">About Alwan</p>
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6">
+            <p className="text-violet-600/80 font-medium uppercase tracking-wider mb-4 text-sm">About Alwan</p>
+            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
               Empowering Filipinos through financial inclusion
             </h1>
-            <p className="text-xl text-slate-600 leading-relaxed">
+            <p className="text-lg text-slate-600 leading-relaxed">
               Alwan was born from a simple belief: every Filipino deserves access to fair, transparent
               financial services. We&apos;re a Philippine-based microfinance platform designed to serve
               sari-sari store owners, market vendors, and aspiring entrepreneurs across the islands.
@@ -80,8 +87,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 2: Core Values */}
-      <section className="py-24 bg-slate-50">
+      {/* Section 2: Core Values - gentle */}
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -89,23 +96,24 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+            <p className="text-sm font-medium uppercase tracking-wider text-violet-600/80 mb-2">What we believe</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
               Our Core Values
             </h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">
+            <p className="text-slate-600 max-w-2xl mx-auto text-sm">
               The principles that guide everything we do.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {coreValues.map((value, i) => (
               <motion.div
                 key={value.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white rounded-xl p-8 border border-slate-200"
+                className="bg-[#faf9fc] rounded-2xl p-8 border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow"
               >
                 <h3 className="text-xl font-bold text-slate-900 mb-4">{value.title}</h3>
                 <p className="text-slate-600 leading-relaxed">{value.description}</p>
@@ -115,8 +123,8 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 3: The Team - 3 Developers with image placeholders */}
-      <section className="py-24 bg-white">
+      {/* Section 3: The Team - gentle */}
+      <section className="py-24 bg-[#faf9fc]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

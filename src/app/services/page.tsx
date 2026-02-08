@@ -31,8 +31,8 @@ const services = [
 export default function ServicesPage() {
   return (
     <>
-      {/* Hero */}
-      <section className="py-24 bg-white">
+      {/* Hero - gentle */}
+      <section className="py-24 bg-[#faf9fc]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -40,19 +40,19 @@ export default function ServicesPage() {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <p className="text-slate-500 font-medium uppercase tracking-wider mb-4">What We Offer</p>
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-6">
+            <p className="text-violet-600/80 font-medium uppercase tracking-wider mb-4 text-sm">What We Offer</p>
+            <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6">
               Services Built for Filipinos
             </h1>
-            <p className="text-xl text-slate-600">
+            <p className="text-lg text-slate-600">
               From micro loans to savings goals—everything you need to thrive, all in one place.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Loan Calculator Widget */}
-      <section className="py-16 bg-slate-50">
+      {/* Loan Calculator Widget - gentle */}
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -67,8 +67,8 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* 4 Service Sections */}
-      <section className="py-24 bg-white">
+      {/* 4 Service Sections - gentle */}
+      <section className="py-24 bg-[#faf9fc]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-24">
             {services.map((service, i) => (

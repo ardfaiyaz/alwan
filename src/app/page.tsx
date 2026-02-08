@@ -9,6 +9,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { MagneticButton } from '@/components/MagneticButton'
+import MobileCTA from '@/components/MobileCTA'
 import { ChevronDown } from 'lucide-react'
 
 // Core value cards data for "Why Choose Alwan"
@@ -94,7 +95,7 @@ export default function HomePage() {
                               .getElementById('why-choose-alwan')
                               ?.scrollIntoView({ behavior: 'smooth' })
                       }}
-                      className="w-full sm:w-auto px-6 py-4 font-medium rounded-xl border-2 border-white/40 text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg flex items-center gap-2"
+                      className="w-full sm:w-auto px-4 py-4 font-medium rounded-xl border-2 border-white/40 text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg flex items-center gap-2"
                   >
                       <span className="text-white">Learn more</span>
                       <ChevronDown className="w-5 h-5 text-white" />
@@ -313,147 +314,8 @@ export default function HomePage() {
 				</div>
 			</section>
 
-			{/* ========== MOBILE CTA: Gradient mesh blend, store buttons with logo colors, phone mockup ========== */}
-			<section className="relative py-20 lg:py-24 overflow-hidden">
-				{/* Gradient mesh: blends into text area, no white blob */}
-				<div className="absolute inset-0 bg-gradient-to-br from-violet-900 via-violet-800 to-purple-600" />
-				<div className="absolute inset-0 mobile-cta-mesh" aria-hidden />
-
-				<div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
-					{/* Left: headline, description, store buttons with brand colors */}
-					<motion.div
-						initial={{ opacity: 0, x: -24 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true }}
-						className="flex-1 max-w-xl text-white pl-0 lg:pl-4"
-					>
-						<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-6">
-							Naghahanap ka ba ng best-in-class na lending app? Sagot ka ni Alwan!
-						</h2>
-						<p className="text-lg text-white/95 mb-8">
-							Quick approvals, flexible terms, and easy financial management.
-							Download the Alwan app now!
-						</p>
-						<div className="flex flex-col sm:flex-row gap-4">
-							<Link
-								href="#"
-								className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-black text-white font-medium rounded-xl hover:opacity-90 transition-opacity"
-							>
-								<svg
-									className="w-7 h-7 shrink-0"
-									viewBox="0 0 24 24"
-									aria-hidden
-								>
-									<path
-										fill="#00D9FF"
-										d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92z"
-									/>
-									<path
-										fill="#00FF88"
-										d="M16.398 10.893l-2.606 2.606-10.937 6.333 8.635-8.635z"
-									/>
-									<path
-										fill="#FFD600"
-										d="M16.398 13.107l2.807 1.626a1 1 0 010 1.73l-2.808 1.626L15.206 12l2.192-1.107z"
-									/>
-									<path
-										fill="#FF3D57"
-										d="M3.61 22.186V2.734a1 1 0 01.609-.92l12.791 10.352-2.192 1.107-11.208 9.913z"
-									/>
-								</svg>
-								<span>
-									GET IT ON{' '}
-									<span className="block text-xs leading-tight text-slate-400">
-										Google Play
-									</span>
-								</span>
-							</Link>
-							<Link
-								href="#"
-								className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-[#1d1d1f] text-white font-medium rounded-xl hover:opacity-90 transition-opacity border border-white/10"
-							>
-								<svg
-									className="w-6 h-6 shrink-0"
-									viewBox="0 0 24 24"
-									fill="currentColor"
-									aria-hidden
-								>
-									<path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-								</svg>
-								<span>
-									Download on the{' '}
-									<span className="block text-xs leading-tight">
-										App Store
-									</span>
-								</span>
-							</Link>
-						</div>
-					</motion.div>
-
-					{/* Right: phone mockup with app-style content + loop animation */}
-					<motion.div
-						initial={{ opacity: 0, x: 24 }}
-						whileInView={{ opacity: 1, x: 0 }}
-						viewport={{ once: true }}
-						className="relative shrink-0"
-						animate={{
-							y: [0, -12, 0],
-							rotate: [0, 1, -1, 0],
-						}}
-						transition={{
-							y: { duration: 2.8, repeat: Infinity, ease: 'easeInOut' },
-							rotate: { duration: 5, repeat: Infinity, ease: 'easeInOut' },
-						}}
-					>
-						<div className="relative w-56 h-[480px] bg-slate-800 rounded-[2rem] border-4 border-slate-700 overflow-hidden shadow-4xl">
-							<div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-7 bg-slate-900 rounded-full z-10" />
-							<div className="bg-white h-full pt-12 pb-6 px-3 flex flex-col">
-								<div className="flex items-center justify-between mb-4">
-									<span className="text-violet-600 font-bold text-sm">
-										Alwan
-									</span>
-									<div className="flex gap-1">
-										<span className="w-2 h-2 rounded-full bg-slate-300" />
-										<span className="w-2 h-2 rounded-full bg-slate-300" />
-									</div>
-								</div>
-								<div className="bg-violet-50 rounded-2xl p-4 border border-violet-100 mb-4">
-									<p className="text-xs text-slate-500 mb-1">
-										Highest available
-									</p>
-									<p className="text-2xl font-bold text-violet-800">
-										₱50,000
-									</p>
-									<div className="flex gap-3 mt-2 text-xs text-slate-600">
-										<span>As low as 0.26%/day</span>
-										<span>Term 90 days</span>
-									</div>
-									<div className="mt-3 py-2.5 bg-gradient-to-r from-teal-500 to-violet-600 text-white text-center font-medium rounded-xl">
-										Borrow Now
-									</div>
-								</div>
-								<div className="bg-slate-50 rounded-xl p-3 mb-4">
-									<p className="text-xs font-medium text-slate-700 mb-2">
-										Borrowing Process
-									</p>
-									<div className="flex items-center justify-between text-xs text-slate-500">
-										<span>Apply</span>
-										<span>Submit</span>
-										<span>Get Funds</span>
-									</div>
-								</div>
-								<div className="mt-auto flex justify-around py-2 border-t border-slate-100">
-									<span className="text-xs font-medium text-violet-600">
-										Home
-									</span>
-									<span className="text-xs text-slate-400">Bill</span>
-									<span className="text-xs text-slate-400">Me</span>
-								</div>
-							</div>
-						</div>
-					</motion.div>
-				</div>
-			</section>
+			{/* ========== MOBILE CTA: White rounded section + store buttons (image-style) + phone mockup ========== */}
+			<MobileCTA />
 		</>
 	)
 }
