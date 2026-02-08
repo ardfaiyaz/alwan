@@ -64,7 +64,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200 bg-white shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200 bg-white shadow-md">
       {/* Gradient scroll progress bar */}
       <div
         className="absolute top-0 left-0 h-0.5 rounded-r-full bg-gradient-to-r from-teal-500 to-violet-600 transition-all duration-150 ease-out"

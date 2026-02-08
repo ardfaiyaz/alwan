@@ -24,22 +24,22 @@ const coreValues = [
 
 const developers = [
   {
-    name: 'John Melthon Donaire',
-    role: 'Prompt Engineer/Project Manager',
+    name: 'Donaire, John Melthon ',
+    role: 'Front-end Developer',
+    role1: 'Project Manager',
     image: '/images/devs/melthon.png',
-    bio: 'A real nigga knows.',
   },
   {
-    name: 'Kean Hero Buta',
+    name: 'Buta, Kean Hero ',
     role: 'Backend Engineer',
+    role1: 'Database Manager',
     image: '/images/devs/hero.png',
-    bio: 'Im a cunt, eat me.',
   },
   {
-    name: 'Pia Ellein Lucero',
-    role: 'UI/UX Designer/Documentation',
+    name: 'Lucero, Pia Elleine',
+    role: 'UI/UX Designer',
+    role1: 'Documentation',
     image: '/images/devs/pia.png',
-    bio: 'carts carts lang',
   },
 ]
 
@@ -124,11 +124,17 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
+            <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-violet-700 to-blue-600 bg-clip-text text-transparent">
+							The team
+						</p>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-              Meet the Team
+              Meet the{' '}
+              <span className="bg-gradient-to-r from-violet-600 to-teal-500 bg-clip-text text-transparent">
+								Developers
+							</span>
             </h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
-              The developers behind Alwan—passionate about building for the Philippines.
+              The passionate developers behind Alwan.
             </p>
           </motion.div>
 
@@ -144,8 +150,8 @@ export default function AboutPage() {
               >
                 <TeamMemberImage src={dev.image} name={dev.name} />
                 <h3 className="text-xl font-bold text-slate-900 mt-6 mb-1">{dev.name}</h3>
-                <p className="text-slate-600 font-medium mb-4">{dev.role}</p>
-                <p className="text-slate-600 text-sm">{dev.bio}</p>
+                <p className="text-slate-500 font-medium text-sm mb-1">{dev.role}</p>
+                <p className="text-slate-500 font-medium text-sm mb-4">{dev.role1}</p>
               </motion.div>
             ))}
           </div>
