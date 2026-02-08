@@ -88,19 +88,18 @@ export default function HomePage() {
 								</MagneticButton>
 							</Link>
 							<Link href="#why-choose-alwan">
-								<MagneticButton
-									onClick={(e) => {
-										e.preventDefault()
-										document
-											.getElementById('why-choose-alwan')
-											?.scrollIntoView({ behavior: 'smooth' })
-									}}
-									className="w-full sm:w-auto px-6 py-4 font-medium rounded-xl border-2 border-white/40 text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg flex items-center gap-2"
-								>
-									<span className="text-white">Learn more</span>
-									<ChevronDown className="w-5 h-5" />
-								</MagneticButton>
-							</Link>
+                  <MagneticButton
+                      onClick={() => {
+                          document
+                              .getElementById('why-choose-alwan')
+                              ?.scrollIntoView({ behavior: 'smooth' })
+                      }}
+                      className="w-full sm:w-auto px-6 py-4 font-medium rounded-xl border-2 border-white/40 text-white hover:bg-white/10 transition-colors cursor-pointer shadow-lg flex items-center gap-2"
+                  >
+                      <span className="text-white">Learn more</span>
+                      <ChevronDown className="w-5 h-5 text-white" />
+                  </MagneticButton>
+              </Link>
 						</div>
 					</motion.div>
 
