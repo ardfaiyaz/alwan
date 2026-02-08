@@ -1,0 +1,146 @@
+'use client'
+
+/**
+ * Footer - Reusable site footer with product/company/legal links and auth CTA.
+ * White background; consistent teal/violet accent colors.
+ */
+
+import Link from 'next/link'
+import Image from 'next/image'
+import { motion } from 'framer-motion'
+import { MagneticButton } from '@/components/MagneticButton'
+
+const footerLinks = {
+  product: [
+    { href: '/services', label: 'Services' },
+    { href: '/faq', label: 'FAQ' },
+    { href: '#', label: 'Calculator' },
+    { href: '#', label: 'Contact' },
+  ],
+  company: [
+    { href: '/about', label: 'About Us' },
+    { href: '#', label: 'Careers' },
+    { href: '#', label: 'Blog' },
+    { href: '#', label: 'Press' },
+  ],
+  legal: [
+    { href: '#', label: 'Privacy Policy' },
+    { href: '#', label: 'Terms of Service' },
+    { href: '#', label: 'Data Protection' },
+  ],
+}
+
+export default function Footer() {
+  return (
+    <footer className="bg-white border-t border-slate-200 text-slate-600">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="col-span-2 md:col-span-1"
+          >
+            <Link href="/" className="inline-flex items-center gap-2 mb-4">
+              <Image src="/logo.svg" alt="Alwan" width={28} height={28} />
+              <span className="text-xl font-bold text-slate-900">Alwan</span>
+            </Link>
+            <p className="text-sm text-slate-500 max-w-xs">
+              Empowering Filipinos with accessible microfinance solutions. Your dreams, within reach.
+            </p>
+            <p className="mt-4 text-sm text-teal-600 font-medium">
+              Proudly Philippine-based
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <h3 className="font-semibold text-slate-900 mb-4">Product</h3>
+            <ul className="space-y-3">
+              {footerLinks.product.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-slate-500 hover:text-teal-600 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h3 className="font-semibold text-slate-900 mb-4">Company</h3>
+            <ul className="space-y-3">
+              {footerLinks.company.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-slate-500 hover:text-teal-600 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <h3 className="font-semibold text-slate-900 mb-4">Legal</h3>
+            <ul className="space-y-3">
+              {footerLinks.legal.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-slate-500 hover:text-teal-600 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="mt-16 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <p className="text-sm text-slate-400">
+            © {new Date().getFullYear()} Alwan. All rights reserved.
+          </p>
+          <div className="flex items-center gap-6">
+            <Link href="/login">
+              <MagneticButton className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
+                Log In
+              </MagneticButton>
+            </Link>
+            <Link href="/register">
+              <MagneticButton className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-500 to-violet-600 hover:opacity-90 rounded-lg transition-opacity cursor-pointer">
+                Get Started
+              </MagneticButton>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    </footer>
+  )
+}

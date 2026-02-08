@@ -1,0 +1,136 @@
+/* Global styles: Tailwind, CSS variables, scrollbar, typing cursor, speckled/login utilities */
+@import "tailwindcss";
+
+:root {
+  --background: #FAFAFA;
+  --foreground: #0f172a;
+  --primary-violet: #7C3AED;
+  --success-green: #10B981;
+  --bg-neutral: #FAFAFA;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Inter everywhere: all interactive and text elements inherit for iOS-like consistency */
+button,
+[role="button"],
+a,
+input,
+select,
+textarea,
+label {
+  font-family: inherit;
+}
+
+button,
+[role="button"],
+a[href] {
+  cursor: pointer;
+}
+
+input:not([readonly]):not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  cursor: text;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Typing animation cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.typing-cursor {
+  background-color: white;
+  animation: blink 1s infinite;
+}
+
+.typing-cursor-register {
+  background-color: #0f172a;
+  animation: blink 1s infinite;
+}
+
+/* Used by How it Works step cards on homepage */
+.speckled-bg {
+  background-color: #fef3c7;
+  background-image: radial-gradient(circle, #f59e0b 1px, transparent 1px),
+    radial-gradient(circle, #fbbf24 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+/* Login left panel subtle pattern */
+.login-panel-pattern {
+  background-image: radial-gradient(circle at 20% 80%, white 1px, transparent 1px),
+    radial-gradient(circle at 80% 20%, white 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.06;
+}
+
+/* Horizontal infinite scroll for logo strip (about page) */
+@keyframes logo-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.logo-scroll-track {
+  animation: logo-scroll 25s linear infinite;
+}
+
+/* Gradient underline for active nav link (teal → violet, matches hero) */
+.nav-link-gradient-underline {
+  position: relative;
+}
+.nav-link-gradient-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #14b8a6, #7c3aed);
+}
+
+/* Mobile CTA: curved white blob on the left (homepage) */
+.mobile-cta-blob {
+  border-radius: 0 0 60% 0;
+}
+
+/* Mobile CTA: mesh gradient blend (replaces white blob) */
+.mobile-cta-mesh {
+  background: radial-gradient(ellipse 80% 60% at 30% 50%, rgba(139, 92, 246, 0.4), transparent 50%),
+    radial-gradient(ellipse 50% 80% at 70% 50%, rgba(168, 85, 247, 0.3), transparent 50%);
+  opacity: 0.7;
+}
