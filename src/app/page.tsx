@@ -374,7 +374,7 @@ export default function HomePage() {
                   {/* DRAMATIC VISIBLE SHADOW */}
                   
                   {/* Phone frame */}
-                  <div className="relative w-full h-[760px] sm:h-[840px] lg:h-[960px] bg-slate-900 rounded-t-[2.5rem] sm:rounded-t-[2.7rem] border-x-[8px] sm:border-x-12 border-t-[8px] sm:border-t-12 ">
+                  <div className="relative w-full h-[760px] sm:h-[840px] lg:h-[960px] bg-slate-900 rounded-t-[2.5rem] sm:rounded-t-[2.7rem] border-x-[12px] sm:border-x-20 border-t-[12px] sm:border-t-20 ">
                     {/* Notch */}
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 sm:w-58 h-6 sm:h-11 bg-slate-900 rounded-b-2xl sm:rounded-b-3xl z-20 border-x-2 border-b-2 border-slate-600" />
                     
