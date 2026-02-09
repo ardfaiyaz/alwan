@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { MagneticButton } from '@/components/MagneticButton'
+import { Home, Briefcase, Info, HelpCircle } from 'lucide-react'
+
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -160,29 +162,41 @@ export default function Header() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`block py-2 px-4 rounded-lg font-medium ${
+                    className={`flex items-center gap-3 py-2 px-4 rounded-lg font-medium ${
                       pathname === link.href
                         ? 'text-slate-900 bg-slate-100'
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    {link.label}
+                    {link.href === '/' && <Home className="w-5 h-5" />}
+                    {link.href === '/services' && <Briefcase className="w-5 h-5" />}
+                    {link.href === '/about' && <Info className="w-5 h-5" />}
+                    {link.href === '/faq' && <HelpCircle className="w-5 h-5" />}
+                    <span>{link.label}</span>
                   </Link>
                 ))}
+
                 {!user && (
                   <div className="flex flex-col gap-2 pt-4 px-4">
                     <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                      <button type="button" className="w-full py-2.5 text-center font-medium text-slate-700 bg-slate-100 rounded-lg cursor-pointer">
+                      <button
+                        type="button"
+                        className="w-full py-2.5 text-center font-medium text-slate-700 bg-slate-100 rounded-lg cursor-pointer"
+                      >
                         Log In
                       </button>
                     </Link>
                     <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                      <button type="button" className="w-full py-2.5 text-center font-medium text-white bg-gradient-to-r from-teal-500 to-violet-600 rounded-lg cursor-pointer">
+                      <button
+                        type="button"
+                        className="w-full py-2.5 text-center font-medium text-white bg-gradient-to-r from-teal-500 to-violet-600 rounded-lg cursor-pointer"
+                      >
                         Get Started
                       </button>
                     </Link>
                   </div>
                 )}
+
                 {user && (
                   <button
                     type="button"
