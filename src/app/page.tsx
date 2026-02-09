@@ -368,7 +368,7 @@ export default function HomePage() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="relative flex items-end justify-center lg:justify-end h-full"
             >
-              <div className="relative w-[280px] sm:w-[340px] md:w-[380px] lg:w-[480px] xl:w-[520px]" style={{ height: '620px'}}>
+              <div className="relative w-[280px] sm:w-[340px] md:w-[380px] lg:w-[480px] xl:w-[520px] h-[440px] lg:h-[620px]">
                 {/* Phone mockup - only showing top 50% */}
                 <div className="absolute bottom-0 left-0 right-0 w-full h-full overflow-hidden">
                   {/* DRAMATIC VISIBLE SHADOW */}
