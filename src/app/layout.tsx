@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body className="font-sans font-medium antialiased">
         <Header />
-        <main className="min-h-screen pt-16 md:pt-20">
+        <main className="min-h-screen">
           {children}
         </main>
         <Footer />
