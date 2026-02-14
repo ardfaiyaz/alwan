@@ -1,7 +1,53 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# --- General & OS ---
+.DS_Store
+*.pem
+*.tsbuildinfo
+.vercel
 
-# dependencies
-/node_modules
+# --- Debug Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- Environment Files ---
+# Keeps keys and secrets out of GitHub for both web and mobile
+.env*
+.env*.local
+
+# --- Web (alwan-web) ---
+/alwan-web/node_modules
+/alwan-web/.next/
+/alwan-web/out/
+/alwan-web/build
+/alwan-web/coverage
+next-env.d.ts
+
+# --- Mobile (alwan-mobile) ---
+/alwan-mobile/node_modules
+/alwan-mobile/.expo/
+/alwan-mobile/dist/
+/alwan-mobile/web-build/
+/alwan-mobile/expo-env.d.ts
+/alwan-mobile/app-example
+
+# Generated Native Folders
+/alwan-mobile/ios
+/alwan-mobile/android
+
+# Native Keys & Sensitive Files
+/alwan-mobile/*.jks
+/alwan-mobile/*.p8
+/alwan-mobile/*.p12
+/alwan-mobile/*.key
+/alwan-mobile/*.mobileprovision
+/alwan-mobile/.kotlin/
+/alwan-mobile/*.orig.*
+
+# Metro & Misc
+/alwan-mobile/.metro-health-check*
+
+# --- Yarn/PnP Specifics ---
 /.pnp
 .pnp.*
 .yarn/*
@@ -9,33 +55,3 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
