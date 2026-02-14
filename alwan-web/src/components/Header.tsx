@@ -236,6 +236,7 @@ export default function Header() {
                     {isActive && (
                       <motion.span
                         layoutId="nav-active-pill"
+                        initial={false}
                         className="absolute inset-0 rounded-full nav-pill-active shadow-[0_0_12px_rgba(56,189,248,0.9),0_0_28px_rgba(20,184,166,0.8),0_0_48px_rgba(34,211,238,0.7)]"
                         transition={{ type: 'spring', stiffness: 440, damping: 36 }}
                         style={{ filter: 'saturate(1.4)' }}

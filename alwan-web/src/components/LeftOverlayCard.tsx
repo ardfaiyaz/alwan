@@ -43,10 +43,10 @@ export function LeftOverlayCard() {
   return (
     <motion.div
       initial={{ opacity: 0, x: -30 }}
-      animate={{ opacity: 1, x: 0, rotate: -8 }}
+      animate={{ opacity: 1, x: 0, rotate: 0 }}
       transition={{ duration: 0.3, delay: 0 }}
-      whileHover={{ scale: 1.05, rotate: -10 }}
-      className="relative"
+      whileHover={{ scale: 1.05, rotate: 0 }}
+      className="relative lg:rotate-[-8deg] lg:hover:rotate-[-10deg]"
     >
       {/* Card */}
       <div className="bg-white backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-2xl border border-teal-100 w-32 sm:w-36 lg:w-44">
@@ -61,8 +61,8 @@ export function LeftOverlayCard() {
 
 
           {/* Stats */}
-          <div className="gap-2 sm:gap-3">
-            <motion.span className="text-xl sm:text-xl lg:text-2xl font-bold">
+          <div className="gap-2 sm:gap-3 text-left">
+            <motion.span className="text-base sm:text-xl lg:text-2xl font-bold">
               {formattedAmount}
             </motion.span>
             <p className="text-[10px] sm:text-xs lg:text-sm text-slate-400 mt-1 lg:mt-2">Total Transaction</p>

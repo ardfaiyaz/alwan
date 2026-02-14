@@ -162,7 +162,7 @@ export default function HomePage() {
         className="relative h-screen overflow-hidden"
       >
         {/* Full-bleed background */}
-        <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#011f0f]">
+        <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06]">
           <div
             className="absolute inset-0 opacity-[0.28]"
             style={{
@@ -189,7 +189,7 @@ export default function HomePage() {
 
             {/* LEFT: copy - with left padding, vertically centered */}
             <div className="flex flex-col justify-center items-center lg:items-start space-y-5 sm:space-y-6 lg:space-y-8
-                            py-20 sm:py-24 lg:py-0 text-center lg:text-left"
+                            py-12 sm:py-16 lg:py-0 text-center lg:text-left"
               style={{ flexBasis: '60%' }}>
 
               {/* Badge */}
@@ -197,7 +197,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55 }}
-                className="lg:pl-36 xl:pl-40"
+                className="mt-8 lg:mt-0 lg:pl-36 xl:pl-40"
               >
                 <span
                   className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white/90"
@@ -218,7 +218,7 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.75, delay: 0.1 }}
                 className="font-extrabold text-white tracking-tight leading-[0.96] lg:pl-36 xl:pl-40
-                           text-[clamp(2.8rem,10vw,6rem)] sm:text-[clamp(3.2rem,9vw,6.5rem)] lg:text-[clamp(3rem,5.5vw,5.5rem)] xl:text-[clamp(3.5rem,5vw,6.5rem)]"
+                           text-[clamp(2.5rem,9vw,5.5rem)] sm:text-[clamp(2.8rem,8vw,6rem)] lg:text-[clamp(3rem,5.5vw,5.5rem)] xl:text-[clamp(3.5rem,5vw,6.5rem)]"
               >
                 Agarang Alwan
                 <br />
@@ -246,7 +246,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.75, delay: 0.22 }}
-                className="text-base sm:text-lg lg:text-xl xl:text-2xl text-white/70 leading-relaxed lg:pl-36 xl:pl-40"
+                className="text-base sm:text-lg lg:text-xl xl:text-2xl text-white/70 leading-relaxed px-4 lg:px-0 lg:pl-36 xl:pl-40"
               >
                 Fast, transparent microloans designed for Filipinos. Get approved in minutes, receive funds in hours.
               </motion.p>
@@ -307,6 +307,52 @@ export default function HomePage() {
                   <span className="text-white font-semibold">3,590+</span> members already funded
                 </p>
               </motion.div>
+
+              {/* Phone — mobile only, shows below trust strip */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.6 }}
+                className="lg:hidden relative w-full flex justify-center pt-2"
+              >
+                <div className="relative w-full max-w-[240px] sm:max-w-[280px] mx-auto">
+                  <div className="relative w-full">
+                    <div
+                      className="absolute inset-x-6 top-6 -z-10 h-3/4 blur-2xl opacity-35 rounded-full"
+                      style={{ background: 'linear-gradient(180deg, #009245, #005a2b)' }}
+                    />
+                    {/* Phone image - optimized size for mobile */}
+                    <Image
+                      src="/images/mockups/phone.png"
+                      alt="Alwan App"
+                      width={240}
+                      height={490}
+                      className="w-full h-auto relative z-10"
+                      style={{ filter: 'drop-shadow(0 15px 30px rgba(0, 0, 0, 0.5))' }}
+                      priority
+                    />
+                    {/* Show overlay cards on mobile, smaller scale */}
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.7, delay: 1.0 }}
+                      className="absolute z-20"
+                      style={{ top: '15%', left: '-12%', transform: 'scale(0.3)' }}
+                    >
+                      <LeftOverlayCard />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.7, delay: 1.2 }}
+                      className="absolute z-20"
+                      style={{ top: '45%', right: '-12%', transform: 'scale(0.3)' }}
+                    >
+                      <RightOverlayCard />
+                    </motion.div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
 
             {/* RIGHT: Phone — desktop only, aligned left, pinned to bottom */}
@@ -351,51 +397,6 @@ export default function HomePage() {
                 >
                   <RightOverlayCard />
                 </motion.div>
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Phone — mobile only, centered and responsive, shows below text */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="lg:hidden relative z-10 flex justify-center pb-12 px-4"
-        >
-          <div className="relative w-full max-w-[400px] mx-auto">
-            <div className="relative w-full">
-              <div
-                className="absolute inset-x-8 top-8 -z-10 h-3/4 blur-3xl opacity-40 rounded-full"
-                style={{ background: 'linear-gradient(180deg, #009245, #005a2b)' }}
-              />
-              {/* Phone image - full visible on mobile */}
-              <Image
-                src="/images/mockups/phone.png"
-                alt="Alwan App"
-                width={240}
-                height={490}
-                className="w-full h-auto relative z-10"
-                priority
-              />
-              {/* Show overlay cards on mobile, smaller scale */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, delay: 1.0 }}
-                className="absolute z-20"
-                style={{ top: '12%', left: '-18%', transform: 'scale(0.65)' }}
-              >
-                <LeftOverlayCard />
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.7, delay: 1.2 }}
-                className="absolute z-20"
-                style={{ top: '48%', right: '-18%', transform: 'scale(0.65)' }}
-              >
-                <RightOverlayCard />
               </motion.div>
             </div>
           </div>
