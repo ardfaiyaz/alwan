@@ -44,7 +44,7 @@ export function RightOverlayCard() {
       animate={{ opacity: 1, x: 0, rotate: 0 }}
       transition={{ duration: 0.3 }}
       whileHover={{ scale: 1.05, rotate: 0 }}
-      className="relative lg:rotate-[8deg] lg:hover:rotate-[10deg]"
+      className="relative lg:rotate-[8deg] lg:hover:rotate-[8deg]"
     >
       {/* Card */}
       <div className="bg-white backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-2xl border border-violet-100 w-32 sm:w-36 lg:w-44">

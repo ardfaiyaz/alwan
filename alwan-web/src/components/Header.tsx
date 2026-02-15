@@ -124,7 +124,6 @@ export default function Header() {
           color: rgba(10, 10, 10, 0.80);
           border-radius: 999px;
           cursor: pointer;
-          transition: all 0.18s ease;
           background: rgba(255, 255, 255, 0.28);
           border: 1.5px solid rgba(255, 255, 255, 0.60);
           backdrop-filter: blur(12px);
@@ -136,7 +135,6 @@ export default function Header() {
         .btn-login:hover {
           background: rgba(255, 255, 255, 0.50);
           color: #000;
-          transform: translateY(-1px);
           box-shadow:
             0 5px 18px rgba(0, 0, 0, 0.12),
             inset 0 1.5px 0 rgba(255, 255, 255, 0.95);
@@ -154,7 +152,6 @@ export default function Header() {
           color: rgba(10, 10, 10, 0.85);
           border-radius: 999px;
           cursor: pointer;
-          transition: all 0.18s ease;
           background: rgba(255, 255, 255, 1);
           border: 1.5px solid rgba(255, 255, 255, 0.9);
           backdrop-filter: blur(12px);
@@ -165,7 +162,6 @@ export default function Header() {
         }
         .btn-signup:hover {
           background: rgba(255, 255, 255, 0.85);
-          transform: translateY(-1px);
           box-shadow:
             0 5px 18px rgba(0, 0, 0, 0.16),
             inset 0 1.5px 0 rgba(255, 255, 255, 1);
@@ -192,18 +188,11 @@ export default function Header() {
           background: `
             linear-gradient(
               90deg,
-              #22d3ee 0%,
-              #14b8a6 35%,
-              #5eead4 70%,
-              #a7f3d0 100%
+              #ffffffff 0%,
+              #ffffffff 35%,
+              #ffffffff 70%,
+              #ffffffff 100%
             )
-          `,
-          borderTopRightRadius: '999px',
-          borderBottomRightRadius: '999px',
-          boxShadow: `
-            0 0 6px rgba(34, 211, 238, 0.8),
-            0 0 12px rgba(20, 184, 166, 0.6),
-            0 0 20px rgba(94, 234, 212, 0.4)
           `,
           transition: 'width 0.15s ease-out',
         }}
@@ -217,9 +206,8 @@ export default function Header() {
           <div className="flex items-center justify-between h-[52px] px-2 sm:px-4 lg:px-6">
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              <Image src="/logo.svg" alt="Alwan" width={26} height={26} />
-              <span className="text-[17px] font-extrabold text-slate-900 tracking-tight text-white">Alwan</span>
+            <Link href="/" className="flex items-center shrink-0 md:flex-none flex-1 md:justify-start justify-center md:order-none order-2">
+              <Image src="/icons/alwan-header-logo.png" alt="Alwan" width={120} height={32} className="h-8 w-auto" />
             </Link>
 
             {/* Center nav links — glass wraps ONLY this pill */}
@@ -259,7 +247,7 @@ export default function Header() {
             </div>
 
             {/* Auth buttons */}
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2 order-3">
               {!isLoading && (
                 <>
                   {user ? (
@@ -289,7 +277,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-1.5 rounded-xl text-slate-800 hover:bg-white/35 transition-colors cursor-pointer"
+              className="md:hidden p-1.5 rounded-xl text-white hover:bg-white/35 transition-colors cursor-pointer order-3"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait" initial={false}>

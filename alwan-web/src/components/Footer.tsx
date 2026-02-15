@@ -42,14 +42,13 @@ export default function Footer() {
             transition={{ duration: 0.5 }}
             className="col-span-2 md:col-span-1"
           >
-            <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <Image src="/logo.svg" alt="Alwan" width={28} height={28} />
-              <span className="text-xl font-bold text-slate-900">Alwan</span>
+            <Link href="/" className="inline-flex items-center mb-4">
+              <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={120} height={32} className="h-24 w-auto" />
             </Link>
             <p className="text-sm text-slate-500 max-w-xs">
               Empowering Filipinos with accessible microfinance solutions. Your dreams, within reach.
             </p>
-            <p className="mt-4 text-sm text-teal-600 font-medium">
+            <p className="mt-4 text-sm font-medium text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #4dd88f 0%, #009245 60%)' }}>
               Proudly Philippine-based
             </p>
           </motion.div>
@@ -134,7 +133,7 @@ export default function Footer() {
               </MagneticButton>
             </Link>
             <Link href="/register">
-              <MagneticButton className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-500 to-violet-600 hover:opacity-90 rounded-lg transition-opacity cursor-pointer">
+              <MagneticButton className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd88f] via-[#009245] to-[#007a3d] hover:opacity-90 rounded-lg transition-opacity cursor-pointer">
                 Get Started
               </MagneticButton>
             </Link>

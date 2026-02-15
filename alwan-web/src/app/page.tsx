@@ -77,7 +77,7 @@ export default function HomePage() {
   return (
     <>
       <style>{`
-        /* ── Hero buttons with improved styles ── */
+        /* ── Hero buttons with glass sliding effect ── */
         .hero-btn-primary {
           position: relative;
           display: inline-flex;
@@ -91,19 +91,32 @@ export default function HomePage() {
           border-radius: 2rem;
           overflow: hidden;
           cursor: pointer;
-          transition: all 0.3s ease-in-out;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           background: #ffffff;
           border: 2px solid rgba(255,255,255,0.95);
           box-shadow:
             0 4px 16px rgba(0,0,0,0.15),
             0 2px 4px rgba(0,0,0,0.1);
         }
+        .hero-btn-primary::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+          transition: left 0.5s ease;
+        }
+        .hero-btn-primary:hover::before {
+          left: 100%;
+        }
         .hero-btn-primary:hover {
-          transform: scale(1.02);
           box-shadow:
             0 8px 24px rgba(0,0,0,0.2),
             0 4px 8px rgba(0,0,0,0.15);
           background: #f9fafb;
+          border-color: rgba(255,255,255,1);
         }
         .hero-btn-primary span { position: relative; z-index: 1; }
 
@@ -120,12 +133,25 @@ export default function HomePage() {
           border-radius: 2rem;
           overflow: hidden;
           cursor: pointer;
-          transition: all 0.3s ease-in-out;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           background: rgba(255,255,255,0.08);
           border: 2px solid rgba(255,255,255,0.25);
           box-shadow: 0 2px 14px rgba(0,0,0,0.22);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
+        }
+        .hero-btn-ghost::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transition: left 0.5s ease;
+        }
+        .hero-btn-ghost:hover::before {
+          left: 100%;
         }
         .hero-btn-ghost::after {
           content: '';
@@ -140,7 +166,7 @@ export default function HomePage() {
         .hero-btn-ghost:hover {
           color: #fff;
           background: rgba(255,255,255,0.15);
-          border-color: rgba(255,255,255,0.35);
+          border-color: rgba(255,255,255,0.4);
           box-shadow: 0 6px 24px rgba(255,255,255,0.15);
         }
         .hero-btn-ghost span { position: relative; z-index: 1; }
@@ -259,25 +285,17 @@ export default function HomePage() {
                 className="flex flex-wrap gap-3 sm:gap-4 items-center justify-center lg:justify-start lg:pl-36 xl:pl-40"
               >
                 <Link href="/register">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="hero-btn-primary"
-                  >
+                  <button className="hero-btn-primary">
                     <span>Get Started</span>
-                  </motion.button>
+                  </button>
                 </Link>
                 <Link href="#how-it-works">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="hero-btn-ghost"
-                  >
+                  <button className="hero-btn-ghost">
                     <span className="flex items-center gap-2">
                       Learn More
                       <ChevronDown className="w-4 h-4" />
                     </span>
-                  </motion.button>
+                  </button>
                 </Link>
               </motion.div>
 
@@ -289,7 +307,7 @@ export default function HomePage() {
                 className="flex items-center gap-3 sm:gap-4 justify-center lg:justify-start lg:pl-36 xl:pl-40"
               >
                 <div className="flex -space-x-2">
-                  {['JP', 'MA', 'RC', '+'].map((label, i) => (
+                  {['NI', 'GG', 'AA', '+'].map((label, i) => (
                     <motion.div
                       key={i}
                       initial={{ scale: 0, rotate: -180 }}
@@ -380,7 +398,7 @@ export default function HomePage() {
                   priority
                 />
                 <motion.div
-                  initial={{ opacity: 0, x: -30, y: 10 }}
+                  initial={{ opacity: 0, x: 0, y: 0 }}
                   animate={{ opacity: 1, x: 0, y: 0 }}
                   transition={{ duration: 0.7, delay: 1.0 }}
                   className="absolute z-20"
@@ -389,7 +407,7 @@ export default function HomePage() {
                   <LeftOverlayCard />
                 </motion.div>
                 <motion.div
-                  initial={{ opacity: 0, x: 30, y: 10 }}
+                  initial={{ opacity: 0, x: 0, y: 0 }}
                   animate={{ opacity: 1, x: 0, y: 0 }}
                   transition={{ duration: 0.7, delay: 1.2 }}
                   className="absolute z-20"
