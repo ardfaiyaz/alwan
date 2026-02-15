@@ -17,7 +17,18 @@ const steps = [
 
 export default function RegisterPage() {
   return (
-    <section className="min-h-screen flex items-center py-12 lg:py-16 px-4 sm:px-6 bg-gradient-to-br from-slate-50 via-white to-emerald-50">
+    <section className="min-h-screen flex items-center py-12 lg:py-16 px-4 sm:px-6 bg-gradient-to-br from-slate-50 via-white to-emerald-50 relative">
+      {/* Back Button */}
+      <Link
+        href="/"
+        className="absolute top-6 left-6 lg:top-8 lg:left-8 inline-flex items-center gap-2 text-slate-500 hover:text-[#009245] transition-colors text-sm font-medium z-20"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Back to Website
+      </Link>
+
       <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
         {/* Left: title with typing, steps, download CTA */}
         <motion.div
@@ -42,7 +53,7 @@ export default function RegisterPage() {
                 transition={{ delay: 0.2 + i * 0.1 }}
                 className="flex gap-4 items-start"
               >
-                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-violet-100 text-violet-700 font-semibold flex items-center justify-center text-lg">
+                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-100 text-[#009245] font-semibold flex items-center justify-center text-lg">
                   {step.num}
                 </span>
                 <div>
@@ -55,11 +66,11 @@ export default function RegisterPage() {
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="#" className="w-full sm:flex-1">
-              <MagneticButton className="w-full py-3.5 bg-violet-600 text-white font-semibold rounded-xl shadow-lg shadow-violet-500/30 hover:bg-violet-700 transition-all font-sans">
+              <MagneticButton className="w-full py-3.5 bg-[#009245] text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 hover:bg-[#007a3d] transition-all font-sans">
                 Download the app
               </MagneticButton>
             </Link>
-            <Link href="/login" className="w-full sm:flex-1 flex items-center justify-center py-3.5 font-semibold rounded-xl border-2 border-slate-300 text-slate-700 hover:border-violet-500 hover:text-violet-600 transition-colors font-sans">
+            <Link href="/login" className="w-full sm:flex-1 flex items-center justify-center py-3.5 font-semibold rounded-xl border-2 border-slate-300 text-slate-700 hover:border-[#009245] hover:text-[#009245] transition-colors font-sans">
               I already have an account
             </Link>
           </div>
@@ -89,7 +100,7 @@ export default function RegisterPage() {
                 <div className="h-10 bg-white rounded-lg border border-slate-200" />
                 <div className="h-10 bg-white rounded-lg border border-slate-200" />
                 <div className="h-10 bg-white rounded-lg border border-slate-200" />
-                <div className="h-12 bg-violet-600 rounded-lg mt-6 shadow-lg shadow-violet-500/30 flex items-center justify-center">
+                <div className="h-12 bg-[#009245] rounded-lg mt-6 shadow-lg shadow-emerald-500/30 flex items-center justify-center">
                   <span className="text-white text-sm font-semibold font-sans">Sign up in the app</span>
                 </div>
                 <p className="text-xs text-slate-500 text-center pt-2 font-sans">Alwan app</p>

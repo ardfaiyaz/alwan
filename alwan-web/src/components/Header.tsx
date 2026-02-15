@@ -129,6 +129,27 @@ export default function Header() {
             0 2px 10px rgba(0, 0, 0, 0.09),
             inset 0 1.5px 0 rgba(255, 255, 255, 0.85);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: hidden;
+        }
+        .btn-login::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          transform: skewX(-25deg);
+          transition: none;
+        }
+        .btn-login:hover::after {
+          left: 150%;
+          transition: left 0.7s ease-in-out;
         }
         .btn-login:hover {
           background: rgba(255, 255, 255, 0.50);

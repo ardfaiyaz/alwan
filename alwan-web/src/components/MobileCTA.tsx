@@ -33,7 +33,7 @@ export default function MobileCTA() {
           />
         </div>
 
-        <div className="relative z-10 px-6 py-16 sm:px-10 sm:py-20 lg:px-16 lg:py-24 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-16">
+        <div className="relative z-10 px-6 py-12 sm:px-10 sm:py-16 lg:px-16 lg:py-20 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-8">
           {/* Left: headline, description, badge links (no white background) */}
           <motion.div
             initial={{ opacity: 0, x: -24 }}
@@ -87,15 +87,14 @@ export default function MobileCTA() {
               y: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
             }}
           >
-            <div className="relative w-full rounded-[2.5rem] border-4 border-white/10 shadow-[0_0_50px_rgba(77,216,143,0.25)] overflow-hidden bg-white/5 backdrop-blur-sm">
-              <div
-                className="absolute inset-x-8 top-12 -z-10 h-3/4 blur-2xl opacity-40 rounded-full"
-                style={{ background: 'linear-gradient(180deg, #009245, #005a2b)' }}
-              />
+            <div className="relative w-full flex justify-center">
+              {/* Light glowing background effect */}
+              <div className="absolute inset-0 bg-white/20 blur-[60px] rounded-full scale-90 -z-10" />
+
               <img
                 src="/images/mockups/phone.png"
                 alt="Alwan App Interface"
-                className="w-full h-auto relative z-10"
+                className="w-full h-auto drop-shadow-2xl relative z-10"
                 style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' }}
               />
             </div>
