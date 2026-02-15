@@ -12,43 +12,35 @@ import MobileCTA from '@/components/MobileCTA'
 const services = [
   {
     title: 'Kabalikat Loan Program',
-    description: 'The Kabalikat Loan Program helps existing micro businesses in its expansion and development by providing loans and empowering women micro entrepreneurs with below Php50,000 additional capital requirement.',
-    icon: '🤝'
+    description: 'The Kabalikat Loan Program helps existing micro businesses in its expansion and development by providing loans and empowering women micro entrepreneurs with below Php50,000 additional capital requirement.'
   },
   {
     title: 'Maunlad Loan Program',
-    description: 'The Maunlad Loan aims to further assist graduated program members from its Kabalikat Loan Program and as well as new member from the micro enterprise segment by providing additional working capital to expand and further develop their existing businesses.',
-    icon: '🚀'
+    description: 'The Maunlad Loan aims to further assist graduated program members from its Kabalikat Loan Program and as well as new member from the micro enterprise segment by providing additional working capital to expand and further develop their existing businesses.'
   },
   {
     title: 'Masagana Loan Program',
-    description: 'The Masagana Loan of KMBI exists to aid and develop the agricultural sector of the country by providing loans that will serve as working capital for farming or within the agricultural allied sector.',
-    icon: '🌾'
+    description: 'The Masagana Loan of KMBI exists to aid and develop the agricultural sector of the country by providing loans that will serve as working capital for farming or within the agricultural allied sector.'
   },
   {
     title: 'K-Flex Loan Program',
-    description: 'The K-Flex Loan is a seasonal loan program that addresses the needs of the clients for additional capitalization for their existing business or new business opportunities, and thus ensuring capital accessibility.',
-    icon: '⚡'
+    description: 'The K-Flex Loan is a seasonal loan program that addresses the needs of the clients for additional capitalization for their existing business or new business opportunities, and thus ensuring capital accessibility.'
   },
   {
     title: 'K-Agapay Loan Program',
-    description: 'The K-Agapay Loan is an add-on loan extended to qualified clients intended to fulfill the liquidity requirements of their business in case of unexpected and urgent events.',
-    icon: '🛡️'
+    description: 'The K-Agapay Loan is an add-on loan extended to qualified clients intended to fulfill the liquidity requirements of their business in case of unexpected and urgent events.'
   },
   {
     title: 'K-Silong Loan Program',
-    description: 'The K-Silong Loan is an add-on loan program that provides clients access to affordable financing solutions to enhance their business facilities.',
-    icon: '🏠'
+    description: 'The K-Silong Loan is an add-on loan program that provides clients access to affordable financing solutions to enhance their business facilities.'
   },
   {
     title: 'Micro-Insurance',
-    description: 'Micro-insurance is an add-on service given to the program members of the organization. Along with the Group Loan and Capital Build-Up, all clients aged 18 to 63 years of old are required to enrol in this program to be protected in cases of death in the family. Offered under this service are death insurance and burial benefits.',
-    icon: '☂️'
+    description: 'Micro-insurance is an add-on service given to the program members of the organization. Along with the Group Loan and Capital Build-Up, all clients aged 18 to 63 years of old are required to enrol in this program to be protected in cases of death in the family. Offered under this service are death insurance and burial benefits.'
   },
   {
     title: 'Capital Build Up (CBU)',
-    description: 'Capital Build-Up is an opportunity for program members to begin accumulating their own financial resources and lessen their vulnerability to crisis and dependence on outside credit sources. It is also a reserve fund that a member may use as additional capital for the existing business, or capital for a new business when she retires from the program.',
-    icon: '💰'
+    description: 'Capital Build-Up is an opportunity for program members to begin accumulating their own financial resources and lessen their vulnerability to crisis and dependence on outside credit sources. It is also a reserve fund that a member may use as additional capital for the existing business, or capital for a new business when she retires from the program.'
   },
 ]
 
