@@ -112,7 +112,7 @@ export default function PaymentScreen() {
         <View className="px-6 mb-8">
           <TouchableOpacity
             className="bg-[#047857] py-4 rounded-full items-center justify-center shadow-lg"
-            onPress={() => Alert.alert('Repayment', 'Submit weekly amortization?')}
+            onPress={() => router.push('/payment/repayment')}
           >
             <Text className="text-white font-bold text-lg">Submit Repayment</Text>
           </TouchableOpacity>
@@ -122,7 +122,7 @@ export default function PaymentScreen() {
         <View className="px-6 pb-12">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-gray-800 text-lg font-bold">Repayment History</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/profile/ledger')}>
               <Text className="text-[#047857] text-sm font-bold">Full Statement</Text>
             </TouchableOpacity>
           </View>

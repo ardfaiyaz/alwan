@@ -18,16 +18,16 @@ export default function AccountScreen() {
     {
       title: 'Financial & Records',
       items: [
-        { id: 'loans', name: 'Loan Documents', icon: 'document-text-outline', color: '#047857', route: null },
-        { id: 'ledger', name: 'Payment Ledger', icon: 'list-outline', color: '#047857', route: null },
+        { id: 'loans', name: 'Loan Documents', icon: 'document-text-outline', color: '#047857', route: '/loans/active-loans' },
+        { id: 'ledger', name: 'Payment Ledger', icon: 'list-outline', color: '#047857', route: '/profile/ledger' },
       ]
     },
     {
       title: 'Support & Center',
       items: [
-        { id: 'center', name: 'Center Leader Portal', icon: 'megaphone-outline', color: '#047857', route: null },
+        { id: 'center', name: 'Center Leader Portal', icon: 'megaphone-outline', color: '#047857', route: '/profile/ledger' },
         { id: 'policies', name: 'KMBI Policies', icon: 'book-outline', color: '#047857', route: '/profile/terms' },
-        { id: 'help', name: 'Help Center', icon: 'help-circle-outline', color: '#047857', route: null },
+        { id: 'help', name: 'Help Center', icon: 'help-circle-outline', color: '#047857', route: '/support/help' },
       ]
     }
   ];

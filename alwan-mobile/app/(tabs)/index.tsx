@@ -14,14 +14,14 @@ export default function HomeScreen() {
   };
 
   const services = [
-    { id: 'repay', name: 'Repayment', icon: 'send', color: '#047857', label: 'Repay' },
-    { id: 'cbu', name: 'CBU', icon: 'wallet', color: '#047857', label: 'CBU' },
-    { id: 'insure', name: 'MBS', icon: 'shield-checkmark', color: '#047857', label: 'MBS' },
-    { id: 'loans', name: 'Loans', icon: 'cash', color: '#047857', label: 'Loans' },
-    { id: 'center', name: 'Center', icon: 'people', color: '#047857', label: '' },
-    { id: 'finlit', name: 'Edu', icon: 'school', color: '#047857', label: '' },
-    { id: 'rewards', name: 'Rewards', icon: 'gift', color: '#047857', label: '' },
-    { id: 'more', name: 'More', icon: 'grid', color: '#047857', label: '' },
+    { id: 'repay', name: 'Repayment', icon: 'send', color: '#047857', label: 'Repay', route: '/payment/repayment' },
+    { id: 'cbu', name: 'CBU', icon: 'wallet', color: '#047857', label: 'CBU', route: '/accounts/cbu' },
+    { id: 'insure', name: 'MBS', icon: 'shield-checkmark', color: '#047857', label: 'MBS', route: '/discover' },
+    { id: 'loans', name: 'Loans', icon: 'cash', color: '#047857', label: 'Loans', route: '/loans/active-loans' },
+    { id: 'center', name: 'Center', icon: 'people', color: '#047857', label: '', route: '/discover' },
+    { id: 'finlit', name: 'Edu', icon: 'school', color: '#047857', label: '', route: '/discover' },
+    { id: 'rewards', name: 'Rewards', icon: 'gift', color: '#047857', label: '', route: '/discover' },
+    { id: 'more', name: 'More', icon: 'grid', color: '#047857', label: '', route: '/discover' },
   ];
 
   return (
@@ -70,7 +70,10 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View className="h-px bg-gray-100 my-4" />
-          <TouchableOpacity className="flex-row items-center justify-between">
+          <TouchableOpacity
+            className="flex-row items-center justify-between"
+            onPress={() => router.push('/accounts/cbu')}
+          >
             <View className="flex-row items-center">
               <View className="w-8 h-8 bg-emerald-50 rounded-full items-center justify-center mr-2">
                 <Ionicons name="add" size={20} color="#F97316" />
@@ -90,7 +93,7 @@ export default function HomeScreen() {
               key={service.id}
               className="items-center mb-6"
               style={{ width: '22%' }}
-              onPress={() => Alert.alert(service.name, `${service.name} service coming soon`)}
+              onPress={() => router.push(service.route as any)}
             >
               <View className="w-14 h-14 bg-white border border-emerald-50 rounded-full items-center justify-center shadow-sm mb-2">
                 <Ionicons name={service.icon as any} size={28} color={service.color} />
@@ -112,7 +115,10 @@ export default function HomeScreen() {
               <View className="flex-1">
                 <Text className="text-white text-lg font-bold">Kabalikat Loan</Text>
                 <Text className="text-white/80 text-xs mt-1">Empowering your small business</Text>
-                <TouchableOpacity className="bg-[#F97316] px-4 py-2 rounded-full mt-4 self-start shadow-sm">
+                <TouchableOpacity
+                  className="bg-[#F97316] px-4 py-2 rounded-full mt-4 self-start shadow-sm"
+                  onPress={() => router.push('/loans/active-loans')}
+                >
                   <Text className="text-white text-xs font-bold uppercase">Apply Now</Text>
                 </TouchableOpacity>
               </View>
@@ -171,7 +177,7 @@ export default function HomeScreen() {
             </View>
             <TouchableOpacity
               className="bg-[#047857] py-3 rounded-xl items-center justify-center shadow-sm"
-              onPress={() => Alert.alert('Pay', 'Confirm payment for Week 4?')}
+              onPress={() => router.push('/payment/repayment')}
             >
               <Text className="text-white font-bold">Submit Repayment</Text>
             </TouchableOpacity>
