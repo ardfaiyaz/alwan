@@ -11,10 +11,10 @@ export default function DiscoverScreen() {
     {
       title: 'Financial Services',
       items: [
-        { id: 'kabalikat', name: 'Kabalikat', icon: 'people', color: '#047857' },
-        { id: 'individual', name: 'Individual', icon: 'person', color: '#047857' },
-        { id: 'insure', name: 'MBS', icon: 'shield-checkmark', color: '#047857' },
-        { id: 'save', name: 'CBU', icon: 'wallet', color: '#047857' },
+        { id: 'kabalikat', name: 'Kabalikat', icon: 'people', color: '#047857', route: '/loans/active-loans' },
+        { id: 'individual', name: 'Individual', icon: 'person', color: '#047857', route: '/loans/active-loans' },
+        { id: 'insure', name: 'MBS', icon: 'shield-checkmark', color: '#047857', route: '/discover' },
+        { id: 'save', name: 'CBU', icon: 'wallet', color: '#047857', route: '/accounts/cbu' },
       ]
     },
     {
@@ -65,7 +65,7 @@ export default function DiscoverScreen() {
                   key={item.id}
                   className="items-center mb-6"
                   style={{ width: '22%' }}
-                  onPress={() => Alert.alert(item.name, `${item.name} details coming soon`)}
+                  onPress={() => item.route && router.push(item.route as any)}
                 >
                   <View className="w-14 h-14 bg-white border border-emerald-50 rounded-full items-center justify-center shadow-sm mb-2">
                     <Ionicons name={item.icon as any} size={28} color={item.color} />
