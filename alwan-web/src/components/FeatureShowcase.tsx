@@ -86,19 +86,6 @@ export default function FeatureShowcase() {
                                             <h3 className={`text-2xl font-bold mb-2 transition-colors duration-400 ${isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-500'}`}>
                                                 {feature.title}
                                             </h3>
-                                            <AnimatePresence initial={false}>
-                                                {isActive && (
-                                                    <motion.p
-                                                        initial={{ opacity: 0, height: 0 }}
-                                                        animate={{ opacity: 1, height: 'auto' }}
-                                                        exit={{ opacity: 0, height: 0 }}
-                                                        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                                                        className="text-slate-600 leading-relaxed overflow-hidden text-lg"
-                                                    >
-                                                        {feature.description}
-                                                    </motion.p>
-                                                )}
-                                            </AnimatePresence>
                                         </div>
                                     </div>
                                 </motion.div>

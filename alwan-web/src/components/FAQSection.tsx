@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Minus, Sparkles } from 'lucide-react'
+import { Plus, Minus } from 'lucide-react'
 
 const faqs = [
     {
@@ -73,13 +73,8 @@ export default function FAQSection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        animate={{
-                            boxShadow: ["0 0 15px rgba(0,146,69,0.3)", "0 0 25px rgba(0,146,69,0.6)", "0 0 15px rgba(0,146,69,0.3)"]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-emerald-500/20 border border-emerald-400/50 backdrop-blur-sm mb-6"
                     >
-                        <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
                         We're here to help
                     </motion.div>
 
