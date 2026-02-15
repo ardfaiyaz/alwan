@@ -47,7 +47,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex">
+    <div className="min-h-screen flex">
       {/* Left: branded panel - dark blue with subtle pattern */}
       <motion.div
         initial={{ opacity: 0 }}

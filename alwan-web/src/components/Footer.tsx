@@ -6,6 +6,7 @@
  */
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { MagneticButton } from '@/components/MagneticButton'
@@ -31,6 +32,10 @@ const footerLinks = {
 }
 
 export default function Footer() {
+  const pathname = usePathname()
+
+  if (pathname === '/login' || pathname === '/register') return null
+
   return (
     <footer className="bg-white border-t border-slate-200 text-slate-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

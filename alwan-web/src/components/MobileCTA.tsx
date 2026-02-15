@@ -13,7 +13,7 @@ const APP_STORE_BADGE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/
 
 export default function MobileCTA() {
   return (
-    <section className="py-12 sm:py-16 lg:py-20">
+    <section className="py-8 sm:py-10 lg:py-12">
       <div className="mx-4 sm:mx-6 lg:mx-8 relative rounded-[2.5rem] overflow-hidden shadow-2xl">
         <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06] pointer-events-none">
           <div

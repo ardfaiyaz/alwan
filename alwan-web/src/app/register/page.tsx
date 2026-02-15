@@ -17,7 +17,7 @@ const steps = [
 
 export default function RegisterPage() {
   return (
-    <section className="min-h-[calc(100vh-4rem)] flex items-center py-12 lg:py-16 px-4 sm:px-6 bg-[#FAFAFA]">
+    <section className="min-h-screen flex items-center py-12 lg:py-16 px-4 sm:px-6 bg-gradient-to-br from-slate-50 via-white to-emerald-50">
       <div className="max-w-6xl mx-auto w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
         {/* Left: title with typing, steps, download CTA */}
         <motion.div

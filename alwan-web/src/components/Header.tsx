@@ -59,6 +59,8 @@ export default function Header() {
     setIsMenuOpen(false)
   }
 
+  if (pathname === '/login' || pathname === '/register') return null
+
   return (
     <>
       <style>{`
@@ -126,6 +128,7 @@ export default function Header() {
           box-shadow:
             0 2px 10px rgba(0, 0, 0, 0.09),
             inset 0 1.5px 0 rgba(255, 255, 255, 0.85);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-login:hover {
           background: rgba(255, 255, 255, 0.50);
@@ -133,6 +136,7 @@ export default function Header() {
           box-shadow:
             0 5px 18px rgba(0, 0, 0, 0.12),
             inset 0 1.5px 0 rgba(255, 255, 255, 0.95);
+          transform: translateY(-1px);
         }
 
         /* ── Get Started — glass pill with prominent white background ── */
@@ -154,12 +158,14 @@ export default function Header() {
           box-shadow:
             0 2px 10px rgba(0, 0, 0, 0.12),
             inset 0 1.5px 0 rgba(255, 255, 255, 0.95);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-signup:hover {
           background: rgba(255, 255, 255, 0.85);
           box-shadow:
             0 5px 18px rgba(0, 0, 0, 0.16),
             inset 0 1.5px 0 rgba(255, 255, 255, 1);
+          transform: translateY(-1px);
         }
         .btn-signup span { position: relative; z-index: 1; }
 
@@ -213,7 +219,7 @@ export default function Header() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`nav-link-item relative px-4 py-[7px] rounded-full text-sm font-semibold select-none ${isActive ? 'text-white is-active' : 'text-slate-700'
+                    className={`nav-link-item relative px-4 py-[7px] rounded-full text-sm font-semibold select-none ${isActive ? 'text-neutral-900 is-active' : 'text-slate-700'
                       }`}
                   >
                     {isActive && (

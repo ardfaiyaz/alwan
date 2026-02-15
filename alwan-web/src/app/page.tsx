@@ -218,7 +218,25 @@ export default function HomePage() {
                             py-12 sm:py-16 lg:py-0 text-center lg:text-left"
               style={{ flexBasis: '60%' }}>
 
-
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55 }}
+                className="mt-8 lg:mt-0 lg:pl-36 xl:pl-40"
+              >
+                <span
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white/90"
+                  style={{
+                    background: 'rgba(255,255,255,0.10)',
+                    border: '1px solid rgba(255,255,255,0.18)',
+                    backdropFilter: 'blur(8px)',
+                  }}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#FFD700] shrink-0" />
+                  Best Capstone Website Designed in NU Dasmarinas
+                </span>
+              </motion.div>
 
               {/* Heading — maximized */}
               <motion.h1
