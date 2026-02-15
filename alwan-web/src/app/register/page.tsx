@@ -37,7 +37,16 @@ export default function RegisterPage() {
           transition={{ duration: 0.5 }}
           className="flex-1 w-full max-w-lg font-sans"
         >
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+          {/* Mobile-visible Logo (hidden on lg) */}
+          <div className="lg:hidden mb-8">
+            <img
+              src="/icons/alwan-logo-colored.png"
+              alt="Alwan Logo"
+              className="w-32 h-auto"
+            />
+          </div>
+
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent pb-1">
             <TypingAnimation variant="register" />
           </h1>
           <p className="text-slate-600 text-lg mb-8">

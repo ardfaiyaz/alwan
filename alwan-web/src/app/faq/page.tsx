@@ -71,20 +71,41 @@ export default function FAQPage() {
 
   return (
     <>
-      {/* Hero: gentle gradient (same vibe as homepage, softer) */}
+      {/* Hero: matching homepage gradient with grain effect */}
       <section className="relative py-20 lg:py-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/90 via-violet-600/95 to-indigo-700/95" />
+        {/* Full-bleed background with gradient and grain */}
+        <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06]">
+          <div
+            className="absolute inset-0 opacity-[0.28]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'repeat',
+            }}
+          />
+          <div
+            className="absolute right-0 top-0 h-full w-1/2 opacity-30"
+            style={{ background: 'radial-gradient(ellipse 60% 70% at 70% 40%, rgba(0,146,69,0.5) 0%, transparent 70%)' }}
+          />
+          <div
+            className="absolute left-0 bottom-0 h-2/3 w-1/2 opacity-40"
+            style={{ background: 'radial-gradient(ellipse 80% 60% at 0% 100%, rgba(0,0,0,0.8) 0%, transparent 70%)' }}
+          />
+        </div>
+
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <p className="text-white/80 font-medium uppercase tracking-widest text-sm mb-4">
+            <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#4dd88f] to-white bg-clip-text text-transparent">
               Help Center
             </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Frequently Asked Questions
+              Frequently Asked{' '}
+              <span className="bg-gradient-to-r from-[#4dd88f] to-white bg-clip-text text-transparent">
+                Questions
+              </span>
             </h1>
             <p className="text-lg text-white/95 max-w-2xl mx-auto">
               Find answers to common questions about Alwan, loans, savings, and support.
@@ -94,21 +115,20 @@ export default function FAQPage() {
       </section>
 
       {/* Filter pills */}
-      <section className="py-8 bg-[#faf9fc] border-b border-slate-100 sticky top-16 md:top-20 z-20">
+      <section className="py-8 bg-[#faf9fc] border-b border-slate-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             {filters.map((f) => (
               <motion.button
                 key={f.id}
                 type="button"
                 onClick={() => setActiveFilter(f.id)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  activeFilter === f.id
-                    ? 'bg-violet-100 text-violet-800 border border-violet-200'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:border-violet-200 hover:text-violet-700'
-                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeFilter === f.id
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-md'
+                  : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-200 hover:text-emerald-700 hover:shadow-sm'
+                  }`}
               >
                 {f.label}
               </motion.button>
@@ -129,12 +149,13 @@ export default function FAQPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.3, delay: catIndex * 0.05 }}
-                  className={`rounded-2xl border border-slate-200/80 overflow-hidden bg-white/80 shadow-sm hover:shadow-md transition-shadow ${bentoSpan(catIndex, filteredCategories.length)}`}
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  className={`rounded-2xl border border-slate-200/80 overflow-hidden bg-white shadow-md hover:shadow-xl transition-all duration-300 ${bentoSpan(catIndex, filteredCategories.length)}`}
                 >
-                  <div className="px-5 py-4 bg-gradient-to-r from-violet-50 to-teal-50/50 border-b border-slate-100">
-                    <h2 className="text-base font-semibold text-slate-800">{category.title}</h2>
+                  <div className="px-5 py-4 bg-gradient-to-r from-emerald-50 to-teal-50/50 border-b border-slate-100">
+                    <h2 className="text-base md:text-lg font-semibold text-slate-800">{category.title}</h2>
                   </div>
-                  <div className="p-4 space-y-2">
+                  <div className="p-4 sm:p-5 space-y-2 sm:space-y-3">
                     {category.questions.map((faq, qIndex) => (
                       <FAQItem key={qIndex} question={faq.q} answer={faq.a} />
                     ))}
@@ -158,7 +179,7 @@ export default function FAQPage() {
           <p className="text-slate-600 mb-6">We&apos;re here to help. Reach out anytime.</p>
           <Link
             href="#"
-            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-white font-medium bg-gradient-to-r from-violet-500 to-teal-500 hover:opacity-90 transition-opacity text-sm"
+            className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-white font-medium bg-gradient-to-r from-[#009245] to-[#4dd88f] hover:opacity-90 transition-opacity text-sm"
           >
             Contact Support
           </Link>
@@ -176,28 +197,34 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   return (
     <motion.div
       layout
-      className="rounded-xl border border-slate-100 overflow-hidden bg-slate-50/60"
+      className="rounded-xl border border-slate-100 overflow-hidden bg-slate-50/60 hover:bg-slate-50 transition-colors duration-200"
     >
-      <button
+      <motion.button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 text-left flex items-center justify-between gap-3 hover:bg-slate-100/70 transition-colors cursor-pointer"
+        whileHover={{ backgroundColor: 'rgba(241, 245, 249, 0.9)' }}
+        whileTap={{ scale: 0.98 }}
+        className="w-full px-4 py-3 sm:py-4 text-left flex items-center justify-between gap-3 transition-colors cursor-pointer"
       >
-        <span className="font-medium text-slate-700 text-sm">{question}</span>
-        <span className="shrink-0 w-7 h-7 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center text-sm leading-none">
-          {isOpen ? '−' : '+'}
-        </span>
-      </button>
+        <span className="font-medium text-slate-700 text-sm sm:text-base">{question}</span>
+        <motion.span
+          animate={{ rotate: isOpen ? 45 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-base sm:text-lg leading-none font-bold"
+        >
+          +
+        </motion.span>
+      </motion.button>
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <p className="px-4 pb-3 text-slate-600 text-sm leading-relaxed border-t border-slate-100 pt-2">
+            <p className="px-4 pb-4 sm:pb-5 text-slate-600 text-sm sm:text-base leading-relaxed border-t border-slate-100 pt-3 sm:pt-4">
               {answer}
             </p>
           </motion.div>

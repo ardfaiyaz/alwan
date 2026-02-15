@@ -46,16 +46,15 @@ export default function FeatureShowcase() {
                     viewport={{ once: true }}
                     className="text-center mb-10 sm:mb-14"
                 >
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#009245] to-[#007a3d] shadow-[0_4px_14px_rgba(0,146,69,0.4)] mb-6"
-                    >
+                    <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
                         Innovation
-                    </motion.div>
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-6 font-display">
-                        The Future of Finance is Here
+                    </p>
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                        The{' '}
+                        <span className="bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
+                            Future{' '}
+                        </span>
+                        of Finance is Here
                     </h2>
                     <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
                         Experience a completely new way to manage your money with Alwan's cutting-edge features.

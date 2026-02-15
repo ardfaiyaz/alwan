@@ -69,14 +69,9 @@ export default function FAQSection() {
 
             <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-emerald-500/20 border border-emerald-400/50 backdrop-blur-sm mb-6"
-                    >
+                    <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#4dd88f] to-white bg-clip-text text-transparent">
                         We're here to help
-                    </motion.div>
+                    </p>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -87,15 +82,6 @@ export default function FAQSection() {
                     >
                         Frequently Asked Questions
                     </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                        className="text-lg text-white opacity-70"
-                    >
-                        Everything you need to know about getting funded with Alwan
-                    </motion.p>
                 </div>
 
                 <div className="space-y-4">
