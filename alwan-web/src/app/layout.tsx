@@ -14,7 +14,13 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Alwan | Microfinance for Every Filipino",
-  description: "Empowering Filipinos with accessible microfinance solutions. Loans, savings, and financial services designed for you.",
+  description:
+    "Empowering Filipinos with accessible microfinance solutions. Loans, savings, and financial services designed for you.",
+  icons: {
+    icon: "/icons/alwan-logo-colored.png",
+    shortcut: "/icons/alwan-logo-colored.png",
+    apple: "/icons/alwan-logo-colored.png",
+  },
 };
 
 export default function RootLayout({
@@ -24,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="font-sans font-medium antialiased">
+      <body className="font-sans font-medium antialiased overflow-x-hidden">
         <Header />
         <main className="min-h-screen">
           {children}

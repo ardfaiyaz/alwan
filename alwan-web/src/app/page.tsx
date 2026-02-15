@@ -2,50 +2,52 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { MagneticButton } from '@/components/MagneticButton'
 import MobileCTA from '@/components/MobileCTA'
-import { ChevronDown, Sparkles } from 'lucide-react'
+import { ChevronDown, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { LeftOverlayCard } from '@/components/LeftOverlayCard'
 import { RightOverlayCard } from '@/components/RightOverlayCard'
+import FeatureShowcase from '@/components/FeatureShowcase'
+import FAQSection from '@/components/FAQSection'
 
 const coreValues = [
   {
     title: 'Accessible',
     description:
       'We believe every Filipino deserves access to financial services. No complex requirements, no hidden fees—just straightforward solutions that work for you.',
-    image: '/images/values-accessible.jpg',
+    image: '/images/values/accessible.png',
   },
   {
     title: 'Transparent',
     description:
       'Clear terms, honest rates, and full disclosure. We build trust through transparency in every transaction. What you see is what you get.',
-    image: '/images/values-transparent.jpg',
+    image: '/images/values/transparent.png',
   },
   {
     title: 'Community-First',
     description:
       'Rooted in Philippine values of bayanihan. We grow together with our communities across the islands. Your success is our success.',
-    image: '/images/values-community.jpg',
+    image: '/images/values/community-first.png',
   },
 ]
 
 const howItWorksSteps = [
   {
-    num: '01',
+    num: 'Step 1',
     title: 'Fill Application',
     desc: 'Complete our quick online form in under 5 minutes',
     color: 'from-[#009245] to-[#007a3d]',
   },
   {
-    num: '02',
+    num: 'Step 2',
     title: 'Get Approved',
     desc: 'Receive instant approval decision from our AI system',
     color: 'from-[#00a84f] to-[#009245]',
   },
   {
-    num: '03',
+    num: 'Step 3',
     title: 'Receive Funds',
     desc: 'Money transferred directly to your account within hours',
     color: 'from-[#4dd88f] to-[#009245]',
@@ -59,6 +61,17 @@ export default function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null)
   const videoSectionRef = useRef<HTMLDivElement>(null)
   const [currentWord, setCurrentWord] = useState(0)
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
+
+  const demoVideos = [
+    { id: 'F6b62ngcRzc', title: 'Alwan Introduction' },
+    { id: '3JJmMVhuuc0', title: 'Mobile App Features' },
+    { id: 'eLu9v3ZCZ5s', title: 'Fast Approval Process' },
+    { id: '8mouV1XgCt0', title: 'Digital Financial Freedom' }
+  ]
+
+  const nextVideo = () => setCurrentVideoIndex((prev) => (prev + 1) % demoVideos.length)
+  const prevVideo = () => setCurrentVideoIndex((prev) => (prev - 1 + demoVideos.length) % demoVideos.length)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -180,6 +193,133 @@ export default function HomePage() {
         .animate-float {
           animation: float 3s ease-in-out infinite;
         }
+
+        /* ── Glass CTA Button (adapted from Header Login) ── */
+        .cta-btn-glass {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          /* padding handled by utility classes */
+          font-weight: 600;
+          color: #0f172a; /* slate-900 */
+          border-radius: 999px;
+          cursor: pointer;
+          background: rgba(255, 255, 255, 0.8);
+          border: 1.5px solid rgba(226, 232, 240, 0.8); /* slate-200 */
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          box-shadow: 
+            0 4px 6px -1px rgba(0, 0, 0, 0.05),
+            0 2px 4px -1px rgba(0, 0, 0, 0.03);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: hidden;
+        }
+        .cta-btn-glass::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.6) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          transform: skewX(-25deg);
+          transition: none;
+        }
+        .cta-btn-glass:hover::after {
+          left: 150%;
+          transition: left 0.7s ease-in-out;
+        }
+        .cta-btn-glass:hover {
+          background: #ffffff;
+          border-color: #cbd5e1; /* slate-300 */
+          box-shadow:
+            0 10px 15px -3px rgba(0, 0, 0, 0.1),
+            0 4px 6px -2px rgba(0, 0, 0, 0.05);
+          transform: translateY(-1px);
+        }
+
+        /* ── How It Works Glass Button ── */
+        .how-btn-glass {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          background: #009245;
+          color: white;
+          font-weight: 700;
+          border-radius: 999px;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 14px rgba(0, 146, 69, 0.4);
+        }
+        .how-btn-glass::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transform: skewX(-25deg);
+          transition: none;
+        }
+        .how-btn-glass:hover::before {
+          left: 150%;
+          transition: left 0.7s ease-in-out;
+        }
+        .how-btn-glass:hover {
+          background: #007a3d;
+          box-shadow: 0 8px 24px rgba(0, 122, 61, 0.5);
+          transform: translateY(-2px);
+        }
+
+        /* ── Ghost Button for Light Backgrounds ── */
+        .btn-ghost-dark {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 0.9rem 2rem;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #1e293b; /* slate-800 */
+          border-radius: 999px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          background: transparent;
+          border: 2px solid #e2e8f0; /* slate-200 */
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+        }
+        .btn-ghost-dark::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(0,146,69,0.1), transparent);
+          transition: left 0.5s ease;
+        }
+        .btn-ghost-dark:hover::before {
+          left: 100%;
+        }
+        .btn-ghost-dark:hover {
+          color: #009245;
+          background: #f8fafc;
+          border-color: #009245;
+          box-shadow: 0 4px 14px rgba(0, 146, 69, 0.1);
+        }
+        .btn-ghost-dark span { position: relative; z-index: 1; }
+
       `}</style>
 
       {/* ═══════════════════ HERO ═══════════════════ */}
@@ -233,7 +373,6 @@ export default function HomePage() {
                     backdropFilter: 'blur(8px)',
                   }}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#FFD700] shrink-0" />
                   Best Capstone Website Designed in NU Dasmarinas
                 </span>
               </motion.div>
@@ -433,6 +572,9 @@ export default function HomePage() {
         </motion.div>
       </section>
 
+      {/* ═══════════════════ FEATURE SHOWCASE ═══════════════════ */}
+      <FeatureShowcase />
+
       {/* ═══════════════════ WHY CHOOSE ALWAN ═══════════════════ */}
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -442,6 +584,14 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12 sm:mb-16"
           >
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#009245] to-[#007a3d] shadow-[0_4px_14px_rgba(0,146,69,0.4)] mb-6"
+            >
+              Our Values
+            </motion.div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
               Why Choose Alwan?
             </h2>
@@ -450,7 +600,7 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {coreValues.map((value, idx) => (
               <motion.div
                 key={value.title}
@@ -458,25 +608,33 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-transparent hover:border-teal-400"
+                className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100"
               >
-                <div className="aspect-video relative overflow-hidden">
-                  <Image
-                    src={value.image}
-                    alt={value.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/70" />
-                  <h3 className="absolute bottom-4 left-4 text-2xl font-bold text-white group-hover:text-teal-300 transition-colors">{value.title}</h3>
+                {/* Full-bleed background image */}
+                <Image
+                  src={value.image}
+                  alt={value.title}
+                  fill
+                  unoptimized
+                  className="object-cover group-hover:scale-110 transition-transform duration-[2s] ease-out z-0"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+
+                {/* Initial Title (Visible at bottom) */}
+                <div className="absolute bottom-10 left-0 w-full px-8 group-hover:opacity-0 transition-opacity duration-300 z-20">
+                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter opacity-70">
+                    {value.title}
+                  </h3>
                 </div>
-                <div className="p-6">
-                  <p className="text-slate-600 leading-relaxed group-hover:text-slate-800 transition-colors">{value.description}</p>
-                </div>
-                {/* Glow effect on hover */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                  <div className="absolute inset-0 bg-gradient-to-r from-teal-400/10 to-emerald-400/10 rounded-2xl" />
+
+                {/* Glassy Hover Overlay - Apple Style Depth */}
+                <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[0.4,0,0.2,1] z-30">
+                  <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-6 sm:p-8 rounded-[2.2rem] shadow-[0_32px_64px_rgba(0,0,0,0.2)]">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">{value.title}</h3>
+                    <p className="text-emerald-50/90 text-base sm:text-lg leading-relaxed font-medium">
+                      {value.description}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -484,83 +642,154 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ═══════════════════ VIDEO ═══════════════════ */}
-      <section ref={videoSectionRef} className="py-16 sm:py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-              See Alwan in Action
-            </h2>
-            <p className="text-lg sm:text-xl text-slate-600">
-              Watch how we're transforming financial access for Filipinos
-            </p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto aspect-video rounded-2xl overflow-hidden shadow-2xl"
-          >
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${YOUTUBE_EMBED_ID}`}
-              title="Alwan Introduction"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full border-0"
-            />
-          </motion.div>
+
+
+      {/* ═══════════════════ VIDEO (Carousel Style) ═══════════════════ */}
+      <section ref={videoSectionRef} className="py-0">
+        <div className="mx-4 sm:mx-6 lg:mx-8 relative rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100">
+          {/* Internal Dark Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#051f11] via-[#000D06] to-[#051f11] pointer-events-none" />
+
+          {/* Grainy Noise Overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.12] mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'repeat',
+            }}
+          />
+
+          {/* Background Glows */}
+          <div className="absolute top-0 right-0 w-[80%] h-[80%] bg-emerald-900/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[80%] h-[80%] bg-[#009245]/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+          <div className="relative z-10 px-6 py-16 sm:px-12 sm:py-24 max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-16"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-white/10 border border-white/10 backdrop-blur-sm shadow-[0_4px_14px_rgba(0,146,69,0.3)] mb-6"
+              >
+                Watch Demo
+              </motion.div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+                See Alwan in Action
+              </h2>
+              <p className="text-lg sm:text-xl text-slate-300/80">
+                Watch how we&apos;re transforming financial access for Filipinos
+              </p>
+            </motion.div>
+
+            <div className="relative group/carousel max-w-5xl mx-auto">
+              {/* Navigation Arrows (Outside) */}
+              <button
+                onClick={prevVideo}
+                className="absolute -left-12 lg:-left-20 top-1/2 -translate-y-1/2 z-30 p-2 text-white/50 hover:text-emerald-400 transition-all duration-300 hover:scale-125"
+              >
+                <ChevronLeft className="w-10 h-10 lg:w-12 lg:h-12" />
+              </button>
+              <button
+                onClick={nextVideo}
+                className="absolute -right-12 lg:-right-20 top-1/2 -translate-y-1/2 z-30 p-2 text-white/50 hover:text-emerald-400 transition-all duration-300 hover:scale-125"
+              >
+                <ChevronRight className="w-10 h-10 lg:w-12 lg:h-12" />
+              </button>
+
+              <div className="relative">
+                {/* Video Glow Effect */}
+                <div className="absolute -inset-4 bg-emerald-500/10 rounded-[2rem] opacity-30 blur-2xl" />
+
+                <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentVideoIndex}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4, ease: 'easeInOut' }}
+                      className="w-full h-full"
+                    >
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${demoVideos[currentVideoIndex].id}`}
+                        title={demoVideos[currentVideoIndex].title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full border-0"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* Carousel Indicators */}
+                <div className="flex justify-center items-center gap-3 mt-8">
+                  {demoVideos.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentVideoIndex(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${i === currentVideoIndex ? 'w-8 bg-emerald-500' : 'w-2 bg-white/20 hover:bg-white/40'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ═══════════════════ HOW IT WORKS ═══════════════════ */}
-      <section id="how-it-works" className="relative py-16 sm:py-24 overflow-hidden bg-gradient-to-br from-[#007a3d] via-[#009245] to-[#005a2b]">
-        <div className="absolute inset-0 opacity-10">
-          <motion.div
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-20 left-10 w-64 h-64 bg-white rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, -80, 0],
-              y: [0, 100, 0],
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-20 right-10 w-80 h-80 bg-[#4dd88f] rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, -50, 0],
-              y: [0, 80, 0],
-            }}
-            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 left-1/2 w-72 h-72 bg-[#00a84f] rounded-full blur-3xl"
-          />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ═══════════════════ HOW IT WORKS (Horizontal) ═══════════════════ */}
+      <section id="how-it-works" className="py-24 sm:py-32 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-20"
+            className="text-center mb-20"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">How It Works</h2>
-            <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">Get funded in three simple steps</p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#009245] to-[#007a3d] shadow-[0_4px_14px_rgba(0,146,69,0.4)] mb-6"
+            >
+              Simple Process
+            </motion.div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">How It Works</h2>
+            <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">Get funded in three simple steps</p>
           </motion.div>
 
           <div className="relative">
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-white/20" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
+            {/* Horizontal Line Connector (Desktop) */}
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-100 hidden lg:block -translate-y-24 px-40">
+              <motion.div
+                initial={{ width: 0 }}
+                whileInView={{ width: '100%' }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.5 }}
+                className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+              />
+            </div>
+
+            {/* Vertical Line Connector (Mobile) */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-slate-100 lg:hidden -translate-x-1/2 py-20">
+              <motion.div
+                initial={{ height: 0 }}
+                whileInView={{ height: '100%' }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.5, ease: 'easeInOut', delay: 0.5 }}
+                className="w-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+              />
+            </div>
+
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 relative">
               {howItWorksSteps.map((step, idx) => (
                 <motion.div
                   key={step.num}
@@ -568,86 +797,26 @@ export default function HomePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.2 }}
-                  className="relative"
+                  className="relative group flex flex-col items-center text-center"
                 >
-                  <div className="relative group">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl overflow-hidden"
-                    >
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                        className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-20 rounded-2xl sm:rounded-3xl blur-xl`}
-                      />
-                      <div className="relative space-y-3 sm:space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r ${step.color} text-white text-xs sm:text-sm font-bold`}>
-                            Step {step.num}
-                          </div>
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${step.color} opacity-50`}
-                          />
-                        </div>
-                        <div className="h-2 sm:h-3 bg-white/20 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: '0%' }}
-                            whileInView={{ width: `${(idx + 1) * 33.33}%` }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, delay: idx * 0.2 + 0.5 }}
-                            className={`h-full bg-gradient-to-r ${step.color} rounded-full relative`}
-                          >
-                            <motion.div
-                              animate={{ x: ['0%', '100%'] }}
-                              transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
-                            />
-                          </motion.div>
-                        </div>
-                        <h3 className="text-xl sm:text-2xl font-bold text-white mt-4">{step.title}</h3>
-                        <p className="text-white/80 text-sm sm:text-base">{step.desc}</p>
-                        <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-6">
-                          {[...Array(3)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ scale: 0 }}
-                              whileInView={{ scale: 1 }}
-                              viewport={{ once: true }}
-                              transition={{ duration: 0.3, delay: idx * 0.2 + 0.6 + i * 0.1 }}
-                              className="h-2 sm:h-3 bg-white/30 rounded-full"
-                            />
-                          ))}
-                        </div>
-                        {[...Array(3)].map((_, i) => (
-                          <motion.div
-                            key={i}
-                            animate={{ y: [0, -15, 0], x: [0, (i - 1) * 5, 0], opacity: [0.3, 0.8, 0.3] }}
-                            transition={{ duration: 2 + i * 0.5, repeat: Infinity, delay: i * 0.3 }}
-                            className="absolute w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"
-                            style={{ top: `${20 + i * 30}%`, right: `${10 + i * 20}%` }}
-                          />
-                        ))}
-                      </div>
-                    </motion.div>
+                  {/* Step Label Badge */}
+                  <div className="relative z-10 px-5 py-2 mb-8 bg-emerald-50 backdrop-blur-md rounded-full border border-emerald-100 shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-300 transition-all duration-300">
+                    <span className="text-sm font-bold bg-gradient-to-br from-[#009245] to-[#005a2b] bg-clip-text text-transparent uppercase tracking-wider">
+                      {step.num}
+                    </span>
                   </div>
-                  <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: idx * 0.2 }}
-                      className="relative"
-                    >
-                      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br ${step.color} border-4 border-white shadow-xl`} />
-                      <motion.div
-                        animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
-                        className={`absolute inset-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br ${step.color}`}
-                      />
-                    </motion.div>
+
+                  {/* Content Area */}
+                  <div className="bg-slate-50/50 group-hover:bg-white p-8 rounded-3xl border border-slate-100 transition-all duration-300 group-hover:shadow-2xl group-hover:border-emerald-200 w-full">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors">
+                      {step.title}
+                    </h3>
+                    <p className="text-lg text-slate-600 leading-relaxed">
+                      {step.desc}
+                    </p>
                   </div>
+
+                  {/* Desktop Arrows/Dots between steps removed (Replaced by animated line) */}
                 </motion.div>
               ))}
             </div>
@@ -657,82 +826,59 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mt-16 sm:mt-24"
+            className="text-center mt-20"
           >
             <Link href="/register">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 sm:px-12 py-4 sm:py-5 bg-white text-[#009245] font-bold text-base sm:text-lg rounded-2xl shadow-2xl hover:shadow-white/20 transition-all"
-              >
-                Start Your Application Now
-              </motion.button>
+              <button className="btn-ghost-dark px-10 py-5 text-lg min-w-[280px]">
+                <span>Start Your Application</span>
+              </button>
             </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* CTA */}
-      <div className="text-center py-16 sm:py-20 bg-gradient-to-b from-white to-slate-50">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto px-4"
-        >
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">Ready to Get Started?</h2>
-          <p className="text-lg text-slate-600 mb-8">Join thousands of Filipinos who trust Alwan for their financial needs</p>
-          <Link href="/register">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <MagneticButton className="px-8 py-4 bg-gradient-to-r from-[#009245] via-[#00a84f] to-[#009245] text-white font-bold text-lg rounded-xl hover:shadow-2xl hover:shadow-[#009245]/50 transition-all duration-300 cursor-pointer relative overflow-hidden group">
-                <span className="relative z-10">Start Your Journey</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-[#007a3d] to-[#009245] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </MagneticButton>
-            </motion.div>
-          </Link>
-        </motion.div>
-      </div>
 
-      {/* AFFILIATED COMPANIES */}
-      <section className="py-12 sm:py-16 bg-slate-50 border-y border-slate-100 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10">
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+      {/* ═══════════════════ FAQ ═══════════════════ */}
+      <FAQSection />
+
+      {/* CTA (White Theme) */}
+      <section className="py-24 sm:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center text-slate-500 font-medium text-xs sm:text-sm uppercase tracking-wider"
+            className="space-y-8"
           >
-            Companies affiliated with Alwan
-          </motion.p>
-        </div>
-        <div className="relative w-full">
-          <div className="flex logo-scroll-track w-max gap-12 sm:gap-16 px-8">
-            {[...Array(2)].map((_, setIndex) => (
-              <div key={setIndex} className="flex gap-12 sm:gap-16 shrink-0 items-center">
-                {[
-                  { name: 'Partner One', id: 1 },
-                  { name: 'Partner Two', id: 2 },
-                  { name: 'Partner Three', id: 3 },
-                  { name: 'Partner Four', id: 4 },
-                  { name: 'Partner Five', id: 5 },
-                ].map((logo) => (
-                  <motion.div
-                    key={`${setIndex}-${logo.id}`}
-                    whileHover={{ scale: 1.1, y: -5 }}
-                    className="flex-shrink-0 w-28 h-14 sm:w-32 sm:h-16 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 text-xs font-medium shadow-sm hover:shadow-lg hover:border-teal-300 transition-all duration-300 cursor-pointer"
-                    aria-hidden
-                  >
-                    {logo.name}
-                  </motion.div>
-                ))}
-              </div>
-            ))}
-          </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight">
+              Ready to Get Started?
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              Join thousands of Filipinos building a better financial future with Alwan. Get approved in minutes, not days.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
+              <Link href="/register">
+                <MagneticButton className="px-12 py-5 bg-[#009245] text-white font-bold rounded-2xl hover:bg-[#007a3d] transition-all duration-300 shadow-xl shadow-emerald-200/50 text-lg min-w-[240px]">
+                  Create Free Account
+                </MagneticButton>
+              </Link>
+              <Link href="/login">
+                <button className="px-8 py-5 text-slate-600 font-semibold hover:text-slate-900 transition-colors">
+                  Already have an account? Log In
+                </button>
+              </Link>
+            </div>
+
+            {/* Subtle trust signal */}
+            <div className="flex items-center justify-center gap-2 text-slate-400 text-sm font-medium pt-8">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Over 3,500+ active members this month
+            </div>
+          </motion.div>
         </div>
       </section>
+
 
       <MobileCTA />
     </>

@@ -47,31 +47,70 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex">
+    <div className="min-h-screen flex">
       {/* Left: branded panel - dark blue with subtle pattern */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="hidden lg:flex lg:w-[38%] xl:w-[36%] relative bg-[#1a2d6d] overflow-hidden items-center justify-center px-8"
+        className="hidden lg:flex lg:w-[45%] relative overflow-hidden items-center justify-center p-12"
       >
-        {/* Subtle geometric pattern overlay */}
-        <div className="absolute inset-0 login-panel-pattern" />
-        <div className="relative z-10 text-center">
-          <Link href="/" className="inline-block focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg">
-            <span className="text-4xl xl:text-5xl font-bold tracking-tight">
-              <span className="text-white">Al</span>
-              <span className="text-teal-400">wan</span>
-            </span>
-          </Link>
-          <p className="text-white/90 mt-4 text-lg xl:text-xl max-w-[220px] mx-auto">
-            Your dreams, within reach.
+        {/* Background with grain and radial gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#009245] to-[#005a2b]">
+          <div
+            className="absolute inset-0 opacity-[0.2]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'repeat',
+            }}
+          />
+        </div>
+
+        {/* Animated Blobs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{
+              x: [0, 50, 0],
+              y: [0, -30, 0],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-[#4dd88f] rounded-full blur-[100px] opacity-40"
+          />
+          <motion.div
+            animate={{
+              x: [0, -40, 0],
+              y: [0, 60, 0],
+            }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            className="absolute bottom-[-10%] right-[-10%] w-80 h-80 bg-[#005a2b] rounded-full blur-[80px] opacity-60"
+          />
+        </div>
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <div className="bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl mb-8">
+            <img
+              src="/icons/alwan-logo-colored.png"
+              alt="Alwan Logo"
+              className="w-48 h-auto"
+            />
+          </div>
+          <p className="text-white/90 text-xl font-medium max-w-xs">
+            Your financial partner for a brighter future.
           </p>
         </div>
       </motion.div>
 
       {/* Right: white area with floating card */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12 lg:py-16 bg-slate-50">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 lg:py-16 bg-slate-50 relative">
+        {/* Back Button */}
+        <Link
+          href="/"
+          className="absolute top-6 left-6 lg:top-8 lg:left-8 inline-flex items-center gap-2 text-slate-500 hover:text-[#009245] transition-colors text-sm font-medium z-20"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back to Website
+        </Link>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -95,7 +134,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-[#009245] focus:ring-2 focus:ring-[#009245]/20 outline-none transition-all"
                   placeholder="you@example.com"
                 />
               </div>
@@ -110,7 +149,7 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
+                    className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 bg-white focus:border-[#009245] focus:ring-2 focus:ring-[#009245]/20 outline-none transition-all"
                     placeholder="••••••••"
                   />
                   <button
@@ -138,7 +177,7 @@ export default function LoginPage() {
                 <Link href="/register" className="flex-1">
                   <MagneticButton
                     type="button"
-                    className="w-full py-3.5 font-semibold rounded-xl border-2 border-teal-500 text-teal-600 hover:bg-teal-50 transition-colors cursor-pointer"
+                    className="w-full py-3.5 font-semibold rounded-xl border-2 border-[#009245] text-[#009245] hover:bg-emerald-50 transition-colors cursor-pointer"
                   >
                     Sign up
                   </MagneticButton>
@@ -146,7 +185,7 @@ export default function LoginPage() {
                 <MagneticButton
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-3.5 font-semibold rounded-xl bg-teal-600 text-white hover:bg-teal-700 transition-colors disabled:opacity-70 cursor-pointer"
+                  className="flex-1 py-3.5 font-semibold rounded-xl bg-[#009245] text-white hover:bg-[#007a3d] transition-colors disabled:opacity-70 cursor-pointer"
                 >
                   {loading ? 'Signing in...' : 'Log in'}
                 </MagneticButton>
@@ -154,10 +193,10 @@ export default function LoginPage() {
 
               {/* Links row */}
               <div className="flex items-center justify-center gap-4 text-sm pt-1">
-                <Link href="#" className="text-teal-600 hover:underline">
+                <Link href="#" className="text-[#009245] hover:underline">
                   Live chat
                 </Link>
-                <Link href="#" className="text-teal-600 font-medium hover:underline">
+                <Link href="#" className="text-[#009245] font-medium hover:underline">
                   Forgot password?
                 </Link>
               </div>

@@ -1,138 +1,68 @@
 # Alwan – Microfinance for Every Filipino
 
-A modern microfinance app website built with **Next.js**, **Tailwind CSS**, and **Supabase**. Philippine-based and designed to empower Filipinos with accessible financial services.
+Alwan is a modern microfinance ecosystem designed to empower Filipinos with accessible, AI-powered financial services. This repository contains the complete codebase for the Alwan platform, including its web portal, mobile application, and backend infrastructure.
 
 ---
 
-## Tech Stack
+## Project Structure
 
-| Layer        | Technology        |
-| ------------ | ----------------- |
-| Framework    | Next.js 15        |
-| Styling      | Tailwind CSS v4   |
-| Auth         | Supabase          |
-| Animations   | Framer Motion     |
-| Font         | Inter (Google)    |
+| Directory | Component | Technology | Description |
+| --------- | --------- | ---------- | ----------- |
+| `alwan-web` | **Web Portal** | Next.js 15, Tailwind CSS | The official landing page and web application for account management and loan tracking. |
+| `alwan-mobile` | **Mobile App** | React Native, Expo | The core user experience for everyday financial transactions and instant applications. |
+| `alwan-api` | **API Server** | Node.js / Bun | The backend engine handling business logic, AI approvals, and database interactions. |
+
+---
+
+## Tech Stack Overview
+
+### Web (`alwan-web`)
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS v4
+- **Animations**: Framer Motion
+- **Auth/DB**: Supabase
+
+### Mobile (`alwan-mobile`)
+- **Framework**: React Native with Expo
+- **Icons**: Lucide React Native
+- **Styling**: NativeWind (Tailwind for React Native)
+
+### Shared Services
+- **Database**: PostgreSQL (via Supabase)
+- **Design System**: Signature "Alwan" theme (Emerald / Dark Green / High Contrast White)
 
 ---
 
 ## Getting Started
 
-### 1. Install dependencies
+To run individual projects, navigate to their respective directories and follow the README instructions within.
 
+### Web Development
 ```bash
+cd alwan-web
 npm install
-```
-
-### 2. Environment variables
-
-Copy the example env file and add your Supabase credentials:
-
-```bash
-cp .env.local.example .env.local
-```
-
-Edit `.env.local`:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-Get these from [Supabase Dashboard](https://supabase.com/dashboard) → your project → **Settings** → **API**.
-
-### 3. Enable Email auth in Supabase
-
-1. In Supabase: **Authentication** → **Providers**
-2. Enable **Email**
-3. (Optional) Customize **Authentication** → **Email Templates**
-
-### 4. Run locally
-
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
----
-
-## Build & production
-
+### Mobile Development
 ```bash
-npm run build
-npm start
+cd alwan-mobile
+npm install
+npx expo start
 ```
-
----
-
-## Deploy on Vercel
-
-1. **Push this repo to GitHub** (if not already).
-
-2. **Import in Vercel**
-   - Go to [vercel.com](https://vercel.com) → **Add New** → **Project**
-   - Import your GitHub repo and use the default settings (Next.js is auto-detected).
-
-3. **Add environment variables** in Vercel:
-   - Project → **Settings** → **Environment Variables**
-   - Add:
-     - `NEXT_PUBLIC_SUPABASE_URL` = your Supabase project URL  
-     - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = your Supabase anon/public key  
-   - Apply to **Production**, **Preview**, and **Development** if you use preview branches.
-
-4. **Deploy**
-   - Deploy from the **Deployments** tab or push to the connected branch; Vercel will build and deploy.
-
-**Notes for Vercel:**
-
-- Do **not** commit `.env.local`; use Vercel’s env UI only.
-- If you don’t set the Supabase env vars, the app still builds; auth (login/register) will fail until vars are added.
-- Root middleware runs on every request (except static files) to refresh Supabase sessions.
-
----
-
-## Project structure (main paths)
-
-| Path                    | Purpose                          |
-| ----------------------- | -------------------------------- |
-| `src/app/`              | App Router pages and layout      |
-| `src/app/page.tsx`     | Homepage                         |
-| `src/app/login/`       | Login (split layout)             |
-| `src/app/register/`    | Registration                     |
-| `src/app/services/`    | Services + loan calculator       |
-| `src/app/about/`       | About + team                     |
-| `src/app/faq/`         | FAQ (bento cards)                |
-| `src/components/`      | Header, Footer, shared UI         |
-| `src/lib/supabase/`    | Supabase client, server, middleware |
-| `src/lib/validations/` | Zod schemas (auth)               |
-
----
-
-## Pages overview
-
-| Route       | Description                                                                 |
-| ----------- | --------------------------------------------------------------------------- |
-| `/`         | Home: hero (Get started → register, Learn more → Why choose), why choose us, video, how it works, affiliated companies, mobile download CTA |
-| `/services` | Services hero, loan calculator, 4 service cards (loans, savings, bills, insurance) |
-| `/about`    | Mission, core values, team (3 developers)                                  |
-| `/faq`      | Bento-style FAQ with expandable answers                                    |
-| `/login`    | Split-screen login (brand panel + form card)                                |
-| `/register` | Download-focused: steps to get the app and sign up in-app; link to login    |
 
 ---
 
 ## Features
 
-- Reusable **Header** and **Footer** (nav, auth buttons)
-- **Supabase** authentication (login, register, session refresh via middleware)
-- Responsive layout and **Framer Motion** animations
-- **Inter** font (medium weight default)
-- Philippine context (bayanihan, peso, local mobile format)
-- Violet/teal theme; ready for production build and Vercel deploy
+- **Modern Aesthetic**: Signature dark-mode themes with grainy gradients, bento-grid layouts, and glassmorphism.
+- **AI-Powered**: Instant credit scoring and loan approval logic (Integrated in API).
+- **Responsive Web**: A high-performance web landing page with interactive "How It Works" and "See Alwan in Action" sections.
+- **Seamless Auth**: Cross-platform authentication powered by Supabase.
 
 ---
 
 ## License
 
 MIT
+
