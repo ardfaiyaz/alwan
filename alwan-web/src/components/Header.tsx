@@ -86,18 +86,13 @@ export default function Header() {
             inset 0 -1px 0 rgba(255, 255, 255, 0.10);
         }
         /* ── Active pill — teal ── */
+        /* ── Active pill — glass white with shadow ── */
         .nav-pill-active {
-          background: linear-gradient(
-            165deg,
-            #36cc7f 0%,
-            #18ac62bb 50%,
-            #09693ed0 100%
-          );
+          background: rgba(255, 255, 255, 0.85);
           box-shadow:
-            0 4px 16px rgba(20, 184, 166, 0.50),
-            0 1px 4px rgba(0, 0, 0, 0.14),
-            inset 0 1.5px 0 rgba(255, 255, 255, 0.65),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.10);
+            0 4px 12px rgba(0, 0, 0, 0.08),
+            0 1px 3px rgba(0, 0, 0, 0.05),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
         /* ── Inactive nav link hover — frosted mini-pill ── */
         .nav-link-item {
@@ -225,9 +220,8 @@ export default function Header() {
                       <motion.span
                         layoutId="nav-active-pill"
                         initial={false}
-                        className="absolute inset-0 rounded-full nav-pill-active shadow-[0_0_12px_rgba(56,189,248,0.9),0_0_28px_rgba(20,184,166,0.8),0_0_48px_rgba(34,211,238,0.7)]"
+                        className="absolute inset-0 rounded-full nav-pill-active"
                         transition={{ type: 'spring', stiffness: 440, damping: 36 }}
-                        style={{ filter: 'saturate(1.4)' }}
                       >
 
                         {/* top gloss streak */}

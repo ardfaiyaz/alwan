@@ -53,19 +53,17 @@ export default function LoginPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="hidden lg:flex lg:w-[38%] xl:w-[36%] relative bg-[#1a2d6d] overflow-hidden items-center justify-center px-8"
+        className="hidden lg:flex lg:w-[45%] relative overflow-hidden items-center justify-center p-12"
+        style={{
+          background: 'radial-gradient(circle at center, #009245 0%, #005a2b 100%)'
+        }}
       >
-        {/* Subtle geometric pattern overlay */}
-        <div className="absolute inset-0 login-panel-pattern" />
-        <div className="relative z-10 text-center">
-          <Link href="/" className="inline-block focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg">
-            <span className="text-4xl xl:text-5xl font-bold tracking-tight">
-              <span className="text-white">Al</span>
-              <span className="text-teal-400">wan</span>
-            </span>
-          </Link>
-          <p className="text-white/90 mt-4 text-lg xl:text-xl max-w-[220px] mx-auto">
-            Your dreams, within reach.
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <span className="text-6xl font-bold tracking-tight text-white mb-6">
+            Alwan
+          </span>
+          <p className="text-white/90 text-xl font-medium max-w-xs">
+            Your financial partner for a brighter future.
           </p>
         </div>
       </motion.div>
