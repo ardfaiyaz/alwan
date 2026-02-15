@@ -15,7 +15,6 @@ const footerLinks = {
   product: [
     { href: '/services', label: 'Services' },
     { href: '/faq', label: 'FAQ' },
-    { href: '#', label: 'Calculator' },
     { href: '#', label: 'Contact' },
   ],
   legal: [

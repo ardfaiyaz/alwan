@@ -30,6 +30,10 @@ const faqs = [
 export default function FAQSection() {
     const [openIndex, setOpenIndex] = useState<number | null>(0)
 
+    const toggleFAQ = (idx: number) => {
+        setOpenIndex(openIndex === idx ? null : idx)
+    }
+
     return (
         <section className="relative py-12 sm:py-16 overflow-hidden" id="faq">
             {/* Background Effects (Matching Hero) */}
@@ -98,7 +102,7 @@ export default function FAQSection() {
                                 }`}
                         >
                             <button
-                                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                                onClick={() => toggleFAQ(idx)} // Changed to use toggleFAQ
                                 className="w-full flex items-center justify-between p-6 text-left focus:outline-none group"
                             >
                                 <span className={`font-semibold text-lg transition-colors duration-300 ${openIndex === idx ? 'text-white' : 'text-slate-200 group-hover:text-white'}`}>
@@ -116,7 +120,7 @@ export default function FAQSection() {
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                                     >
-                                        <div className="px-6 pb-6 text-white leading-loose border-t border-white/5 pt-4 opacity-90">
+                                        <div className="px-6 pb-6 text-white leading-loose border-t border-white/5 pt-4 opacity-90 text-justify indent-8">
                                             {faq.answer}
                                         </div>
                                     </motion.div>

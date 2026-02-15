@@ -521,7 +521,7 @@ export default function HomePage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.7, delay: 1.0 }}
                       className="absolute z-20"
-                      style={{ top: '15%', left: '-12%', transform: 'scale(0.3)' }}
+                      style={{ top: '30%', left: '-12%', transform: 'scale(0.3)' }}
                     >
                       <LeftOverlayCard />
                     </motion.div>
@@ -530,7 +530,7 @@ export default function HomePage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.7, delay: 1.2 }}
                       className="absolute z-20"
-                      style={{ top: '45%', right: '-12%', transform: 'scale(0.3)' }}
+                      style={{ top: '30%', right: '-12%', transform: 'scale(0.3)' }}
                     >
                       <RightOverlayCard />
                     </motion.div>
@@ -753,26 +753,42 @@ export default function HomePage() {
                   key={step.num}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: idx * 0.2 }}
                   className="relative group flex flex-col items-center text-center"
                 >
                   {/* Step Label Badge */}
-                  <div className="relative z-10 px-5 py-2 mb-8 bg-emerald-50 backdrop-blur-md rounded-full border border-emerald-100 shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-300 transition-all duration-300">
+                  <motion.div
+                    whileInView={{
+                      scale: [1, 1.15, 1.1],
+                      boxShadow: ["0 0 0px rgba(0,146,69,0)", "0 0 20px rgba(0,146,69,0.3)", "0 0 10px rgba(0,146,69,0.2)"]
+                    }}
+                    transition={{ delay: (idx * 0.2) + 0.5, duration: 0.6 }}
+                    viewport={{ once: true }}
+                    className="relative z-10 px-5 py-2 mb-8 bg-emerald-50 backdrop-blur-md rounded-full border border-emerald-100 shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-300 transition-all duration-300"
+                  >
                     <span className="text-sm font-bold bg-gradient-to-br from-[#009245] to-[#005a2b] bg-clip-text text-transparent uppercase tracking-wider">
                       {step.num}
                     </span>
-                  </div>
+                  </motion.div>
 
                   {/* Content Area */}
-                  <div className="bg-white lg:bg-slate-50/50 group-hover:bg-white p-8 rounded-3xl border border-slate-100 transition-all duration-300 shadow-lg shadow-slate-300/90 group-hover:shadow-2xl group-hover:border-emerald-200 w-full">
+                  <motion.div
+                    whileInView={{
+                      borderColor: ["#f1f5f9", "#10b981", "#e2e8f0"], // slate-100 to emerald-500 to slate-200
+                      backgroundColor: ["#f8fafc80", "#ffffff", "#f8fafc80"] // slate-50/50 to white to slate-50/50
+                    }}
+                    transition={{ delay: (idx * 0.2) + 0.6, duration: 0.8 }}
+                    viewport={{ once: true }}
+                    className="bg-white lg:bg-slate-50/50 group-hover:bg-white p-8 rounded-3xl border border-slate-100 transition-all duration-300 shadow-lg shadow-slate-300/90 group-hover:shadow-2xl group-hover:border-emerald-200 w-full"
+                  >
                     <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors">
                       {step.title}
                     </h3>
                     <p className="text-lg text-slate-600 leading-relaxed">
                       {step.desc}
                     </p>
-                  </div>
+                  </motion.div>
 
                   {/* Desktop Arrows/Dots between steps removed (Replaced by animated line) */}
                 </motion.div>

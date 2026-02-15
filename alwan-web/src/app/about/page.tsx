@@ -8,7 +8,7 @@ import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import CoreValuesSection from '@/components/CoreValuesSection'
 import ScrollProgress from '@/components/ScrollProgress'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 const journey = [
   {
@@ -75,19 +75,39 @@ function JourneyItem({ item, idx }: { item: any; idx: number }) {
     offset: ["start end", "end start"]
   })
 
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100])
+  // Responsive check for parallax
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Disable y parallax on mobile
+  const yRange = isMobile ? [0, 0] : [100, -100]
+  const y = useTransform(scrollYProgress, [0, 1], yRange)
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [0, 1, 1, 0])
 
   return (
     <motion.div
       ref={ref}
       style={{ opacity }}
-      className={`relative flex flex-col md:flex-row gap-8 items-center ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+      className={`relative flex flex-col md:flex-row gap-8 items-center ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} pl-8 md:pl-0`}
     >
+      {/* Mobile Timeline Dot and Connector */}
+      <div className="absolute left-0 top-0 bottom-0 flex flex-col items-center md:hidden">
+        {/* The dot */}
+        <div className="w-4 h-4 rounded-full bg-[#009245] ring-2 ring-emerald-100 z-10 mt-1.5" />
+        {/* The line (except for last item, but simplistic approach first) */}
+        <div className="w-px flex-1 bg-emerald-100 -mt-2" />
+      </div>
+
       {/* Content */}
       <motion.div
         style={{ y: idx % 2 === 0 ? y : useTransform(y, value => -value) }}
-        className={`flex-1 ${idx % 2 === 0 ? 'md:text-right' : 'md:text-left'} text-center md:text-inherit`}
+        className={`flex-1 ${idx % 2 === 0 ? 'md:text-right' : 'md:text-left'} text-left md:text-inherit`}
       >
         <div className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-100 to-emerald-50 text-[#009245] font-bold text-sm mb-3">
           {item.year}
@@ -96,7 +116,7 @@ function JourneyItem({ item, idx }: { item: any; idx: number }) {
         <p className="text-slate-600 leading-relaxed">{item.description}</p>
       </motion.div>
 
-      {/* Timeline dot */}
+      {/* Desktop Timeline dot */}
       <div className="hidden md:flex w-4 h-4 rounded-full bg-gradient-to-br from-[#009245] to-[#4dd88f] ring-4 ring-white shadow-lg z-10" />
 
       {/* Spacer for alternating layout */}
