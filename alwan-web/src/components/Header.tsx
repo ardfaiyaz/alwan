@@ -73,7 +73,7 @@ export default function Header() {
 
         /* ── Glass pill — wraps ONLY the nav links ── */
         .glass-nav-links {
-          background: rgb(255, 255, 255);
+          background: rgb(255, 255, 255, 0.6);
           backdrop-filter: blur(24px) saturate(180%);
           -webkit-backdrop-filter: blur(24px) saturate(180%);
           border: 1px solid rgba(255, 255, 255, 0.42);
@@ -207,7 +207,7 @@ export default function Header() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center shrink-0 md:flex-none flex-1 md:justify-start justify-center md:order-none order-2">
-              <Image src="/icons/alwan-header-logo.png" alt="Alwan" width={120} height={32} className="h-8 w-auto" />
+              <Image src="/icons/alwan-header-logo.png" alt="Alwan" width={120} height={32} className="h-8 w-auto" priority />
             </Link>
 
             {/* Center nav links — glass wraps ONLY this pill */}
@@ -248,27 +248,23 @@ export default function Header() {
 
             {/* Auth buttons */}
             <div className="hidden md:flex items-center gap-2 order-3">
-              {!isLoading && (
+              {user ? (
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xs font-medium text-slate-600 truncate max-w-[110px]">
+                    {user.email}
+                  </span>
+                  <button onClick={handleSignOut} className="btn-login">Sign Out</button>
+                </div>
+              ) : (
                 <>
-                  {user ? (
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-xs font-medium text-slate-600 truncate max-w-[110px]">
-                        {user.email}
-                      </span>
-                      <button onClick={handleSignOut} className="btn-login">Sign Out</button>
-                    </div>
-                  ) : (
-                    <>
-                      <Link href="/login">
-                        <button className="btn-login">Log In</button>
-                      </Link>
-                      <Link href="/register">
-                        <button className="btn-signup">
-                          <span>Get Started</span>
-                        </button>
-                      </Link>
-                    </>
-                  )}
+                  <Link href="/login">
+                    <button className="btn-login">Log In</button>
+                  </Link>
+                  <Link href="/register">
+                    <button className="btn-signup">
+                      <span>Get Started</span>
+                    </button>
+                  </Link>
                 </>
               )}
             </div>

@@ -43,7 +43,7 @@ export default function Footer() {
             className="col-span-2 md:col-span-1"
           >
             <Link href="/" className="inline-flex items-center mb-4">
-              <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={120} height={32} className="h-24 w-auto" />
+              <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={120} height={32} className="h-6 w-auto" />
             </Link>
             <p className="text-sm text-slate-500 max-w-xs">
               Empowering Filipinos with accessible microfinance solutions. Your dreams, within reach.
