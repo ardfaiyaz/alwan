@@ -18,16 +18,10 @@ const footerLinks = {
     { href: '#', label: 'Calculator' },
     { href: '#', label: 'Contact' },
   ],
-  company: [
-    { href: '/about', label: 'About Us' },
-    { href: '#', label: 'Careers' },
-    { href: '#', label: 'Blog' },
-    { href: '#', label: 'Press' },
-  ],
   legal: [
-    { href: '#', label: 'Privacy Policy' },
-    { href: '#', label: 'Terms of Service' },
-    { href: '#', label: 'Data Protection' },
+    { href: '/privacy-policy', label: 'Privacy Policy' },
+    { href: '/terms-of-service', label: 'Terms of Service' },
+    { href: '/data-protection', label: 'Data Protection' },
   ],
 }
 
@@ -45,7 +39,7 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="col-span-2 md:col-span-1"
+            className="col-span-2"
           >
             <Link href="/" className="inline-flex items-center mb-4">
               <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={120} height={32} className="h-6 w-auto" />
@@ -84,27 +78,6 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <h3 className="font-semibold text-slate-900 mb-4">Company</h3>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-slate-500 hover:text-teal-600 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
           >
             <h3 className="font-semibold text-slate-900 mb-4">Legal</h3>
             <ul className="space-y-3">
