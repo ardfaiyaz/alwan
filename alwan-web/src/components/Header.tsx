@@ -229,7 +229,7 @@ export default function Header() {
 
             {/* Logo */}
             <Link href="/" className="flex items-center shrink-0 md:flex-none flex-1 md:justify-start justify-center md:order-none order-2">
-              <Image src="/icons/alwan-header-logo.png" alt="Alwan" width={120} height={32} className="h-8 w-auto" priority />
+              <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={120} height={32} className="h-8 w-auto" priority />
             </Link>
 
             {/* Center nav links — glass wraps ONLY this pill */}
