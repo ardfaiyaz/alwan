@@ -227,9 +227,32 @@ export default function Header() {
         <nav className="max-w-[1600px] mx-auto">
           <div className="flex items-center justify-between h-[52px] px-2 sm:px-4 lg:px-6">
 
-            {/* Logo */}
-            <Link href="/" className="flex items-center shrink-0 md:flex-none flex-1 md:justify-start justify-center md:order-none order-2">
-              <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={120} height={32} className="h-8 w-auto" priority />
+            {/* Mobile: Logo & Burger Container */}
+            <div className="md:hidden flex items-center justify-between w-full bg-white backdrop-blur-xl border border-white rounded-2xl px-4 py-2 shadow-lg shadow-black/6">
+              {/* Logo */}
+              <Link href="/" className="flex items-center">
+                <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={800} height={800} className="h-7 w-auto" priority />
+              </Link>
+
+              {/* Mobile burger */}
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-1.5 rounded-xl text-black hover:bg-black/5 transition-colors cursor-pointer"
+                aria-label="Toggle menu"
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {isMenuOpen
+                    ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}><X className="w-5 h-5" /></motion.span>
+                    : <motion.span key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}><Menu className="w-5 h-5" /></motion.span>
+                  }
+                </AnimatePresence>
+              </button>
+            </div>
+
+            {/* Desktop: Logo */}
+            <Link href="/" className="hidden md:flex items-center shrink-0">
+              <Image src="/icons/alwan-footer-logo.png" alt="Alwan" width={800} height={800} className="h-8 w-auto" priority />
             </Link>
 
             {/* Center nav links — glass wraps ONLY this pill */}
@@ -268,7 +291,7 @@ export default function Header() {
             </div>
 
             {/* Auth buttons */}
-            <div className="hidden md:flex items-center gap-2 order-3">
+            <div className="hidden md:flex items-center gap-2">
               {user ? (
                 <div className="flex items-center gap-2.5">
                   <span className="text-xs font-medium text-slate-600 truncate max-w-[110px]">
@@ -290,20 +313,6 @@ export default function Header() {
               )}
             </div>
 
-            {/* Mobile burger */}
-            <button
-              type="button"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-1.5 rounded-xl text-white hover:bg-white/35 transition-colors cursor-pointer order-3"
-              aria-label="Toggle menu"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                {isMenuOpen
-                  ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.15 }}><X className="w-5 h-5" /></motion.span>
-                  : <motion.span key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }}><Menu className="w-5 h-5" /></motion.span>
-                }
-              </AnimatePresence>
-            </button>
           </div>
         </nav>
 
@@ -326,7 +335,7 @@ export default function Header() {
                       href={link.href}
                       onClick={() => setIsMenuOpen(false)}
                       className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${isActive
-                        ? 'text-white nav-pill-active'
+                        ? 'text-black nav-pill-active'
                         : 'text-slate-700 hover:bg-white/55 hover:text-slate-900'
                         }`}
                     >

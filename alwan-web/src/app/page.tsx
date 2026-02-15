@@ -80,6 +80,24 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [])
 
+  // Mobile Video Autoscroll
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        const videoInterval = setInterval(() => {
+          setCurrentVideoIndex((prev) => (prev + 1) % demoVideos.length)
+        }, 5000)
+        return () => clearInterval(videoInterval)
+      }
+    }
+    const cleanup = handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      if (cleanup) cleanup()
+    }
+  }, [demoVideos.length])
+
   const { scrollYProgress: heroScrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
@@ -600,7 +618,7 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
             {coreValues.map((value, idx) => (
               <motion.div
                 key={value.title}
@@ -608,32 +626,24 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100"
+                className="group relative z-10 hover:z-50"
               >
-                {/* Full-bleed background image */}
-                <Image
-                  src={value.image}
-                  alt={value.title}
-                  fill
-                  unoptimized
-                  className="object-cover group-hover:scale-110 transition-transform duration-[2s] ease-out z-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+                {/* Main Card Image Area */}
+                <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100">
+                  <Image
+                    src={value.image}
+                    alt={value.title}
+                    fill
+                    unoptimized
+                    className="object-cover group-hover:scale-110 transition-transform duration-[2s] ease-out z-0"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500 z-10" />
 
-                {/* Initial Title (Visible at bottom) */}
-                <div className="absolute bottom-10 left-0 w-full px-8 group-hover:opacity-0 transition-opacity duration-300 z-20">
-                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter opacity-70">
-                    {value.title}
-                  </h3>
-                </div>
-
-                {/* Glassy Hover Overlay - Apple Style Depth */}
-                <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[0.4,0,0.2,1] z-30">
-                  <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-6 sm:p-8 rounded-[2.2rem] shadow-[0_32px_64px_rgba(0,0,0,0.2)]">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">{value.title}</h3>
-                    <p className="text-emerald-50/90 text-base sm:text-lg leading-relaxed font-medium">
-                      {value.description}
-                    </p>
+                  {/* Initial Title (Visible at bottom) */}
+                  <div className="absolute bottom-10 left-0 w-full px-8 z-20 text-center md:text-left">
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                      {value.title}
+                    </h3>
                   </div>
                 </div>
               </motion.div>
@@ -648,11 +658,11 @@ export default function HomePage() {
       <section ref={videoSectionRef} className="py-0">
         <div className="mx-4 sm:mx-6 lg:mx-8 relative rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100">
           {/* Internal Dark Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#051f11] via-[#000D06] to-[#051f11] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06] pointer-events-none" />
 
           {/* Grainy Noise Overlay */}
           <div
-            className="absolute inset-0 opacity-[0.12] mix-blend-overlay pointer-events-none"
+            className="absolute inset-0 opacity-[0.28]"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
               backgroundRepeat: 'repeat',
@@ -807,7 +817,7 @@ export default function HomePage() {
                   </div>
 
                   {/* Content Area */}
-                  <div className="bg-slate-50/50 group-hover:bg-white p-8 rounded-3xl border border-slate-100 transition-all duration-300 group-hover:shadow-2xl group-hover:border-emerald-200 w-full">
+                  <div className="bg-white lg:bg-slate-50/50 group-hover:bg-white p-8 rounded-3xl border border-slate-100 transition-all duration-300 shadow-lg shadow-slate-300/90 group-hover:shadow-2xl group-hover:border-emerald-200 w-full">
                     <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors">
                       {step.title}
                     </h3>
