@@ -9,6 +9,9 @@ import { ChevronDown, Sparkles } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { LeftOverlayCard } from '@/components/LeftOverlayCard'
 import { RightOverlayCard } from '@/components/RightOverlayCard'
+import FeatureShowcase from '@/components/FeatureShowcase'
+import LoanCalculator from '@/components/LoanCalculator'
+import FAQSection from '@/components/FAQSection'
 
 const coreValues = [
   {
@@ -433,6 +436,9 @@ export default function HomePage() {
         </motion.div>
       </section>
 
+      {/* ═══════════════════ FEATURE SHOWCASE ═══════════════════ */}
+      <FeatureShowcase />
+
       {/* ═══════════════════ WHY CHOOSE ALWAN ═══════════════════ */}
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -484,6 +490,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ═══════════════════ CALCULATOR ═══════════════════ */}
+      <section className="py-16 sm:py-24 bg-slate-50 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-4">Calculate Your Loan</h2>
+            <p className="text-lg text-slate-600">See exactly how much you'll repay with our transparent rates</p>
+          </div>
+          <LoanCalculator />
+        </div>
+      </section>
+
       {/* ═══════════════════ VIDEO ═══════════════════ */}
       <section ref={videoSectionRef} className="py-16 sm:py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -520,7 +537,6 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════ HOW IT WORKS ═══════════════════ */}
-      {/* ═══════════════════ HOW IT WORKS (Redesigned) ═══════════════════ */}
       <section id="how-it-works" className="py-20 sm:py-28 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
@@ -581,6 +597,10 @@ export default function HomePage() {
         </div>
       </section>
 
+
+      {/* ═══════════════════ FAQ ═══════════════════ */}
+      <FAQSection />
+
       {/* CTA */}
       <div className="text-center py-16 sm:py-20 bg-gradient-to-b from-white to-slate-50">
         <motion.div
@@ -605,43 +625,6 @@ export default function HomePage() {
         </motion.div>
       </div>
 
-      {/* AFFILIATED COMPANIES */}
-      <section className="py-12 sm:py-16 bg-slate-50 border-y border-slate-100 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10">
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center text-slate-500 font-medium text-xs sm:text-sm uppercase tracking-wider"
-          >
-            Companies affiliated with Alwan
-          </motion.p>
-        </div>
-        <div className="relative w-full">
-          <div className="flex logo-scroll-track w-max gap-12 sm:gap-16 px-8">
-            {[...Array(2)].map((_, setIndex) => (
-              <div key={setIndex} className="flex gap-12 sm:gap-16 shrink-0 items-center">
-                {[
-                  { name: 'Partner One', id: 1 },
-                  { name: 'Partner Two', id: 2 },
-                  { name: 'Partner Three', id: 3 },
-                  { name: 'Partner Four', id: 4 },
-                  { name: 'Partner Five', id: 5 },
-                ].map((logo) => (
-                  <motion.div
-                    key={`${setIndex}-${logo.id}`}
-                    whileHover={{ scale: 1.1, y: -5 }}
-                    className="flex-shrink-0 w-28 h-14 sm:w-32 sm:h-16 bg-white rounded-lg border border-slate-200 flex items-center justify-center text-slate-400 text-xs font-medium shadow-sm hover:shadow-lg hover:border-teal-300 transition-all duration-300 cursor-pointer"
-                    aria-hidden
-                  >
-                    {logo.name}
-                  </motion.div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <MobileCTA />
     </>
