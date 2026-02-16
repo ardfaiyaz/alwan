@@ -2,7 +2,7 @@
  * Root loading UI - Skeleton matching homepage layout: hero, why choose, video, how it works, logos, mobile CTA.
  */
 
-import { Skeleton } from '@/components/Skeleton'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function Loading() {
   return (

@@ -2,7 +2,7 @@
  * Register loading - One section: left (title, steps, buttons), right (mockup) skeleton.
  */
 
-import { Skeleton } from '@/components/Skeleton'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function RegisterLoading() {
   return (

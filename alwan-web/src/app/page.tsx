@@ -3,14 +3,16 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { MagneticButton } from '@/components/MagneticButton'
-import MobileCTA from '@/components/MobileCTA'
+import { MagneticButton } from '@/components/ui/MagneticButton'
+import MobileCTA from '@/components/sections/MobileCTA'
 import { ChevronDown, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
-import { LeftOverlayCard } from '@/components/LeftOverlayCard'
-import { RightOverlayCard } from '@/components/RightOverlayCard'
-import FeatureShowcase from '@/components/FeatureShowcase'
-import FAQSection from '@/components/FAQSection'
+import { LeftOverlayCard } from '@/components/ui/LeftOverlayCard'
+import { RightOverlayCard } from '@/components/ui/RightOverlayCard'
+import FeatureShowcase from '@/components/sections/FeatureShowcase'
+import FAQSection from '@/components/sections/FAQSection'
+import CoreValuesSection from '@/components/sections/CoreValuesSection'
+import ScrollProgress from '@/components/ui/ScrollProgress'
 
 const coreValues = [
   {
@@ -80,15 +82,38 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [])
 
+  // Mobile Video Autoscroll
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        const videoInterval = setInterval(() => {
+          setCurrentVideoIndex((prev) => (prev + 1) % demoVideos.length)
+        }, 5000)
+        return () => clearInterval(videoInterval)
+      }
+    }
+    const cleanup = handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      if (cleanup) cleanup()
+    }
+  }, [demoVideos.length])
+
   const { scrollYProgress: heroScrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
   })
+
   const heroY = useTransform(heroScrollYProgress, [0, 1], ['0%', '20%'])
-  const heroOpacity = useTransform(heroScrollYProgress, [0, 0.6], [1, 0.6])
+  const leftCardY = useTransform(heroScrollYProgress, [0, 1], ['0%', '-40%'])
+  const rightCardY = useTransform(heroScrollYProgress, [0, 1], ['0%', '-60%'])
+  const textY = useTransform(heroScrollYProgress, [0, 1], ['0%', '40%'])
+  const opacity = useTransform(heroScrollYProgress, [0, 0.5], [1, 0])
 
   return (
     <>
+      <ScrollProgress />
       <style>{`
         /* ── Hero buttons with glass sliding effect ── */
         .hero-btn-primary {
@@ -348,15 +373,17 @@ export default function HomePage() {
 
         {/* ── Content — full bleed, only edge padding ── */}
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
+          style={{ y: heroY, opacity }}
           className="relative z-10 w-full h-full"
         >
           <div className="w-full h-full flex flex-col lg:flex-row gap-0 lg:gap-8">
 
             {/* LEFT: copy - with left padding, vertically centered */}
-            <div className="flex flex-col justify-center items-center lg:items-start space-y-5 sm:space-y-6 lg:space-y-8
+            <motion.div
+              style={{ y: textY, flexBasis: '60%' }}
+              className="flex flex-col justify-center items-center lg:items-start space-y-5 sm:space-y-6 lg:space-y-8
                             py-12 sm:py-16 lg:py-0 text-center lg:text-left"
-              style={{ flexBasis: '60%' }}>
+            >
 
               {/* Badge */}
               <motion.div
@@ -494,7 +521,7 @@ export default function HomePage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.7, delay: 1.0 }}
                       className="absolute z-20"
-                      style={{ top: '15%', left: '-12%', transform: 'scale(0.3)' }}
+                      style={{ top: '30%', left: '-12%', transform: 'scale(0.3)' }}
                     >
                       <LeftOverlayCard />
                     </motion.div>
@@ -503,14 +530,14 @@ export default function HomePage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.7, delay: 1.2 }}
                       className="absolute z-20"
-                      style={{ top: '45%', right: '-12%', transform: 'scale(0.3)' }}
+                      style={{ top: '30%', right: '-12%', transform: 'scale(0.3)' }}
                     >
                       <RightOverlayCard />
                     </motion.div>
                   </div>
                 </div>
               </motion.div>
-            </div>
+            </motion.div>
 
             {/* RIGHT: Phone — desktop only, aligned left, pinned to bottom */}
             <div className="relative hidden lg:flex items-end justify-start h-full"
@@ -537,20 +564,20 @@ export default function HomePage() {
                   priority
                 />
                 <motion.div
-                  initial={{ opacity: 0, x: 0, y: 0 }}
-                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  initial={{ opacity: 0, x: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7, delay: 1.0 }}
                   className="absolute z-20"
-                  style={{ top: '18%', left: '-18%', transform: 'scale(4.0)' }}
+                  style={{ top: '18%', left: '-18%', scale: 1.1, y: leftCardY }}
                 >
                   <LeftOverlayCard />
                 </motion.div>
                 <motion.div
-                  initial={{ opacity: 0, x: 0, y: 0 }}
-                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  initial={{ opacity: 0, x: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7, delay: 1.2 }}
                   className="absolute z-20"
-                  style={{ top: '42%', right: '-18%', transform: 'scale(4.0)' }}
+                  style={{ top: '42%', right: '-18%', scale: 1.1, y: rightCardY }}
                 >
                   <RightOverlayCard />
                 </motion.div>
@@ -570,89 +597,25 @@ export default function HomePage() {
             <ChevronDown className="w-7 h-7 text-white/45" />
           </motion.div>
         </motion.div>
-      </section>
+      </section >
 
       {/* ═══════════════════ FEATURE SHOWCASE ═══════════════════ */}
-      <FeatureShowcase />
+      < FeatureShowcase />
 
       {/* ═══════════════════ WHY CHOOSE ALWAN ═══════════════════ */}
-      <section className="py-16 sm:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#009245] to-[#007a3d] shadow-[0_4px_14px_rgba(0,146,69,0.4)] mb-6"
-            >
-              Our Values
-            </motion.div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-              Why Choose Alwan?
-            </h2>
-            <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
-              Built on values that matter to Filipino communities
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
-            {coreValues.map((value, idx) => (
-              <motion.div
-                key={value.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                className="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100"
-              >
-                {/* Full-bleed background image */}
-                <Image
-                  src={value.image}
-                  alt={value.title}
-                  fill
-                  unoptimized
-                  className="object-cover group-hover:scale-110 transition-transform duration-[2s] ease-out z-0"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-
-                {/* Initial Title (Visible at bottom) */}
-                <div className="absolute bottom-10 left-0 w-full px-8 group-hover:opacity-0 transition-opacity duration-300 z-20">
-                  <h3 className="text-3xl font-black text-white uppercase tracking-tighter opacity-70">
-                    {value.title}
-                  </h3>
-                </div>
-
-                {/* Glassy Hover Overlay - Apple Style Depth */}
-                <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-[0.4,0,0.2,1] z-30">
-                  <div className="bg-white/10 backdrop-blur-2xl border border-white/20 p-6 sm:p-8 rounded-[2.2rem] shadow-[0_32px_64px_rgba(0,0,0,0.2)]">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">{value.title}</h3>
-                    <p className="text-emerald-50/90 text-base sm:text-lg leading-relaxed font-medium">
-                      {value.description}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      < CoreValuesSection />
 
 
 
       {/* ═══════════════════ VIDEO (Carousel Style) ═══════════════════ */}
-      <section ref={videoSectionRef} className="py-0">
+      < section ref={videoSectionRef} className="py-0" >
         <div className="mx-4 sm:mx-6 lg:mx-8 relative rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100">
           {/* Internal Dark Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#051f11] via-[#000D06] to-[#051f11] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06] pointer-events-none" />
 
           {/* Grainy Noise Overlay */}
           <div
-            className="absolute inset-0 opacity-[0.12] mix-blend-overlay pointer-events-none"
+            className="absolute inset-0 opacity-[0.28]"
             style={{
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
               backgroundRepeat: 'repeat',
@@ -670,14 +633,9 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-white/10 border border-white/10 backdrop-blur-sm shadow-[0_4px_14px_rgba(0,146,69,0.3)] mb-6"
-              >
+              <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#4dd88f] to-white bg-clip-text text-transparent">
                 Watch Demo
-              </motion.div>
+              </p>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                 See Alwan in Action
               </h2>
@@ -742,10 +700,10 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ═══════════════════ HOW IT WORKS (Horizontal) ═══════════════════ */}
-      <section id="how-it-works" className="py-24 sm:py-32 bg-white relative overflow-hidden">
+      < section id="how-it-works" className="py-24 sm:py-32 bg-white relative overflow-hidden" >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -753,15 +711,15 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-20"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#009245] to-[#007a3d] shadow-[0_4px_14px_rgba(0,146,69,0.4)] mb-6"
-            >
+            <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
               Simple Process
-            </motion.div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">How It Works</h2>
+            </p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+              How It{' '}
+              <span className="bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
+                Works
+              </span>
+            </h2>
             <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">Get funded in three simple steps</p>
           </motion.div>
 
@@ -795,26 +753,42 @@ export default function HomePage() {
                   key={step.num}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: idx * 0.2 }}
                   className="relative group flex flex-col items-center text-center"
                 >
                   {/* Step Label Badge */}
-                  <div className="relative z-10 px-5 py-2 mb-8 bg-emerald-50 backdrop-blur-md rounded-full border border-emerald-100 shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-300 transition-all duration-300">
+                  <motion.div
+                    whileInView={{
+                      scale: [1, 1.15, 1.1],
+                      boxShadow: ["0 0 0px rgba(0,146,69,0)", "0 0 20px rgba(0,146,69,0.3)", "0 0 10px rgba(0,146,69,0.2)"]
+                    }}
+                    transition={{ delay: (idx * 0.2) + 0.5, duration: 0.6 }}
+                    viewport={{ once: true }}
+                    className="relative z-10 px-5 py-2 mb-8 bg-emerald-50 backdrop-blur-md rounded-full border border-emerald-100 shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:border-emerald-300 transition-all duration-300"
+                  >
                     <span className="text-sm font-bold bg-gradient-to-br from-[#009245] to-[#005a2b] bg-clip-text text-transparent uppercase tracking-wider">
                       {step.num}
                     </span>
-                  </div>
+                  </motion.div>
 
                   {/* Content Area */}
-                  <div className="bg-slate-50/50 group-hover:bg-white p-8 rounded-3xl border border-slate-100 transition-all duration-300 group-hover:shadow-2xl group-hover:border-emerald-200 w-full">
+                  <motion.div
+                    whileInView={{
+                      borderColor: ["#f1f5f9", "#10b981", "#e2e8f0"], // slate-100 to emerald-500 to slate-200
+                      backgroundColor: ["#f8fafc80", "#ffffff", "#f8fafc80"] // slate-50/50 to white to slate-50/50
+                    }}
+                    transition={{ delay: (idx * 0.2) + 0.6, duration: 0.8 }}
+                    viewport={{ once: true }}
+                    className="bg-white lg:bg-slate-50/50 group-hover:bg-white p-8 rounded-3xl border border-slate-100 transition-all duration-300 shadow-lg shadow-slate-300/90 group-hover:shadow-2xl group-hover:border-emerald-200 w-full"
+                  >
                     <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors">
                       {step.title}
                     </h3>
                     <p className="text-lg text-slate-600 leading-relaxed">
                       {step.desc}
                     </p>
-                  </div>
+                  </motion.div>
 
                   {/* Desktop Arrows/Dots between steps removed (Replaced by animated line) */}
                 </motion.div>
@@ -835,14 +809,14 @@ export default function HomePage() {
             </Link>
           </motion.div>
         </div>
-      </section>
+      </section >
 
 
       {/* ═══════════════════ FAQ ═══════════════════ */}
-      <FAQSection />
+      < FAQSection />
 
       {/* CTA (White Theme) */}
-      <section className="py-24 sm:py-32 bg-white">
+      < section className="py-24 sm:py-32 bg-white" >
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -877,7 +851,7 @@ export default function HomePage() {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section >
 
 
       <MobileCTA />

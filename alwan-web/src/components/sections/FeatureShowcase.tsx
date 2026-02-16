@@ -46,16 +46,15 @@ export default function FeatureShowcase() {
                     viewport={{ once: true }}
                     className="text-center mb-10 sm:mb-14"
                 >
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-gradient-to-r from-[#009245] to-[#007a3d] shadow-[0_4px_14px_rgba(0,146,69,0.4)] mb-6"
-                    >
+                    <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
                         Innovation
-                    </motion.div>
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-6 font-display">
-                        The Future of Finance is Here
+                    </p>
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                        The{' '}
+                        <span className="bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
+                            Future{' '}
+                        </span>
+                        of Finance is Here
                     </h2>
                     <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
                         Experience a completely new way to manage your money with Alwan's cutting-edge features.
@@ -64,36 +63,63 @@ export default function FeatureShowcase() {
 
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
                     {/* Left: Feature List - Apple Style Sidebar */}
-                    <div className="w-full lg:w-1/2 space-y-4">
+                    <div className="w-full lg:w-1/2 space-y-4 flex flex-col items-center lg:items-start">
                         {features.map((feature, idx) => {
                             const isActive = idx === activeFeature
 
                             return (
                                 <motion.div
                                     key={feature.id}
+                                    layout
                                     initial={{ opacity: 0, x: -20 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
-                                    transition={{ delay: idx * 0.1 }}
+                                    transition={{
+                                        delay: idx * 0.1,
+                                        layout: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+                                    }}
+                                    whileHover={{ x: 8, backgroundColor: 'rgba(248, 250, 252, 0.8)' }}
+                                    whileTap={{ scale: 0.98 }}
                                     onClick={() => setActiveFeature(idx)}
-                                    className={`relative px-6 py-5 cursor-pointer transition-all duration-400 group rounded-[1.5rem] ${isActive ? 'bg-slate-50 shadow-[0_4px_20px_rgba(0,0,0,0.03)]' : 'hover:bg-slate-50/50'}`}
+                                    animate={{
+                                        backgroundColor: isActive ? 'rgba(248, 250, 252, 1)' : 'rgba(248, 250, 252, 0)',
+                                        boxShadow: isActive ? '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)' : 'none'
+                                    }}
+                                    className={`relative px-6 py-5 cursor-pointer group rounded-[1.5rem] w-full max-w-sm lg:max-w-none`}
                                 >
                                     <div className="flex items-start gap-4">
                                         {/* Active Indicator Pillar */}
-                                        <div className={`mt-2 w-1.5 h-12 rounded-full transition-all duration-500 shrink-0 ${isActive ? 'bg-gradient-to-b from-[#009245] to-[#4dd88f] shadow-[0_0_12px_rgba(0,146,69,0.3)]' : 'bg-slate-100'}`} />
+                                        <motion.div
+                                            animate={{
+                                                height: isActive ? 48 : 12,
+                                                backgroundColor: isActive ? '#009245' : '#f1f5f9'
+                                            }}
+                                            className="mt-2 w-1.5 rounded-full shrink-0 transition-colors duration-500"
+                                        />
 
-                                        <div>
-                                            <h3 className={`text-2xl font-bold mb-2 transition-colors duration-400 ${isActive ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-500'}`}>
+                                        <div className="text-left">
+                                            <motion.h3
+                                                animate={{
+                                                    color: isActive ? '#0f172a' : '#94a3b8'
+                                                }}
+                                                className="text-2xl font-bold mb-2"
+                                            >
                                                 {feature.title}
-                                            </h3>
-                                            <AnimatePresence initial={false}>
+                                            </motion.h3>
+                                            {/* Description - Always visible on mobile, conditional on desktop */}
+                                            <div className="lg:hidden mt-2">
+                                                <p className="text-base text-slate-500">
+                                                    {feature.description}
+                                                </p>
+                                            </div>
+                                            <AnimatePresence>
                                                 {isActive && (
                                                     <motion.p
                                                         initial={{ opacity: 0, height: 0 }}
                                                         animate={{ opacity: 1, height: 'auto' }}
                                                         exit={{ opacity: 0, height: 0 }}
-                                                        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                                                        className="text-slate-600 leading-relaxed overflow-hidden text-lg"
+                                                        transition={{ duration: 0.3 }}
+                                                        className="hidden lg:block text-base text-slate-500 mt-2"
                                                     >
                                                         {feature.description}
                                                     </motion.p>
@@ -106,8 +132,8 @@ export default function FeatureShowcase() {
                         })}
                     </div>
 
-                    {/* Right: Interactive Mockup Area - MacBook/iOS Fluidity */}
-                    <div className="w-full lg:w-1/2 relative">
+                    {/* Right: Interactive Mockup Area - MacBook/iOS Fluidity - Hidden on Mobile */}
+                    <div className="hidden lg:block w-1/2 relative">
                         <div className="relative mx-auto w-full max-w-[360px] aspect-[9/19] bg-slate-900 rounded-[3.5rem] p-3 shadow-2xl ring-1 ring-slate-900/20">
                             {/* Device Chrome - Metallic Finish Line */}
                             <div className="absolute inset-0 rounded-[3.5rem] border-[3px] border-slate-800/50 pointer-events-none"></div>

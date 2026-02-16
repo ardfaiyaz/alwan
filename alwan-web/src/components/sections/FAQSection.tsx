@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Minus, Sparkles } from 'lucide-react'
+import { Plus, Minus } from 'lucide-react'
 
 const faqs = [
     {
@@ -29,6 +29,10 @@ const faqs = [
 
 export default function FAQSection() {
     const [openIndex, setOpenIndex] = useState<number | null>(0)
+
+    const toggleFAQ = (idx: number) => {
+        setOpenIndex(openIndex === idx ? null : idx)
+    }
 
     return (
         <section className="relative py-12 sm:py-16 overflow-hidden" id="faq">
@@ -69,19 +73,9 @@ export default function FAQSection() {
 
             <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-10">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        animate={{
-                            boxShadow: ["0 0 15px rgba(0,146,69,0.3)", "0 0 25px rgba(0,146,69,0.6)", "0 0 15px rgba(0,146,69,0.3)"]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium text-white bg-emerald-500/20 border border-emerald-400/50 backdrop-blur-sm mb-6"
-                    >
-                        <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
+                    <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#4dd88f] to-white bg-clip-text text-transparent">
                         We're here to help
-                    </motion.div>
+                    </p>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
@@ -92,15 +86,6 @@ export default function FAQSection() {
                     >
                         Frequently Asked Questions
                     </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
-                        className="text-lg text-white opacity-70"
-                    >
-                        Everything you need to know about getting funded with Alwan
-                    </motion.p>
                 </div>
 
                 <div className="space-y-4">
@@ -117,7 +102,7 @@ export default function FAQSection() {
                                 }`}
                         >
                             <button
-                                onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+                                onClick={() => toggleFAQ(idx)} // Changed to use toggleFAQ
                                 className="w-full flex items-center justify-between p-6 text-left focus:outline-none group"
                             >
                                 <span className={`font-semibold text-lg transition-colors duration-300 ${openIndex === idx ? 'text-white' : 'text-slate-200 group-hover:text-white'}`}>
@@ -135,7 +120,7 @@ export default function FAQSection() {
                                         exit={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                                     >
-                                        <div className="px-6 pb-6 text-white leading-loose border-t border-white/5 pt-4 opacity-90">
+                                        <div className="px-6 pb-6 text-white leading-loose border-t border-white/5 pt-4 opacity-90 text-justify indent-8">
                                             {faq.answer}
                                         </div>
                                     </motion.div>

@@ -7,8 +7,8 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import TypingAnimation from '@/components/TypingAnimation'
-import { MagneticButton } from '@/components/MagneticButton'
+import TypingAnimation from '@/components/ui/TypingAnimation'
+import { MagneticButton } from '@/components/ui/MagneticButton'
 
 const steps = [
   { num: '1', title: 'Download the Alwan app', desc: 'Get it on the App Store or Google Play.' },
@@ -37,7 +37,16 @@ export default function RegisterPage() {
           transition={{ duration: 0.5 }}
           className="flex-1 w-full max-w-lg font-sans"
         >
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+          {/* Mobile-visible Logo (hidden on lg) */}
+          <div className="lg:hidden mb-8">
+            <img
+              src="/icons/alwan-logo-colored.png"
+              alt="Alwan Logo"
+              className="w-32 h-auto"
+            />
+          </div>
+
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent pb-1">
             <TypingAnimation variant="register" />
           </h1>
           <p className="text-slate-600 text-lg mb-8">
@@ -70,9 +79,9 @@ export default function RegisterPage() {
                 Download the app
               </MagneticButton>
             </Link>
-            <Link href="/login" className="w-full sm:flex-1 flex items-center justify-center py-3.5 font-semibold rounded-xl border-2 border-slate-300 text-slate-700 hover:border-[#009245] hover:text-[#009245] transition-colors font-sans">
+            <button onClick={() => window.dispatchEvent(new CustomEvent('open-login-modal'))} className="w-full sm:flex-1 flex items-center justify-center py-3.5 font-semibold rounded-xl border-2 border-slate-300 text-slate-700 hover:border-[#009245] hover:text-[#009245] transition-colors font-sans cursor-pointer">
               I already have an account
-            </Link>
+            </button>
           </div>
         </motion.div>
 
