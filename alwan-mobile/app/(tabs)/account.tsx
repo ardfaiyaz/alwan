@@ -3,9 +3,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AccountScreen() {
   const router = useRouter();
+  const { profile, signOut } = useAuth();
 
   const menuItems = [
     {
@@ -46,7 +48,14 @@ export default function AccountScreen() {
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: () => Alert.alert('Logged out', 'Successfully logged out.') }
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            await signOut();
+            router.replace('/(auth)/login');
+          }
+        }
       ]
     );
   };
@@ -70,7 +79,7 @@ export default function AccountScreen() {
       >
         <TouchableOpacity
           className="absolute top-12 right-6"
-          onPress={() => Alert.alert('Support', 'KMBI Hotline: 8-123-4567')}
+          onPress={() => Alert.alert('Support', 'Alwan Hotline: 8-123-4567')}
         >
           <Ionicons name="help-buoy-outline" size={24} color="white" />
         </TouchableOpacity>
@@ -78,10 +87,14 @@ export default function AccountScreen() {
         <View className="w-24 h-24 bg-white/20 rounded-full items-center justify-center mb-4 border-2 border-white/30">
           <Ionicons name="person" size={50} color="white" />
         </View>
-        <Text className="text-white text-xl font-bold">Liza Dimaguiba</Text>
-        <Text className="text-white/80 text-sm mt-1">St. Jude Center | Active Member</Text>
+        <Text className="text-white text-xl font-bold">{profile?.full_name || 'Loading...'}</Text>
+        <Text className="text-white/80 text-sm mt-1">
+          {profile?.centers?.name || 'Alwan Community'} | {(profile?.role || 'member').charAt(0).toUpperCase() + (profile?.role || 'member').slice(1)}
+        </Text>
         <View className="mt-3 bg-[#F97316] px-4 py-1 rounded-full shadow-sm">
-          <Text className="text-white text-xs font-bold uppercase tracking-widest">Fully Verified</Text>
+          <Text className="text-white text-xs font-bold uppercase tracking-widest">
+            {profile?.trust_score && profile.trust_score >= 90 ? 'Fully Verified' : 'Standard Member'}
+          </Text>
         </View>
       </LinearGradient>
 
@@ -91,16 +104,33 @@ export default function AccountScreen() {
           <View className="bg-white rounded-2xl p-5 shadow-md border border-emerald-50">
             <View className="flex-row items-center justify-between mb-4">
               <View>
-                <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Overall Account Health</Text>
+                <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Alwan Trust Score</Text>
                 <View className="flex-row items-baseline mt-1">
-                  <Text className="text-[#047857] text-3xl font-bold">{healthScore}</Text>
+                  <Text className="text-[#047857] text-3xl font-bold">{profile?.trust_score || '0'}</Text>
                   <Text className="text-gray-400 text-sm ml-1">/100</Text>
                 </View>
-                <Text className="text-[#F97316] text-xs font-bold mt-1 uppercase">Excellent Member</Text>
+                <Text className="text-[#F97316] text-xs font-bold mt-1 uppercase">
+                  {profile?.trust_score && profile.trust_score >= 90 ? 'Excellent Member' : 'Active Member'}
+                </Text>
               </View>
               <View className="w-16 h-16 bg-emerald-50 rounded-full items-center justify-center">
                 <Ionicons name="ribbon" size={40} color="#047857" />
               </View>
+            </View>
+
+            {/* Savings Quick Stats */}
+            <View className="h-px bg-gray-50 my-2" />
+            <View className="flex-row justify-between items-center py-2 px-1">
+              <View>
+                <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Total Savings</Text>
+                <Text className="text-[#047857] text-lg font-bold">P {(profile?.total_savings || 0).toLocaleString()}</Text>
+              </View>
+              {profile?.savings_goal && (
+                <View className="items-end">
+                  <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Goal Progress</Text>
+                  <Text className="text-[#F97316] text-lg font-bold">{Math.round(((profile.total_savings || 0) / profile.savings_goal) * 100)}%</Text>
+                </View>
+              )}
             </View>
 
             {/* Health Indicators */}
@@ -170,7 +200,7 @@ export default function AccountScreen() {
             <Ionicons name="log-out-outline" size={22} color="#EF4444" />
             <Text className="text-red-500 font-bold ml-2">Logout Member</Text>
           </TouchableOpacity>
-          <Text className="text-center text-gray-300 text-[10px] mt-4 uppercase font-bold tracking-widest">Version 2.4.0 • KMBI 2026</Text>
+          <Text className="text-center text-gray-300 text-[10px] mt-4 uppercase font-bold tracking-widest">Version 2.4.0 • Alwan 2026</Text>
         </View>
       </ScrollView>
     </View>

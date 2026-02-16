@@ -1,14 +1,51 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '@/lib/supabase';
+import ErrorModal from '../../components/ui/ErrorModal';
 
 export default function LoginScreen() {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const showError = (message: string) => {
+    setErrorMessage(message);
+    setErrorVisible(true);
+  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      showError('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        showError(error.message);
+      } else {
+        // Auth state change listener in _layout/AuthContext will handle redirect usually, 
+        // but explicit replace helps UX fel faster
+        router.replace('/(tabs)');
+      }
+    } catch (error: any) {
+      showError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View className="flex-1">
@@ -26,13 +63,14 @@ export default function LoginScreen() {
         <View className="flex-1 bg-white rounded-t-[40px] mt-8 px-6 pt-8">
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
             <View className="mb-6">
-              <Text className="text-gray-700 text-sm mb-2">Enter Your Number</Text>
+              <Text className="text-gray-700 text-sm mb-2">Email Address</Text>
               <View className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
                 <TextInput
-                  placeholder="+123 456 789"
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
-                  keyboardType="phone-pad"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
                   className="text-gray-800 text-base"
                 />
               </View>
@@ -66,10 +104,15 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => router.replace('/(tabs)')}
-              className="bg-teal-700 rounded-lg py-4 items-center mb-6"
+              onPress={handleLogin}
+              disabled={loading}
+              className={`bg-teal-700 rounded-lg py-4 items-center mb-6 ${loading ? 'opacity-70' : ''}`}
             >
-              <Text className="text-white text-lg font-bold">Log In</Text>
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text className="text-white text-lg font-bold">Log In</Text>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -83,6 +126,12 @@ export default function LoginScreen() {
           </ScrollView>
         </View>
       </LinearGradient>
+
+      <ErrorModal
+        visible={errorVisible}
+        message={errorMessage}
+        onClose={() => setErrorVisible(false)}
+      />
     </View>
   );
 }

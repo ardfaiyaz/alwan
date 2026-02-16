@@ -1,16 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
 export default function PaymentScreen() {
+  const router = useRouter();
   const [selectedMethod, setSelectedMethod] = useState('center');
 
   const history = [
     {
       id: 1,
-      target: 'Kabalikat Loan',
+      target: 'Alwan Growth Loan',
       amount: -2000,
       date: 'Feb 13, 2026',
       icon: 'calendar',

@@ -32,11 +32,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="discover"
+        name="savings"
         options={{
-          title: 'Discover',
+          title: 'Savings',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'search' : 'search-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'wallet' : 'wallet-outline'} size={24} color={color} />
           ),
         }}
       />
