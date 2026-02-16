@@ -6,8 +6,9 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { MagneticButton } from '@/components/MagneticButton'
-import MobileCTA from '@/components/MobileCTA'
+import { MagneticButton } from '@/components/ui/MagneticButton'
+import MobileCTA from '@/components/sections/MobileCTA'
+
 
 const services = [
   {
@@ -44,7 +45,7 @@ const services = [
   },
 ]
 
-import FeatureShowcase from '@/components/FeatureShowcase'
+import FeatureShowcase from '@/components/sections/FeatureShowcase'
 
 export default function ServicesPage() {
   return (

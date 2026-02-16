@@ -7,8 +7,8 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import TypingAnimation from '@/components/TypingAnimation'
-import { MagneticButton } from '@/components/MagneticButton'
+import TypingAnimation from '@/components/ui/TypingAnimation'
+import { MagneticButton } from '@/components/ui/MagneticButton'
 
 const steps = [
   { num: '1', title: 'Download the Alwan app', desc: 'Get it on the App Store or Google Play.' },
@@ -79,9 +79,9 @@ export default function RegisterPage() {
                 Download the app
               </MagneticButton>
             </Link>
-            <Link href="/login" className="w-full sm:flex-1 flex items-center justify-center py-3.5 font-semibold rounded-xl border-2 border-slate-300 text-slate-700 hover:border-[#009245] hover:text-[#009245] transition-colors font-sans">
+            <button onClick={() => window.dispatchEvent(new CustomEvent('open-login-modal'))} className="w-full sm:flex-1 flex items-center justify-center py-3.5 font-semibold rounded-xl border-2 border-slate-300 text-slate-700 hover:border-[#009245] hover:text-[#009245] transition-colors font-sans cursor-pointer">
               I already have an account
-            </Link>
+            </button>
           </div>
         </motion.div>
 

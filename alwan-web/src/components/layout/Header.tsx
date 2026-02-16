@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Home, Briefcase, Info, HelpCircle, X, Menu } from 'lucide-react'
+import LoginModal from '../ui/LoginModal'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -20,6 +21,7 @@ export default function Header() {
   const pathname = usePathname()
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [user, setUser] = useState<{ email?: string } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [scrollProgress, setScrollProgress] = useState(0)
@@ -38,22 +40,22 @@ export default function Header() {
   }, [])
 
   useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    const supabase = createClient()
+    if (!supabase) {
       setIsLoading(false)
       return
     }
-    createClient().auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
       setIsLoading(false)
     })
   }, [])
 
   const handleSignOut = async () => {
-    try {
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
-        await createClient().auth.signOut()
-      }
-    } catch { /* Supabase not configured */ }
+    const supabase = createClient()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     setUser(null)
     router.refresh()
     setIsMenuOpen(false)
@@ -301,9 +303,7 @@ export default function Header() {
                 </div>
               ) : (
                 <>
-                  <Link href="/login">
-                    <button className="btn-login">Log In</button>
-                  </Link>
+                  <button onClick={() => setIsLoginOpen(true)} className="btn-login">Log In</button>
                   <Link href="/register">
                     <button className="btn-signup">
                       <span>Get Started</span>
@@ -355,11 +355,16 @@ export default function Header() {
                 <div className="flex flex-col gap-2 px-1 pt-1">
                   {!user ? (
                     <>
-                      <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                        <button type="button" className="btn-login w-full justify-center py-2.5">
-                          Log In
-                        </button>
-                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setIsLoginOpen(true)
+                        }}
+                        className="btn-login w-full justify-center py-2.5"
+                      >
+                        Log In
+                      </button>
                       <Link href="/register" onClick={() => setIsMenuOpen(false)}>
                         <button type="button" className="btn-signup w-full justify-center py-2.5">
                           <span>Get Started</span>
@@ -381,6 +386,9 @@ export default function Header() {
           )}
         </AnimatePresence>
       </header>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </>
   )
 }

@@ -2,7 +2,7 @@
  * FAQ loading - Hero, filter pills, bento grid, mobile CTA skeleton.
  */
 
-import { Skeleton } from '@/components/Skeleton'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function FAQLoading() {
   return (

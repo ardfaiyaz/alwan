@@ -2,7 +2,7 @@
  * About loading - Hero (mission), core values grid, team grid skeleton.
  */
 
-import { Skeleton } from '@/components/Skeleton'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function AboutLoading() {
   return (

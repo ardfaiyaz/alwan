@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { MagneticButton } from '@/components/MagneticButton'
+import { MagneticButton } from '@/components/ui/MagneticButton'
 
 const footerLinks = {
   product: [

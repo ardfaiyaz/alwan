@@ -6,9 +6,10 @@
 
 import Image from 'next/image'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import CoreValuesSection from '@/components/CoreValuesSection'
-import ScrollProgress from '@/components/ScrollProgress'
+import CoreValuesSection from '@/components/sections/CoreValuesSection'
+import ScrollProgress from '@/components/ui/ScrollProgress'
 import { useRef, useState, useEffect } from 'react'
+
 
 const journey = [
   {

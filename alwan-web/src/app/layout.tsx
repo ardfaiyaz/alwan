@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import { Toaster } from "sonner";
 
 /** Inter with multiple weights; font-medium applied globally for Inter Medium feel */
@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Alwan | Microfinance for Every Filipino",
+  title: "Home | Alwan",
   description:
     "Empowering Filipinos with accessible microfinance solutions. Loans, savings, and financial services designed for you.",
   icons: {
