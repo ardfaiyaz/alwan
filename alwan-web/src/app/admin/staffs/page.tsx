@@ -65,7 +65,7 @@ export default function StaffsPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [selectedStaffs, setSelectedStaffs] = useState<string[]>([])
     const [formData, setFormData] = useState({
-        email: '',
+        username: '',
         first_name: '',
         last_name: '',
         role: 'field_officer' as UserRole,
@@ -235,7 +235,7 @@ export default function StaffsPage() {
     }
 
     const handleAdd = async () => {
-        if (!formData.email || !formData.first_name || !formData.last_name || !formData.password) {
+        if (!formData.username || !formData.first_name || !formData.last_name || !formData.password) {
             toast.error('Please fill in all required fields')
             return
         }
@@ -250,6 +250,12 @@ export default function StaffsPage() {
             return
         }
 
+        // Validate username format
+        if (!/^[a-z0-9._-]+$/.test(formData.username)) {
+            toast.error('Username can only contain lowercase letters, numbers, dots, hyphens, and underscores')
+            return
+        }
+
         try {
             const supabase = createClient()
             if (!supabase) {
@@ -257,9 +263,10 @@ export default function StaffsPage() {
                 return
             }
             const full_name = `${formData.first_name} ${formData.last_name}`.trim()
+            const email = `${formData.username}@alwan.com`
 
             const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: formData.email,
+                email: email,
                 password: formData.password,
                 options: {
                     data: {
@@ -273,7 +280,7 @@ export default function StaffsPage() {
 
             const newProfile = {
                 id: authData.user?.id,
-                email: formData.email,
+                email: email,
                 full_name,
                 role: formData.role,
                 area_id: formData.area_id || null,
@@ -311,9 +318,10 @@ export default function StaffsPage() {
         const nameParts = staff.full_name.split(' ')
         const firstName = nameParts[0] || ''
         const lastName = nameParts.slice(1).join(' ') || ''
+        const username = staff.email.replace('@alwan.com', '')
         
         setFormData({
-            email: staff.email,
+            username: username,
             first_name: firstName,
             last_name: lastName,
             role: staff.role,
@@ -450,7 +458,7 @@ export default function StaffsPage() {
 
     const resetForm = () => {
         setFormData({
-            email: '',
+            username: '',
             first_name: '',
             last_name: '',
             role: 'field_officer',
@@ -895,28 +903,37 @@ function StaffForm({
             </div>
             
             <div>
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="juan@kmbi.com"
-                    disabled={isEdit}
-                    className={`transition-all duration-200 ${isEdit ? 'bg-gray-50 cursor-not-allowed' : 'focus:ring-2 focus:ring-green-500'}`}
-                />
-                {isEdit && <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>}
+                <Label htmlFor="username">Username *</Label>
+                <div className="relative">
+                    <Input
+                        id="username"
+                        type="text"
+                        value={formData.username}
+                        onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, '') })}
+                        placeholder="juan.delacruz"
+                        disabled={isEdit}
+                        className={`pr-28 transition-all duration-200 ${isEdit ? 'bg-gray-50 cursor-not-allowed' : 'focus:ring-2 focus:ring-green-500'}`}
+                    />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">
+                        @alwan.com
+                    </div>
+                </div>
+                {isEdit && <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>}
+                {!isEdit && <p className="text-xs text-gray-500 mt-1">Only lowercase letters, numbers, dots, hyphens, and underscores</p>}
             </div>
 
             <div>
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
                     id="phone"
+                    type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+63 912 345 6789"
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/[^0-9]/g, '') })}
+                    placeholder="09123456789"
+                    maxLength={11}
                     className="transition-all duration-200 focus:ring-2 focus:ring-green-500"
                 />
+                <p className="text-xs text-gray-500 mt-1">Numbers only (e.g., 09123456789)</p>
             </div>
 
             {!isEdit && (
