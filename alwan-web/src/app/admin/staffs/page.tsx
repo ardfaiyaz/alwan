@@ -64,6 +64,7 @@ export default function StaffsPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage] = useState(10)
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
     const [editingStaff, setEditingStaff] = useState<Staff | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [selectedStaffs, setSelectedStaffs] = useState<string[]>([])
@@ -345,6 +346,7 @@ export default function StaffsPage() {
             password: '',
             confirm_password: ''
         })
+        setIsEditDialogOpen(true)
     }
 
     const handleUpdate = async () => {
@@ -540,6 +542,30 @@ export default function StaffsPage() {
                                 branches={filteredBranches}
                                 onSubmit={handleAdd}
                                 onCancel={() => setIsAddDialogOpen(false)}
+                            />
+                        </DialogContent>
+                    </Dialog>
+                    
+                    {/* Edit Staff Dialog */}
+                    <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                                <DialogTitle>Edit Staff Member</DialogTitle>
+                                <DialogDescription>
+                                    Update staff information and role assignments
+                                </DialogDescription>
+                            </DialogHeader>
+                            <StaffForm
+                                formData={formData}
+                                setFormData={setFormData}
+                                areas={areas}
+                                branches={filteredBranches}
+                                onSubmit={handleUpdate}
+                                onCancel={() => {
+                                    setIsEditDialogOpen(false)
+                                    setEditingStaff(null)
+                                }}
+                                isEdit
                             />
                         </DialogContent>
                     </Dialog>
@@ -789,34 +815,13 @@ export default function StaffsPage() {
                                                 </td>
                                                 <td className="py-4 px-4">
                                                     <div className="flex items-center justify-center gap-2">
-                                                        <Dialog>
-                                                            <DialogTrigger asChild>
-                                                                <button
-                                                                    onClick={() => handleEdit(staff)}
-                                                                    className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
-                                                                    title="Edit staff"
-                                                                >
-                                                                    <Edit className="w-4 h-4 text-blue-600" />
-                                                                </button>
-                                                            </DialogTrigger>
-                                                            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-                                                                <DialogHeader>
-                                                                    <DialogTitle>Edit Staff Member</DialogTitle>
-                                                                    <DialogDescription>
-                                                                        Update staff information and role assignments
-                                                                    </DialogDescription>
-                                                                </DialogHeader>
-                                                                <StaffForm
-                                                                    formData={formData}
-                                                                    setFormData={setFormData}
-                                                                    areas={areas}
-                                                                    branches={filteredBranches}
-                                                                    onSubmit={handleUpdate}
-                                                                    onCancel={() => setEditingStaff(null)}
-                                                                    isEdit
-                                                                />
-                                                            </DialogContent>
-                                                        </Dialog>
+                                                        <button
+                                                            onClick={() => handleEdit(staff)}
+                                                            className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            title="Edit staff"
+                                                        >
+                                                            <Edit className="w-4 h-4 text-blue-600" />
+                                                        </button>
                                                         <button
                                                             onClick={() => handleToggleStatus(staff)}
                                                             className="p-2 hover:bg-orange-50 rounded-lg transition-colors"
