@@ -1,0 +1,388 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  admin
+  area_manager
+  branch_manager
+  field_officer
+}
+
+enum LoanType {
+  kabalikat
+  maunlad
+  masagana
+  k_flex
+  k_agapay
+  k_silong
+}
+
+enum LoanStatus {
+  draft
+  pending_field_officer
+  pending_branch_manager
+  pending_area_manager
+  approved
+  disbursed
+  active
+  completed
+  rejected
+  written_off
+}
+
+enum ApprovalAction {
+  approve
+  reject
+  request_revision
+}
+
+enum PermissionResource {
+  dashboard
+  centers
+  members
+  loans
+  collections
+  reports
+  users
+  settings
+  audit_logs
+  approvals
+}
+
+enum PermissionAction {
+  view
+  create
+  edit
+  delete
+  approve
+  export
+}
+
+enum CollectionStatus {
+  pending
+  completed
+  verified
+  cancelled
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model Area {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  code        String    @unique
+  description String?
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  branches    Branch[]
+  profiles    Profile[]
+
+  @@map("areas")
+}
+
+model Profile {
+  id        String    @id @db.Uuid
+  email     String    @unique
+  fullName  String    @map("full_name")
+  role      UserRole  @default(field_officer)
+  areaId    String?   @map("area_id") @db.Uuid
+  branchId  String?   @map("branch_id") @db.Uuid
+  phone     String?
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  area                Area?                       @relation(fields: [areaId], references: [id])
+  branch              Branch?                     @relation("ProfileBranch", fields: [branchId], references: [id])
+  managedBranches     Branch[]                    @relation("BranchManager")
+  createdCenters      Center[]                    @relation("CenterCreator")
+  fieldOfficerCenters Center[]                    @relation("FieldOfficerCenters")
+  createdLoans        Loan[]                      @relation("LoanCreator")
+  disbursedLoans      Loan[]                      @relation("LoanDisbursed")
+  loanApprovals       LoanApproval[]
+  businessEvaluations BusinessEvaluation[]
+  collectedTransactions Transaction[]
+  collectionSheets    WeeklyCollectionSheet[]
+  verifiedSheets      WeeklyCollectionSheet[]     @relation("SheetVerifier")
+  auditLogs           AuditLog[]
+  updatedSettings     GlobalSetting[]
+
+  @@map("profiles")
+}
+
+model Branch {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  areaId    String?   @map("area_id") @db.Uuid
+  name      String
+  code      String    @unique
+  address   String?
+  managerId String?   @map("manager_id") @db.Uuid
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  area      Area?     @relation(fields: [areaId], references: [id])
+  manager   Profile?  @relation("BranchManager", fields: [managerId], references: [id])
+  profiles  Profile[] @relation("ProfileBranch")
+  centers   Center[]
+
+  @@map("branches")
+}
+
+model Center {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId        String    @map("branch_id") @db.Uuid
+  name            String
+  code            String    @unique
+  leaderId        String?   @map("leader_id") @db.Uuid
+  fieldOfficerId  String?   @map("field_officer_id") @db.Uuid
+  meetingLocation String    @map("meeting_location")
+  meetingDay      String    @map("meeting_day")
+  meetingTime     DateTime  @map("meeting_time") @db.Time
+  isActive        Boolean   @default(true) @map("is_active")
+  createdBy       String?   @map("created_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  branch          Branch                  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  leader          Member?                 @relation("CenterLeader", fields: [leaderId], references: [id])
+  fieldOfficer    Profile?                @relation("FieldOfficerCenters", fields: [fieldOfficerId], references: [id])
+  creator         Profile?                @relation("CenterCreator", fields: [createdBy], references: [id])
+  members         Member[]                @relation("CenterMembers")
+  loans           Loan[]
+  transactions    Transaction[]
+  collectionSheets WeeklyCollectionSheet[]
+
+  @@map("centers")
+}
+
+model Member {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  centerId                String    @map("center_id") @db.Uuid
+  firstName               String    @map("first_name")
+  lastName                String    @map("last_name")
+  middleName              String?   @map("middle_name")
+  dateOfBirth             DateTime  @map("date_of_birth") @db.Date
+  gender                  String?
+  phone                   String?
+  address                 String
+  businessName            String?   @map("business_name")
+  businessType            String?   @map("business_type")
+  businessAddress         String?   @map("business_address")
+  cbuBalance              Decimal   @default(0) @map("cbu_balance") @db.Decimal(15, 2)
+  isActive                Boolean   @default(true) @map("is_active")
+  joinedDate              DateTime  @default(now()) @map("joined_date") @db.Date
+  spouseName              String?   @map("spouse_name")
+  beneficiaryName         String?   @map("beneficiary_name")
+  beneficiaryRelationship String?   @map("beneficiary_relationship")
+  beneficiaryPhone        String?   @map("beneficiary_phone")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  center       Center        @relation("CenterMembers", fields: [centerId], references: [id], onDelete: Cascade)
+  ledCenters   Center[]      @relation("CenterLeader")
+  loans        Loan[]
+  transactions Transaction[]
+
+  @@map("members")
+}
+
+model Loan {
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  memberId          String      @map("member_id") @db.Uuid
+  centerId          String      @map("center_id") @db.Uuid
+  loanType          LoanType    @map("loan_type")
+  status            LoanStatus  @default(draft)
+  principalAmount   Decimal     @map("principal_amount") @db.Decimal(15, 2)
+  interestRate      Decimal     @default(2.00) @map("interest_rate") @db.Decimal(5, 2)
+  termWeeks         Int         @map("term_weeks")
+  purpose           String
+  totalInterest     Decimal     @map("total_interest") @db.Decimal(15, 2)
+  cbuAmount         Decimal     @map("cbu_amount") @db.Decimal(15, 2)
+  totalAmount       Decimal     @map("total_amount") @db.Decimal(15, 2)
+  weeklyPayment     Decimal     @map("weekly_payment") @db.Decimal(15, 2)
+  outstandingBalance Decimal    @map("outstanding_balance") @db.Decimal(15, 2)
+  totalPaid         Decimal     @default(0) @map("total_paid") @db.Decimal(15, 2)
+  disbursementDate  DateTime?   @map("disbursement_date") @db.Date
+  disbursementMethod String?    @map("disbursement_method")
+  disbursedBy       String?     @map("disbursed_by") @db.Uuid
+  lastPaymentDate   DateTime?   @map("last_payment_date") @db.Date
+  createdBy         String      @map("created_by") @db.Uuid
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  member              Member                @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  center              Center                @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  disburser           Profile?              @relation("LoanDisbursed", fields: [disbursedBy], references: [id])
+  creator             Profile               @relation("LoanCreator", fields: [createdBy], references: [id])
+  approvals           LoanApproval[]
+  businessEvaluations BusinessEvaluation[]
+  repaymentSchedules  RepaymentSchedule[]
+  transactions        Transaction[]
+
+  @@map("loans")
+}
+
+model LoanApproval {
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  loanId       String          @map("loan_id") @db.Uuid
+  approverId   String          @map("approver_id") @db.Uuid
+  approverRole UserRole        @map("approver_role")
+  action       ApprovalAction
+  comments     String?
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  loan     Loan    @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  approver Profile @relation(fields: [approverId], references: [id])
+
+  @@map("loan_approvals")
+}
+
+model BusinessEvaluation {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  loanId                  String    @map("loan_id") @db.Uuid
+  evaluatedBy             String    @map("evaluated_by") @db.Uuid
+  photoUrls               String[]  @map("photo_urls")
+  businessViabilityScore  Int?      @map("business_viability_score")
+  repaymentCapacityScore  Int?      @map("repayment_capacity_score")
+  characterScore          Int?      @map("character_score")
+  overallScore            Int?      @map("overall_score")
+  notes                   String?
+  riskAssessment          String?   @map("risk_assessment")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  loan      Loan    @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  evaluator Profile @relation(fields: [evaluatedBy], references: [id])
+
+  @@map("business_evaluations")
+}
+
+model RepaymentSchedule {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  loanId       String    @map("loan_id") @db.Uuid
+  weekNumber   Int       @map("week_number")
+  dueDate      DateTime  @map("due_date") @db.Date
+  principalDue Decimal   @map("principal_due") @db.Decimal(15, 2)
+  interestDue  Decimal   @map("interest_due") @db.Decimal(15, 2)
+  totalDue     Decimal   @map("total_due") @db.Decimal(15, 2)
+  amountPaid   Decimal   @default(0) @map("amount_paid") @db.Decimal(15, 2)
+  paymentDate  DateTime? @map("payment_date") @db.Date
+  isPaid       Boolean   @default(false) @map("is_paid")
+  daysOverdue  Int       @default(0) @map("days_overdue")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  loan Loan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+
+  @@map("repayment_schedules")
+}
+
+model WeeklyCollectionSheet {
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  centerId       String            @map("center_id") @db.Uuid
+  collectionDate DateTime          @map("collection_date") @db.Date
+  fieldOfficerId String?           @map("field_officer_id") @db.Uuid
+  status         CollectionStatus  @default(pending)
+  totalCollected Decimal           @default(0) @map("total_collected") @db.Decimal(15, 2)
+  verifiedBy     String?           @map("verified_by") @db.Uuid
+  verifiedAt     DateTime?         @map("verified_at")
+  notes          String?
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  center       Center        @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  fieldOfficer Profile?      @relation(fields: [fieldOfficerId], references: [id])
+  verifier     Profile?      @relation("SheetVerifier", fields: [verifiedBy], references: [id])
+  transactions Transaction[]
+
+  @@unique([centerId, collectionDate])
+  @@map("weekly_collection_sheets")
+}
+
+model Transaction {
+  id                  String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  loanId              String?                @map("loan_id") @db.Uuid
+  memberId            String                 @map("member_id") @db.Uuid
+  centerId            String                 @map("center_id") @db.Uuid
+  collectionSheetId   String?                @map("collection_sheet_id") @db.Uuid
+  transactionDate     DateTime               @default(now()) @map("transaction_date") @db.Date
+  loanPayment         Decimal                @default(0) @map("loan_payment") @db.Decimal(15, 2)
+  cbuPayment          Decimal                @default(0) @map("cbu_payment") @db.Decimal(15, 2)
+  insurancePayment    Decimal                @default(0) @map("insurance_payment") @db.Decimal(15, 2)
+  totalAmount         Decimal                @map("total_amount") @db.Decimal(15, 2)
+  collectedBy         String                 @map("collected_by") @db.Uuid
+  receiptNumber       String?                @map("receipt_number")
+  notes               String?
+  createdAt           DateTime               @default(now()) @map("created_at")
+
+  loan            Loan?                  @relation(fields: [loanId], references: [id])
+  member          Member                 @relation(fields: [memberId], references: [id])
+  center          Center                 @relation(fields: [centerId], references: [id])
+  collectionSheet WeeklyCollectionSheet? @relation(fields: [collectionSheetId], references: [id])
+  collector       Profile                @relation(fields: [collectedBy], references: [id])
+
+  @@map("transactions")
+}
+
+model AuditLog {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String?   @map("user_id") @db.Uuid
+  userEmail    String?   @map("user_email")
+  userRole     UserRole? @map("user_role")
+  action       String
+  resourceType String    @map("resource_type")
+  resourceId   String?   @map("resource_id") @db.Uuid
+  oldValues    Json?     @map("old_values")
+  newValues    Json?     @map("new_values")
+  ipAddress    String?   @map("ip_address")
+  userAgent    String?   @map("user_agent")
+  success      Boolean   @default(true)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  user Profile? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([resourceType, resourceId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+model GlobalSetting {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key         String    @unique @db.VarChar(100)
+  value       Json
+  description String?
+  updatedBy   String?   @map("updated_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  updater Profile? @relation(fields: [updatedBy], references: [id])
+
+  @@map("global_settings")
+}
+
+model Permission {
+  id       String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role     UserRole
+  resource PermissionResource
+  action   PermissionAction
+
+  @@unique([role, resource, action])
+  @@map("permissions")
+}

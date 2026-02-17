@@ -7,6 +7,11 @@
   --primary-violet: #7C3AED;
   --success-green: #10B981;
   --bg-neutral: #FAFAFA;
+
+  /* KMBI Brand Colors */
+  --kmbi-blue: #0066CC;
+  --kmbi-green: #009245;
+  --kmbi-gold: #FFB81C;
 }
 
 @theme inline {
@@ -66,8 +71,16 @@ textarea {
 
 /* Typing animation cursor */
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 .typing-cursor {
@@ -98,8 +111,13 @@ textarea {
 
 /* Horizontal infinite scroll for logo strip (about page) */
 @keyframes logo-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .logo-scroll-track {
@@ -110,6 +128,7 @@ textarea {
 .nav-link-gradient-underline {
   position: relative;
 }
+
 .nav-link-gradient-underline::after {
   content: '';
   position: absolute;

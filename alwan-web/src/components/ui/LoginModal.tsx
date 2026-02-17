@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { logUserLogin } from '@/app/actions/auth-logging'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 interface LoginModalProps {
     isOpen: boolean
@@ -21,6 +22,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
     const supabase = createClient()
+    const { setUser } = useAuthStore()
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -42,11 +44,47 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             }
 
             if (data.user) {
-                toast.success('Successfully logged in!')
-                await logUserLogin(data.user.email || 'unknown')
-                onClose()
-                router.refresh()
-                router.push('/')
+                // Fetch user profile to check role
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single()
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError.message, profileError.details)
+                    toast.error('User profile not found. Please contact an administrator.')
+                    // Fallback to home if profile fails
+                    router.push('/')
+                } else {
+                    toast.success('Successfully logged in!')
+                    await logUserLogin(data.user.email || 'unknown')
+
+                    // Update auth store
+                    const userProfile = {
+                        id: profile.id,
+                        email: profile.email,
+                        fullName: profile.full_name,
+                        role: profile.role,
+                        branchId: profile.branch_id,
+                        areaId: profile.area_id,
+                        phone: profile.phone,
+                        isActive: profile.is_active
+                    }
+                    setUser(userProfile)
+
+                    // Redirect based on role
+                    const isAdminOrStaff = ['admin', 'field_officer', 'branch_manager', 'area_manager'].includes(profile.role)
+
+                    onClose()
+                    router.refresh()
+
+                    if (isAdminOrStaff) {
+                        router.push('/admin')
+                    } else {
+                        router.push('/')
+                    }
+                }
             }
         } catch (error) {
             toast.error('An unexpected error occurred')
@@ -156,7 +194,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             className="btn-login-modal w-full mb-4 disabled:opacity-70 disabled:cursor-not-allowed"
                                         >
                                             {isLoading ? (
-                                                <Loader2 className="w-5 h-5 animate-spin mx-auto text-emerald-600" />
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <Loader2 className="w-5 h-5 animate-spin text-emerald-600" />
+                                                    <span>Logging In...</span>
+                                                </div>
                                             ) : (
                                                 'Log In'
                                             )}
