@@ -36,18 +36,39 @@ const journey = [
 
 // ... (Developers array remains same) ...
 
-// ... (TeamMemberImage and JourneyItem components remain same) ...
+// JourneyItem Component
+function JourneyItem({ item, idx }: { item: any; idx: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: idx * 0.1 }}
+      className="flex gap-6"
+    >
+      <div className="flex-shrink-0">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold">
+          {item.year}
+        </div>
+      </div>
+      <div className="flex-1">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+        <p className="text-gray-600">{item.description}</p>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function AboutPage() {
-  // ... (Hero section code remains same) ...
-
-  {/* Section 2: Mission & Vision */ }
-  <section className="py-16 sm:py-24 bg-white">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
+  return (
+    <>
+      {/* Section 2: Mission & Vision */}
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="group"
