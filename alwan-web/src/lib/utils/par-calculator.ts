@@ -29,11 +29,16 @@ export async function calculatePAR(
     asOfDate: Date = new Date()
 ): Promise<PARMetrics> {
     const supabase = createClient()
+    if (!supabase) throw new Error('Supabase client not initialized')
+
+    if (!supabase) throw new Error('Supabase client not initialized')
+
 
     const { data, error } = await supabase.rpc('calculate_par_for_branch', {
         p_branch_id: branchId,
         p_as_of_date: asOfDate.toISOString().split('T')[0]
-    })
+    } as any)
+
 
     if (error) throw error
 
@@ -76,6 +81,8 @@ export async function calculateCollectionEfficiency(
     endDate: Date
 ): Promise<number> {
     const supabase = createClient()
+    if (!supabase) throw new Error('Supabase client not initialized')
+
 
     // Get all collections in date range
     const { data: collections, error } = await supabase
@@ -116,6 +123,8 @@ export async function calculateCollectionEfficiency(
  */
 export async function getOverdueLoans(branchId: string) {
     const supabase = createClient()
+    if (!supabase) throw new Error('Supabase client not initialized')
+
 
     const { data, error } = await supabase
         .from('repayment_schedules')

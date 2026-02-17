@@ -20,7 +20,7 @@ export interface AuditLogData {
 export async function logAudit(data: AuditLogData) {
     try {
         const supabase = await createClient()
-        const headersList = headers()
+        const headersList = await headers()
 
         // Get current user
         const { data: { user } } = await supabase.auth.getUser()

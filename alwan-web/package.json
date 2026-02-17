@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -36,14 +36,12 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@prisma/client": "^5.10.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9.18.0",
     "eslint-config-next": "^15.2.0",
-    "prisma": "^5.10.0",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.0"
   }

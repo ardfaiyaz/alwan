@@ -95,7 +95,7 @@ export function PARChart({ data }: PARChartProps) {
                                 <XAxis dataKey="name" fontSize={12} />
                                 <YAxis fontSize={12} tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`} />
                                 <Tooltip
-                                    formatter={(value: number) => formatCurrency(value)}
+                                    formatter={(value: any) => formatCurrency(Number(value))}
                                     contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                                 />
                                 <Legend />
@@ -114,7 +114,7 @@ export function PARChart({ data }: PARChartProps) {
                                     cx="50%"
                                     cy="50%"
                                     labelLine={false}
-                                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                    label={({ name, percent }) => `${name}: ${(percent ? percent * 100 : 0).toFixed(0)}%`}
                                     outerRadius={80}
                                     fill="#8884d8"
                                     dataKey="value"
@@ -123,7 +123,7 @@ export function PARChart({ data }: PARChartProps) {
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
-                                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>

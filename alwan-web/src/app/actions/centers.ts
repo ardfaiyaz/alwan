@@ -1,6 +1,6 @@
 'use server'
 
-import { prisma } from '@/lib/prisma/client'
+import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAudit } from './audit'
 import { z } from 'zod'
@@ -18,44 +18,45 @@ export async function transferCenter(formData: {
 }) {
     try {
         const validated = transferCenterSchema.parse(formData)
+        const supabase = await createClient()
 
-        // Use transaction to ensure data integrity
-        const result = await prisma.$transaction(async (tx: any) => {
-            // 1. Get current center details for audit
-            const center = await tx.center.findUnique({
-                where: { id: validated.centerId },
-                include: { branch: true, members: true }
+        // 1. Get current center details
+        const { data: center, error: fetchError } = await supabase
+            .from('centers')
+            .select('*, branch:branches(*)')
+            .eq('id', validated.centerId)
+            .single()
+
+        if (fetchError || !center) throw new Error('Center not found')
+
+        if (center.branch_id === validated.targetBranchId) {
+            throw new Error('Center is already in the target branch')
+        }
+
+        const prevBranch = center.branch
+
+        // 2. Update center branch
+        const { data: updatedCenter, error: updateError } = await supabase
+            .from('centers')
+            .update({
+                branch_id: validated.targetBranchId,
+                updated_at: new Date().toISOString()
             })
+            .eq('id', validated.centerId)
+            .select('*, branch:branches(*)')
+            .single()
 
-            if (!center) throw new Error('Center not found')
-            if (center.branchId === validated.targetBranchId) {
-                throw new Error('Center is already in the target branch')
-            }
+        if (updateError) throw updateError
 
-            // 2. Update center branch
-            const updatedCenter = await tx.center.update({
-                where: { id: validated.centerId },
-                data: {
-                    branchId: validated.targetBranchId,
-                    updatedAt: new Date()
-                },
-                include: { branch: true }
-            })
+        const newBranch = updatedCenter.branch
 
-            // 3. Log the transfer in audit trail
-            // Note: We'll do this outside the transaction or via the audit helper
-            // which handles its own error catching to not block the main action
-
-            return { prevBranch: center.branch, newBranch: updatedCenter.branch }
-        })
-
-        // 4. Log audit (outside transaction to avoid circular issues if audit fails)
+        // 3. Log audit
         await logAudit({
             action: 'TRANSFER_CENTER',
             resourceType: 'center',
             resourceId: validated.centerId,
-            oldValues: { branchId: result.prevBranch.id, branchName: result.prevBranch.name },
-            newValues: { branchId: result.newBranch.id, branchName: result.newBranch.name, reason: validated.reason },
+            oldValues: { branchId: prevBranch.id, branchName: prevBranch.name },
+            newValues: { branchId: newBranch.id, branchName: newBranch.name, reason: validated.reason },
             success: true
         })
 

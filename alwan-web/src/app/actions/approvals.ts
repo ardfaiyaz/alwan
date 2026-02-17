@@ -39,16 +39,17 @@ export async function processApproval(data: LoanApprovalInput) {
         if (loanError || !loan) throw new Error('Loan not found')
 
         // Check if user can approve this loan
-        if (validated.action === 'approve' && !canApproveLoan(profile.role, loan.principal_amount)) {
+        if (validated.action === 'approve' && !canApproveLoan(profile.role as any, loan.principal_amount)) {
             throw new Error('You do not have permission to approve this loan amount')
         }
 
         // Determine next status
         const nextStatus = getNextLoanStatus(
-            profile.role,
+            profile.role as any,
             loan.principal_amount,
             validated.action
         )
+
 
         // Update loan status
         const updateData: any = {

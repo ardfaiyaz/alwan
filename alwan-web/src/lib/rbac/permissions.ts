@@ -141,9 +141,10 @@ export function canApproveLoan(
 export function getNextLoanStatus(
     currentRole: UserRole,
     loanAmount: number,
-    action: 'approve' | 'reject'
+    action: 'approve' | 'reject' | 'request_revision'
 ): string {
     if (action === 'reject') return 'rejected'
+    if (action === 'request_revision') return 'draft'
 
     if (currentRole === 'field_officer') {
         return 'pending_branch_manager'

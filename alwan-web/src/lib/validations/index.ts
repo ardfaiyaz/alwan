@@ -46,9 +46,10 @@ export const weeklyCollectionSchema = z.object({
  */
 export const loanApprovalSchema = z.object({
     loanId: z.string().uuid('Invalid loan ID'),
-    action: z.enum(['approve', 'reject', 'request_revision'], {
-        errorMap: () => ({ message: 'Invalid approval action' }),
+    action: z.enum(['approve', 'reject', 'request_revision'] as const, {
+        message: 'Invalid approval action',
     }),
+
     comments: z.string().max(1000, 'Comments cannot exceed 1000 characters').optional(),
 })
 

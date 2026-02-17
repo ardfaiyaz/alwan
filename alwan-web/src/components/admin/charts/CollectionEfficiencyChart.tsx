@@ -59,9 +59,9 @@ export function CollectionEfficiencyChart({ data }: CollectionEfficiencyChartPro
                             tickFormatter={(value) => `${value}%`}
                         />
                         <Tooltip
-                            formatter={(value: number, name: string) => {
-                                if (name === 'efficiency') return `${value.toFixed(1)}%`
-                                return formatCurrency(value)
+                            formatter={(value: any, name: any) => {
+                                if (name === 'efficiency') return `${Number(value).toFixed(1)}%`
+                                return formatCurrency(Number(value))
                             }}
                             contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
                         />
