@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { GlassyButton } from '@/components/ui/glassy-button'
-import { Plus, Search, Edit, Trash2, Shield, UserCheck, UserX, ArrowUpDown, Download, Filter, Eye, EyeOff } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Shield, UserCheck, UserX, ArrowUpDown, Download, Filter, Eye, EyeOff, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -925,6 +925,88 @@ function StaffForm({
 }) {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const [emailValidation, setEmailValidation] = useState<{
+        isValid: boolean | null
+        message: string
+        isChecking: boolean
+    }>({ isValid: null, message: '', isChecking: false })
+
+    // Validate email format and check if it exists
+    const validateEmail = async (username: string) => {
+        if (!username || username.length < 3) {
+            setEmailValidation({ isValid: null, message: '', isChecking: false })
+            return
+        }
+
+        // Check format first
+        if (!/^[a-z0-9]+([._-]?[a-z0-9]+)*$/.test(username)) {
+            setEmailValidation({ 
+                isValid: false, 
+                message: 'Invalid format. Use letters, numbers, and single dots/hyphens/underscores.', 
+                isChecking: false 
+            })
+            return
+        }
+
+        if (/^[._-]|[._-]$/.test(username)) {
+            setEmailValidation({ 
+                isValid: false, 
+                message: 'Cannot start or end with special characters.', 
+                isChecking: false 
+            })
+            return
+        }
+
+        setEmailValidation({ isValid: null, message: '', isChecking: true })
+
+        // Check if email exists in database
+        try {
+            const supabase = createClient()
+            if (!supabase) {
+                setEmailValidation({ isValid: false, message: 'Connection error', isChecking: false })
+                return
+            }
+
+            const email = `${username}@alwan.com`
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('email', email)
+                .single()
+
+            if (error && error.code !== 'PGRST116') { // PGRST116 = not found (which is good)
+                setEmailValidation({ isValid: false, message: 'Error checking email', isChecking: false })
+                return
+            }
+
+            if (data) {
+                setEmailValidation({ 
+                    isValid: false, 
+                    message: 'This email is already taken', 
+                    isChecking: false 
+                })
+            } else {
+                setEmailValidation({ 
+                    isValid: true, 
+                    message: 'Email is available', 
+                    isChecking: false 
+                })
+            }
+        } catch (err) {
+            setEmailValidation({ isValid: false, message: 'Error validating email', isChecking: false })
+        }
+    }
+
+    // Debounce email validation
+    useEffect(() => {
+        if (isEdit) return // Don't validate on edit
+        
+        const timer = setTimeout(() => {
+            validateEmail(formData.username)
+        }, 500)
+
+        return () => clearTimeout(timer)
+    }, [formData.username, isEdit])
 
     return (
         <div className="space-y-4">
@@ -970,15 +1052,41 @@ function StaffForm({
                         }}
                         placeholder="juan.delacruz"
                         disabled={isEdit}
-                        className={`pr-28 transition-all duration-200 ${isEdit ? 'bg-gray-50 cursor-not-allowed' : 'focus:ring-2 focus:ring-green-500'}`}
+                        className={`pr-36 transition-all duration-200 ${
+                            isEdit 
+                                ? 'bg-gray-50 cursor-not-allowed' 
+                                : emailValidation.isValid === false 
+                                    ? 'border-red-300 focus:ring-red-500' 
+                                    : emailValidation.isValid === true 
+                                        ? 'border-green-300 focus:ring-green-500' 
+                                        : 'focus:ring-2 focus:ring-green-500'
+                        }`}
                         maxLength={30}
                     />
+                    {!isEdit && formData.username && (
+                        <div className="absolute right-28 top-1/2 -translate-y-1/2">
+                            {emailValidation.isChecking ? (
+                                <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+                            ) : emailValidation.isValid === true ? (
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                            ) : emailValidation.isValid === false ? (
+                                <XCircle className="w-4 h-4 text-red-600" />
+                            ) : null}
+                        </div>
+                    )}
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">
                         @alwan.com
                     </div>
                 </div>
                 {isEdit && <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>}
-                {!isEdit && <p className="text-xs text-gray-500 mt-1">Min 3 characters. Letters, numbers, dots, hyphens, underscores (no consecutive special chars)</p>}
+                {!isEdit && emailValidation.message && (
+                    <p className={`text-xs mt-1 ${emailValidation.isValid === false ? 'text-red-600' : 'text-green-600'}`}>
+                        {emailValidation.message}
+                    </p>
+                )}
+                {!isEdit && !emailValidation.message && (
+                    <p className="text-xs text-gray-500 mt-1">Min 3 characters. Letters, numbers, dots, hyphens, underscores (no consecutive special chars)</p>
+                )}
             </div>
 
             <div>
@@ -1113,7 +1221,8 @@ function StaffForm({
                 </GlassyButton>
                 <GlassyButton 
                     onClick={onSubmit} 
-                    className="flex-1 transition-all duration-200 hover:scale-105 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                    disabled={!isEdit && (emailValidation.isValid !== true || emailValidation.isChecking)}
+                    className="flex-1 transition-all duration-200 hover:scale-105 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isEdit ? 'Update Staff' : 'Add Staff'}
                 </GlassyButton>
