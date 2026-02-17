@@ -2,9 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
-import { Alert, Modal, ScrollView, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, Modal, ScrollView, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Platform } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 
 type Member = {
     id: string;
@@ -18,6 +20,29 @@ type LoanProduct = {
     interest_rate_weekly: number;
     max_term_weeks: number;
 };
+
+// Local base64 decoder to avoid dependency issues
+function decodeBase64(base64: string): Uint8Array {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    const lookup = new Uint8Array(256);
+    for (let i = 0; i < chars.length; i++) lookup[chars.charCodeAt(i)] = i;
+
+    const clean = base64.replace(/[^A-Za-z0-9+/]/g, '');
+    const len = clean.length;
+    const byteLen = (len * 3) >> 2;
+    const bytes = new Uint8Array(byteLen);
+    let p = 0;
+    for (let i = 0; i < len; i += 4) {
+        const e1 = lookup[clean.charCodeAt(i)];
+        const e2 = lookup[clean.charCodeAt(i + 1)];
+        const e3 = lookup[clean.charCodeAt(i + 2)];
+        const e4 = lookup[clean.charCodeAt(i + 3)];
+        bytes[p++] = (e1 << 2) | (e2 >> 4);
+        if (i + 2 < len) bytes[p++] = ((e2 & 15) << 4) | (e3 >> 2);
+        if (i + 3 < len) bytes[p++] = ((e3 & 3) << 6) | e4;
+    }
+    return bytes;
+}
 
 export default function LoanApplicationScreen() {
     const router = useRouter();
@@ -34,6 +59,10 @@ export default function LoanApplicationScreen() {
     const [isLoadingMembers, setIsLoadingMembers] = useState(false);
     const [loanProducts, setLoanProducts] = useState<LoanProduct[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<LoanProduct | null>(null);
+
+    // Document upload state
+    const [uploadedDocuments, setUploadedDocuments] = useState<Record<string, string>>({});
+    const [uploadingDocs, setUploadingDocs] = useState<Record<string, boolean>>({});
 
     // Dynamic Constants based on Profile
     const CBU_BALANCE = profile?.cbu_balance || 0;
@@ -87,6 +116,36 @@ export default function LoanApplicationScreen() {
             console.error('Error fetching initial application data:', error);
         } finally {
             setIsLoadingMembers(false);
+        }
+    };
+
+    // Upload file to Supabase Storage
+    const uploadFile = async (uri: string, name: string, type: string): Promise<string> => {
+        try {
+            const filePath = `${user?.id}/${Date.now()}_${name}`;
+            let uploadData: Uint8Array | Blob;
+
+            if (Platform.OS === 'web') {
+                const response = await fetch(uri);
+                const blob = await response.blob();
+                uploadData = blob as any;
+            } else {
+                const base64 = await FileSystem.readAsStringAsync(uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+                uploadData = decodeBase64(base64);
+            }
+
+            const { data, error } = await supabase.storage
+                .from('loan-documents')
+                .upload(filePath, uploadData, { contentType: type });
+
+            if (error) throw error;
+            const { data: { publicUrl } } = supabase.storage.from('loan-documents').getPublicUrl(data.path);
+            return publicUrl;
+        } catch (error) {
+            console.error('Upload error:', error);
+            throw error;
         }
     };
 
@@ -277,7 +336,88 @@ export default function LoanApplicationScreen() {
         );
     };
 
-    // Step 4: Review Application
+    // Step 4: Document Uploads
+    const DocumentsStep = () => {
+        const docTypes = [
+            { id: 'business_permit', label: 'Business Permit', icon: 'business' },
+            { id: 'income_proof', label: 'Proof of Income', icon: 'cash' },
+            { id: 'personal_id', label: 'Valid ID', icon: 'card' },
+            { id: 'community_recommendation', label: 'Recommendation', icon: 'people' },
+        ];
+
+        const toggleDoc = async (id: string) => {
+            if (uploadedDocuments[id]) {
+                setUploadedDocuments(prev => {
+                    const next = { ...prev };
+                    delete next[id];
+                    return next;
+                });
+            } else {
+                try {
+                    const result = await DocumentPicker.getDocumentAsync({
+                        type: ['application/pdf', 'image/*'],
+                        copyToCacheDirectory: true
+                    });
+
+                    if (result.canceled) return;
+
+                    const file = result.assets[0];
+                    setUploadingDocs(prev => ({ ...prev, [id]: true }));
+
+                    const publicUrl = await uploadFile(file.uri, file.name, file.mimeType || 'application/octet-stream');
+
+                    setUploadedDocuments(prev => ({ ...prev, [id]: publicUrl }));
+                    setUploadingDocs(prev => ({ ...prev, [id]: false }));
+                } catch (error) {
+                    setUploadingDocs(prev => ({ ...prev, [id]: false }));
+                    Alert.alert('Upload Failed', 'There was an error uploading your document.');
+                }
+            }
+        };
+
+        return (
+            <View>
+                <Text className="text-gray-800 text-lg font-bold mb-2">Requirement Uploads</Text>
+                <Text className="text-gray-500 text-sm mb-6">Please upload the required documents for your loan application.</Text>
+
+                {docTypes.map((doc) => (
+                    <TouchableOpacity
+                        key={doc.id}
+                        onPress={() => !uploadingDocs[doc.id] && toggleDoc(doc.id)}
+                        disabled={uploadingDocs[doc.id]}
+                        className={`p-5 rounded-2xl border-2 mb-4 flex-row items-center justify-between ${uploadedDocuments[doc.id] ? 'bg-emerald-50 border-emerald-600' : 'bg-white border-gray-100'}`}
+                    >
+                        <View className="flex-row items-center">
+                            <View className={`w-12 h-12 rounded-xl items-center justify-center mr-4 ${uploadedDocuments[doc.id] ? 'bg-emerald-600' : uploadingDocs[doc.id] ? 'bg-amber-100' : 'bg-gray-100'}`}>
+                                {uploadingDocs[doc.id] ? (
+                                    <ActivityIndicator size="small" color="#F59E0B" />
+                                ) : (
+                                    <Ionicons name={doc.icon as any} size={24} color={uploadedDocuments[doc.id] ? 'white' : '#4B5563'} />
+                                )}
+                            </View>
+                            <View>
+                                <Text className={`font-bold ${uploadedDocuments[doc.id] ? 'text-emerald-900' : 'text-gray-800'}`}>{doc.label}</Text>
+                                <Text className="text-gray-400 text-xs">
+                                    {uploadingDocs[doc.id] ? 'Uploading...' : uploadedDocuments[doc.id] ? 'Document Uploaded' : 'Tap to upload'}
+                                </Text>
+                            </View>
+                        </View>
+                        {uploadingDocs[doc.id] ? (
+                            <ActivityIndicator size="small" color="#047857" />
+                        ) : (
+                            <Ionicons
+                                name={uploadedDocuments[doc.id] ? "checkmark-circle" : "add-circle-outline"}
+                                size={28}
+                                color={uploadedDocuments[doc.id] ? "#059669" : "#D1D5DB"}
+                            />
+                        )}
+                    </TouchableOpacity>
+                ))}
+            </View>
+        );
+    };
+
+    // Step 5: Review Application
     const ReviewStep = () => (
         <View>
             <View className="bg-emerald-50 p-6 rounded-2xl items-center mb-6 border border-emerald-100">
@@ -304,6 +444,10 @@ export default function LoanApplicationScreen() {
                     <Text className="text-gray-900 font-bold">{selectedCoMakers.length} Members</Text>
                 </View>
                 <View className="flex-row justify-between py-3 border-b border-gray-50">
+                    <Text className="text-gray-500">Documents</Text>
+                    <Text className="text-gray-900 font-bold">{Object.keys(uploadedDocuments).length} Files Attached</Text>
+                </View>
+                <View className="flex-row justify-between py-3 border-b border-gray-50">
                     <Text className="text-gray-500">Release Date</Text>
                     <Text className="text-gray-900 font-bold">Next Tuesday Meeting</Text>
                 </View>
@@ -312,9 +456,13 @@ export default function LoanApplicationScreen() {
     );
 
     const handleNext = async () => {
-        if (step < 4) {
+        if (step < 5) {
             if (step === 3 && selectedCoMakers.length < 2) {
                 Alert.alert('Required', 'Please select at least 2 co-makers.');
+                return;
+            }
+            if (step === 4 && Object.keys(uploadedDocuments).length < 2) {
+                Alert.alert('Incomplete', 'Please upload at least 2 required documents.');
                 return;
             }
             setStep(step + 1);
@@ -367,6 +515,22 @@ export default function LoanApplicationScreen() {
                     console.log('Skipping DB insert for mock co-makers:', selectedCoMakers);
                 }
 
+                // 4. Insert Loan Document Verifications
+                const docEntries = Object.entries(uploadedDocuments).map(([type, url]) => ({
+                    loan_application_id: loan.id,
+                    document_type: type,
+                    document_url: url,
+                    verification_status: 'pending'
+                }));
+
+                if (docEntries.length > 0) {
+                    const { error: docError } = await supabase
+                        .from('loan_document_verifications')
+                        .insert(docEntries);
+
+                    if (docError) console.error('Document verification insert failed:', docError);
+                }
+
                 // Show Success Screen
                 setIsSuccess(true);
 
@@ -415,7 +579,7 @@ export default function LoanApplicationScreen() {
                 </View>
                 {/* Progress Bar */}
                 <View className="flex-row mt-4 h-1 bg-gray-100 rounded-full overflow-hidden">
-                    <View className="bg-[#047857] h-full" style={{ width: `${(step / 4) * 100}%` }} />
+                    <View className="bg-[#047857] h-full" style={{ width: `${(step / 5) * 100}%` }} />
                 </View>
             </View>
 
@@ -423,7 +587,8 @@ export default function LoanApplicationScreen() {
                 {step === 1 && <EligibilityStep />}
                 {step === 2 && <CalculatorStep />}
                 {step === 3 && <CoMakerStep />}
-                {step === 4 && <ReviewStep />}
+                {step === 4 && <DocumentsStep />}
+                {step === 5 && <ReviewStep />}
             </ScrollView>
 
             {/* Footer Actions */}
@@ -437,7 +602,7 @@ export default function LoanApplicationScreen() {
                         <ActivityIndicator color="white" />
                     ) : (
                         <Text className="text-white font-bold text-lg">
-                            {step === 4 ? 'Submit Application' : 'Next Step'}
+                            {step === 5 ? 'Submit Application' : 'Next Step'}
                         </Text>
                     )}
                 </TouchableOpacity>

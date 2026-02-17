@@ -12,6 +12,11 @@ type Profile = {
     total_savings: number | null;
     savings_goal: number | null;
     last_savings_date: string | null;
+    business_sector: string | null;
+    years_in_business: number | null;
+    primary_income_source: string | null;
+    loan_repayment_count: number | null;
+    total_loan_amount_disbursed: number | null;
     centers?: {
         name: string;
         meeting_day: string;
@@ -96,7 +101,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const signOut = async () => {
-        await supabase.auth.signOut();
+        try {
+            await supabase.auth.signOut();
+            console.log('[AuthContext] Sign out successful');
+        } catch (error) {
+            console.error('[AuthContext] Sign out error:', error);
+            throw error;
+        }
     };
 
     return (
