@@ -52,7 +52,7 @@ export async function processApproval(data: LoanApprovalInput) {
 
 
         // Update loan status
-        const updateData: any = {
+        const updateData: Record<string, unknown> = {
             status: nextStatus
         }
 
@@ -91,11 +91,11 @@ export async function processApproval(data: LoanApprovalInput) {
             action: `${validated.action.toUpperCase()}_LOAN`,
             resourceType: 'loan',
             resourceId: validated.loanId,
-            oldValues: { status: loan.status },
+            oldValues: { status: loan.status as unknown as Record<string, unknown> },
             newValues: {
                 status: nextStatus,
                 comments: validated.comments,
-                approver: profile.full_name
+                approver: profile.full_name as unknown as Record<string, unknown>
             }
         })
 
@@ -106,14 +106,14 @@ export async function processApproval(data: LoanApprovalInput) {
                 ? `Loan ${nextStatus === 'approved' ? 'approved' : 'forwarded for approval'}`
                 : 'Loan rejected'
         }
-    } catch (error: any) {
+    } catch (error) {
         // Log failed attempt
         await logAudit({
             action: 'APPROVAL_FAILED',
             resourceType: 'loan',
             resourceId: data.loanId,
             success: false,
-            errorMessage: error.message
+            errorMessage: error instanceof Error ? error.message : String(error)
         })
 
         throw error

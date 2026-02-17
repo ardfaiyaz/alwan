@@ -7,8 +7,8 @@ export interface AuditLogData {
     action: string
     resourceType: string
     resourceId?: string
-    oldValues?: any
-    newValues?: any
+    oldValues?: Record<string, unknown> | null
+    newValues?: Record<string, unknown> | null
     success?: boolean
     errorMessage?: string
 }

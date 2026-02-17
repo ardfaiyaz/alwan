@@ -65,8 +65,11 @@ export async function transferCenter(formData: {
 
         return { success: true, message: 'Center transferred successfully' }
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Transfer center error:', error)
-        return { success: false, error: error.message }
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : String(error)
+        }
     }
 }
