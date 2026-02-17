@@ -14,44 +14,23 @@ import FAQSection from '@/components/sections/FAQSection'
 import CoreValuesSection from '@/components/sections/CoreValuesSection'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 
-const coreValues = [
-  {
-    title: 'Accessible',
-    description:
-      'We believe every Filipino deserves access to financial services. No complex requirements, no hidden fees—just straightforward solutions that work for you.',
-    image: '/images/values/accessible.png',
-  },
-  {
-    title: 'Transparent',
-    description:
-      'Clear terms, honest rates, and full disclosure. We build trust through transparency in every transaction. What you see is what you get.',
-    image: '/images/values/transparent.png',
-  },
-  {
-    title: 'Community-First',
-    description:
-      'Rooted in Philippine values of bayanihan. We grow together with our communities across the islands. Your success is our success.',
-    image: '/images/values/community-first.png',
-  },
-]
-
 const howItWorksSteps = [
   {
     num: 'Step 1',
-    title: 'Fill Application',
-    desc: 'Complete our quick online form in under 5 minutes',
+    title: 'Register & Orient',
+    desc: 'Create an account, watch the digital orientation, and join a center in your community.',
     color: 'from-[#009245] to-[#007a3d]',
   },
   {
     num: 'Step 2',
-    title: 'Get Approved',
-    desc: 'Receive instant approval decision from our AI system',
+    title: 'Submit & Verify',
+    desc: 'Submit your loan application and undergo our fast CIBI (Credit Investigation) process.',
     color: 'from-[#00a84f] to-[#009245]',
   },
   {
     num: 'Step 3',
-    title: 'Receive Funds',
-    desc: 'Money transferred directly to your account within hours',
+    title: 'Receive & Grow',
+    desc: 'Get your funds disbursed to your account and start building your business dream.',
     color: 'from-[#4dd88f] to-[#009245]',
   },
 ]

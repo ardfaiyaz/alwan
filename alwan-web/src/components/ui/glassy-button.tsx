@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { Loader2 } from 'lucide-react'
+import { Slot } from '@radix-ui/react-slot'
 import { cn } from '@/lib/utils'
 
 export interface GlassyButtonProps
@@ -11,6 +12,7 @@ export interface GlassyButtonProps
     variant?: 'default' | 'outline' | 'ghost'
     size?: 'sm' | 'md' | 'lg'
     icon?: React.ReactNode
+    asChild?: boolean
 }
 
 const GlassyButton = React.forwardRef<HTMLButtonElement, GlassyButtonProps>(
@@ -24,10 +26,12 @@ const GlassyButton = React.forwardRef<HTMLButtonElement, GlassyButtonProps>(
             size = 'md',
             icon,
             disabled,
+            asChild = false,
             ...props
         },
         ref
     ) => {
+        const Comp = asChild ? Slot : 'button'
         const baseStyles = cn(
             'inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-300',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#009245] focus-visible:ring-offset-2',
@@ -66,7 +70,7 @@ const GlassyButton = React.forwardRef<HTMLButtonElement, GlassyButtonProps>(
         }
 
         return (
-            <button
+            <Comp
                 ref={ref}
                 className={cn(
                     baseStyles,
@@ -83,12 +87,12 @@ const GlassyButton = React.forwardRef<HTMLButtonElement, GlassyButtonProps>(
                         <span>{loadingText || 'Loading...'}</span>
                     </>
                 ) : (
-                    <>
+                    <span className="flex items-center gap-2">
                         {icon && <span className="shrink-0">{icon}</span>}
                         {children}
-                    </>
+                    </span>
                 )}
-            </button>
+            </Comp>
         )
     }
 )
@@ -96,3 +100,4 @@ const GlassyButton = React.forwardRef<HTMLButtonElement, GlassyButtonProps>(
 GlassyButton.displayName = 'GlassyButton'
 
 export { GlassyButton }
+

@@ -1,120 +1,133 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { headers } from 'next/headers'
 
-export interface AuditLogData {
-    action: string
+type AuditAction = 'create' | 'update' | 'delete' | 'activate' | 'deactivate' | 'bulk_deactivate'
+
+export async function createAuditLog({
+    action,
+    resourceType,
+    resourceId,
+    oldValues,
+    newValues,
+    userAgent,
+    ipAddress
+}: {
+    action: AuditAction
     resourceType: string
-    resourceId?: string
-    oldValues?: Record<string, unknown> | null
-    newValues?: Record<string, unknown> | null
-    success?: boolean
-    errorMessage?: string
-}
-
-/**
- * Log an audit trail entry for any system action
- * Automatically captures user info, IP address, and user agent
- */
-export async function logAudit(data: AuditLogData) {
+    resourceId: string
+    oldValues?: any
+    newValues?: any
+    userAgent?: string
+    ipAddress?: string
+}) {
     try {
         const supabase = await createClient()
-        const headersList = await headers()
-
+        
         // Get current user
         const { data: { user } } = await supabase.auth.getUser()
-
-        // Get user profile if user exists
-        let profile = null
-        if (user) {
-            const { data: profileData } = await supabase
-                .from('profiles')
-                .select('email, role')
-                .eq('id', user.id)
-                .single()
-            profile = profileData
+        
+        if (!user) {
+            throw new Error('User not authenticated')
         }
 
-        // Get IP address and user agent
-        const ipAddress = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown'
-        const userAgent = headersList.get('user-agent') || 'unknown'
+        // Get user profile for role
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, email, full_name')
+            .eq('id', user.id)
+            .single()
 
         // Insert audit log
-        const { error } = await supabase.from('audit_logs').insert({
-            user_id: user?.id || null,
-            user_email: profile?.email || 'anonymous',
-            user_role: profile?.role || null,
-            action: data.action,
-            resource_type: data.resourceType,
-            resource_id: data.resourceId,
-            old_values: data.oldValues || null,
-            new_values: data.newValues || null,
-            ip_address: ipAddress,
-            user_agent: userAgent,
-            success: data.success ?? true,
-            error_message: data.errorMessage || null
-        })
+        const { error } = await supabase
+            .from('audit_logs')
+            .insert({
+                user_id: user.id,
+                user_email: profile?.email || user.email,
+                user_role: profile?.role,
+                action,
+                resource_type: resourceType,
+                resource_id: resourceId,
+                old_values: oldValues || null,
+                new_values: newValues || null,
+                ip_address: ipAddress || null,
+                user_agent: userAgent || null,
+                success: true
+            })
 
         if (error) {
-            console.error('Failed to log audit trail:', error)
+            console.error('Error creating audit log:', error)
         }
+
+        return { success: true }
     } catch (error) {
-        // Don't throw errors from audit logging - just log them
-        console.error('Audit logging error:', error)
+        console.error('Error in createAuditLog:', error)
+        return { success: false }
     }
 }
 
-/**
- * Get audit logs with filters
- */
-export async function getAuditLogs(filters?: {
-    userId?: string
+export async function getAuditLogs({
+    resourceType,
+    resourceId,
+    userId,
+    action,
+    startDate,
+    endDate,
+    limit = 100,
+    offset = 0
+}: {
     resourceType?: string
+    resourceId?: string
+    userId?: string
     action?: string
-    startDate?: Date
-    endDate?: Date
+    startDate?: string
+    endDate?: string
     limit?: number
     offset?: number
-}) {
-    const supabase = await createClient()
+} = {}) {
+    try {
+        const supabase = await createClient()
 
-    let query = supabase
-        .from('audit_logs')
-        .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false })
+        let query = supabase
+            .from('audit_logs')
+            .select('*', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(offset, offset + limit - 1)
 
-    if (filters?.userId) {
-        query = query.eq('user_id', filters.userId)
+        if (resourceType) {
+            query = query.eq('resource_type', resourceType)
+        }
+
+        if (resourceId) {
+            query = query.eq('resource_id', resourceId)
+        }
+
+        if (userId) {
+            query = query.eq('user_id', userId)
+        }
+
+        if (action) {
+            query = query.eq('action', action)
+        }
+
+        if (startDate) {
+            query = query.gte('created_at', startDate)
+        }
+
+        if (endDate) {
+            query = query.lte('created_at', endDate)
+        }
+
+        const { data, error, count } = await query
+
+        if (error) throw error
+
+        return {
+            logs: data || [],
+            total: count || 0
+        }
+    } catch (error) {
+        console.error('Error fetching audit logs:', error)
+        throw error
     }
-
-    if (filters?.resourceType) {
-        query = query.eq('resource_type', filters.resourceType)
-    }
-
-    if (filters?.action) {
-        query = query.eq('action', filters.action)
-    }
-
-    if (filters?.startDate) {
-        query = query.gte('created_at', filters.startDate.toISOString())
-    }
-
-    if (filters?.endDate) {
-        query = query.lte('created_at', filters.endDate.toISOString())
-    }
-
-    if (filters?.limit) {
-        query = query.limit(filters.limit)
-    }
-
-    if (filters?.offset) {
-        query = query.range(filters.offset, filters.offset + (filters.limit || 50) - 1)
-    }
-
-    const { data, error, count } = await query
-
-    if (error) throw error
-
-    return { logs: data, total: count || 0 }
 }

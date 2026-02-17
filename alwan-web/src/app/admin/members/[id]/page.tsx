@@ -1,139 +1,81 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { GlassyButton } from '@/components/ui/glassy-button'
-import { ArrowLeft, User, Phone, MapPin, Briefcase, Calendar, TrendingUp, DollarSign, Wallet } from 'lucide-react'
+import { ArrowLeft, User, Phone, MapPin, Briefcase, Calendar, TrendingUp, DollarSign, Wallet, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils/formatters'
-
-interface Member {
-    id: string
-    firstName: string
-    lastName: string
-    middleName?: string
-    dateOfBirth: string
-    gender: string
-    phone?: string
-    address: string
-    businessName?: string
-    businessType?: string
-    businessAddress?: string
-    cbuBalance: number
-    joinedDate: string
-    isActive: boolean
-    center: {
-        id: string
-        name: string
-        code: string
-    }
-}
-
-interface Loan {
-    id: string
-    loanType: string
-    principalAmount: number
-    outstandingBalance: number
-    status: string
-    disbursementDate: string
-    weeklyPayment: number
-}
+import { toast } from 'sonner'
+import { getMemberById, getMemberLoans } from '@/app/actions/members'
 
 export default function MemberProfilePage() {
     const params = useParams()
     const memberId = params.id as string
 
-    const [member, setMember] = useState<Member | null>(null)
-    const [loans, setLoans] = useState<Loan[]>([])
+    const [member, setMember] = useState<any>(null)
+    const [loans, setLoans] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        loadMemberData()
+        if (memberId) {
+            loadMemberData()
+        }
     }, [memberId])
 
     const loadMemberData = async () => {
         setIsLoading(true)
         try {
-            // TODO: Replace with actual API calls
-            const mockMember: Member = {
-                id: memberId,
-                firstName: 'Maria',
-                lastName: 'Santos',
-                middleName: 'Garcia',
-                dateOfBirth: '1985-05-15',
-                gender: 'female',
-                phone: '+63 912 345 6789',
-                address: '123 Main St, Barangay Commonwealth, Quezon City',
-                businessName: 'Maria\'s Sari-Sari Store',
-                businessType: 'Retail',
-                businessAddress: '123 Main St, Barangay Commonwealth, Quezon City',
-                cbuBalance: 5250.00,
-                joinedDate: '2023-01-15',
-                isActive: true,
-                center: {
-                    id: 'center-1',
-                    name: 'Barangay Commonwealth Center',
-                    code: 'BC-001',
-                },
-            }
-
-            const mockLoans: Loan[] = [
-                {
-                    id: 'loan-1',
-                    loanType: 'kabalikat',
-                    principalAmount: 25000,
-                    outstandingBalance: 18500,
-                    status: 'active',
-                    disbursementDate: '2024-01-10',
-                    weeklyPayment: 625,
-                },
-                {
-                    id: 'loan-2',
-                    loanType: 'kabalikat',
-                    principalAmount: 20000,
-                    outstandingBalance: 0,
-                    status: 'completed',
-                    disbursementDate: '2023-06-15',
-                    weeklyPayment: 500,
-                },
-            ]
-
-            setMember(mockMember)
-            setLoans(mockLoans)
-        } catch (error) {
+            const [memberData, loanData] = await Promise.all([
+                getMemberById(memberId),
+                getMemberLoans(memberId)
+            ])
+            setMember(memberData)
+            setLoans(loanData)
+        } catch (error: any) {
             console.error('Failed to load member data:', error)
+            toast.error(error.message || 'Failed to load member profile')
         } finally {
             setIsLoading(false)
         }
     }
 
-    if (isLoading || !member) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center h-96">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                    <Loader2 className="h-12 w-12 animate-spin text-green-600 mx-auto mb-4" />
                     <p className="text-gray-500">Loading member profile...</p>
                 </div>
             </div>
         )
     }
 
+    if (!member) {
+        return (
+            <div className="text-center py-12">
+                <p className="text-gray-500">Member not found</p>
+                <Link href="/admin/users">
+                    <GlassyButton variant="ghost" className="mt-4">Back to Members</GlassyButton>
+                </Link>
+            </div>
+        )
+    }
+
     const fullName = `${member.firstName} ${member.middleName ? member.middleName + ' ' : ''}${member.lastName}`
     const age = new Date().getFullYear() - new Date(member.dateOfBirth).getFullYear()
-    const totalBorrowed = loans.reduce((sum, loan) => sum + loan.principalAmount, 0)
-    const totalOutstanding = loans.reduce((sum, loan) => sum + loan.outstandingBalance, 0)
-    const activeLoan = loans.find(l => l.status === 'active')
+    const totalBorrowed = loans.reduce((sum, loan) => sum + Number(loan.principalAmount), 0)
+    const totalOutstanding = loans.reduce((sum, loan) => sum + Number(loan.outstandingBalance), 0)
 
     return (
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Link href="/admin/members">
-                        <GlassyButton variant="ghost" className="gap-2">
-                            <ArrowLeft className="w-4 h-4" />
-                            Back
+                    <Link href="/admin/users">
+                        <GlassyButton variant="ghost" className="p-2">
+                            <ArrowLeft className="w-5 h-5" />
                         </GlassyButton>
                     </Link>
                     <div>
@@ -143,7 +85,11 @@ export default function MemberProfilePage() {
                 </div>
                 <div className="flex gap-3">
                     <GlassyButton variant="outline">Edit Profile</GlassyButton>
-                    <GlassyButton>New Loan</GlassyButton>
+                    <GlassyButton asChild>
+                        <Link href={`/admin/loans/new?memberId=${memberId}`}>
+                            New Loan
+                        </Link>
+                    </GlassyButton>
                 </div>
             </div>
 
@@ -248,8 +194,8 @@ export default function MemberProfilePage() {
                         </div>
                         <div>
                             <p className="text-sm text-gray-600">Center</p>
-                            <p className="font-semibold">{member.center.name}</p>
-                            <p className="text-xs text-gray-500">{member.center.code}</p>
+                            <p className="font-semibold text-green-700">{member.center?.name || 'Unassigned'}</p>
+                            <p className="text-xs text-gray-500">{member.center?.code}</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -287,7 +233,7 @@ export default function MemberProfilePage() {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                {loans.map((loan) => (
+                                {loans.length > 0 ? loans.map((loan) => (
                                     <div
                                         key={loan.id}
                                         className="p-4 border border-gray-200 rounded-lg hover:border-green-300 transition-colors"
@@ -296,14 +242,14 @@ export default function MemberProfilePage() {
                                             <div>
                                                 <p className="font-semibold capitalize">{loan.loanType.replace('_', ' ')}</p>
                                                 <p className="text-sm text-gray-500">
-                                                    Disbursed: {new Date(loan.disbursementDate).toLocaleDateString()}
+                                                    Disbursed: {loan.disbursementDate ? new Date(loan.disbursementDate).toLocaleDateString() : 'Awaiting Disbursement'}
                                                 </p>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${loan.status === 'active' ? 'bg-green-100 text-green-800' :
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${loan.status === 'active' || loan.status === 'disbursed' ? 'bg-green-100 text-green-800' :
                                                     loan.status === 'completed' ? 'bg-blue-100 text-blue-800' :
                                                         'bg-gray-100 text-gray-800'
                                                 }`}>
-                                                {loan.status}
+                                                {loan.status.replace('_', ' ').toUpperCase()}
                                             </span>
                                         </div>
                                         <div className="grid grid-cols-3 gap-4 text-sm">
@@ -317,11 +263,15 @@ export default function MemberProfilePage() {
                                             </div>
                                             <div>
                                                 <p className="text-gray-600">Weekly Payment</p>
-                                                <p className="font-semibold">{formatCurrency(loan.weeklyPayment)}</p>
+                                                <p className="font-semibold">{formatCurrency(loan.weeklyPayment || 0)}</p>
                                             </div>
                                         </div>
                                     </div>
-                                ))}
+                                )) : (
+                                    <div className="text-center py-6">
+                                        <p className="text-gray-500">No loan records found for this member.</p>
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                     </Card>

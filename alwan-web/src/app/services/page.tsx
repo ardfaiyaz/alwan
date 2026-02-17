@@ -43,6 +43,14 @@ const services = [
     title: 'Capital Build Up (CBU)',
     description: 'Capital Build-Up is an opportunity for program members to begin accumulating their own financial resources and lessen their vulnerability to crisis and dependence on outside credit sources. It is also a reserve fund that a member may use as additional capital for the existing business, or capital for a new business when she retires from the program.'
   },
+  {
+    title: 'Entrepreneurship Development',
+    description: 'We provide more than just loans. Our Entrepreneurship Development Services (EDS) equip members with business management skills, financial literacy training, and leadership workshops to ensure their ventures thrive sustainably.'
+  },
+  {
+    title: 'Wellness & Community',
+    description: 'KMBI cares for the total well-being of its members. We offer Wellness Caravans, health education, and disaster preparedness training (DPRM) to build resilient families and communities.'
+  },
 ]
 
 import FeatureShowcase from '@/components/sections/FeatureShowcase'

@@ -10,6 +10,9 @@ import {
     FileText,
     DollarSign,
     BarChart3,
+    UserCog,
+    Shield,
+    ScrollText,
     LogOut,
     Menu,
     X
@@ -26,6 +29,9 @@ const navigation = [
     { name: 'Loans', href: '/admin/loans', icon: FileText },
     { name: 'Collections', href: '/admin/collections', icon: DollarSign },
     { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
+    { name: 'Members', href: '/admin/users', icon: UserCog },
+    { name: 'Staffs', href: '/admin/staffs', icon: Shield },
+    { name: 'Audit Logs', href: '/admin/logs', icon: ScrollText },
 ]
 
 export function Sidebar() {
