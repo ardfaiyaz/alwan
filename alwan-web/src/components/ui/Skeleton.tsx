@@ -1,44 +1,29 @@
-'use client'
+import { cn } from "@/lib/utils"
 
-import { motion } from 'framer-motion'
-
-interface SkeletonProps {
-  className?: string
-  width?: string | number
-  height?: string | number
-  borderRadius?: string | number
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+  width?: string
+  height?: string
+  borderRadius?: string
 }
 
-export const Skeleton = ({
-  className = '',
+function Skeleton({
+  className,
   width,
   height,
-  borderRadius = '0.75rem'
-}: SkeletonProps) => {
+  borderRadius,
+  ...props
+}: SkeletonProps) {
   return (
     <div
-      className={`relative overflow-hidden bg-slate-200 ${className}`}
+      className={cn("animate-pulse rounded-md bg-gray-200", className)}
       style={{
-        width: width ?? '100%',
-        height: height ?? '1rem',
-        borderRadius
+        width,
+        height,
+        borderRadius,
       }}
-    >
-      <motion.div
-        animate={{
-          x: ['-100%', '100%']
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: 'linear'
-        }}
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-      />
-    </div>
+      {...props}
+    />
   )
 }
 
-export const SkeletonCircle = ({ size = '3rem', className = '' }: { size?: string | number, className?: string }) => {
-  return <Skeleton width={size} height={size} borderRadius="50%" className={className} />
-}
+export { Skeleton }

@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { GlassyButton } from '@/components/ui/glassy-button'
-import { Search, Download, Filter, ArrowUpDown, RefreshCw, Eye, Calendar } from 'lucide-react'
+import { Search, Download, Filter, ArrowUpDown, RefreshCw, Eye, Calendar, Database, Activity } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { getAuditLogs } from '@/app/actions/audit'
+import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 
@@ -27,8 +28,24 @@ type AuditLog = {
     created_at: string
 }
 
+type SupabaseAuditLog = {
+    id: string
+    instance_id: string
+    payload: {
+        timestamp: string
+        action: string
+        actor_id: string
+        actor_username?: string
+        actor_via_sso: boolean
+        log_type: string
+        traits?: any
+    }
+    created_at: string
+}
+
 type SortField = 'created_at' | 'action' | 'user_email' | 'resource_type'
 type SortOrder = 'asc' | 'desc'
+type TabType = 'custom' | 'system'
 
 const ACTION_LABELS: Record<string, { label: string; color: string }> = {
     create: { label: 'Created', color: 'bg-green-100 text-green-700' },
@@ -49,8 +66,11 @@ const RESOURCE_LABELS: Record<string, string> = {
 }
 
 export default function AuditLogsPage() {
+    const [activeTab, setActiveTab] = useState<TabType>('custom')
     const [logs, setLogs] = useState<AuditLog[]>([])
+    const [systemLogs, setSystemLogs] = useState<SupabaseAuditLog[]>([])
     const [totalLogs, setTotalLogs] = useState(0)
+    const [totalSystemLogs, setTotalSystemLogs] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [actionFilter, setActionFilter] = useState('all')
@@ -61,10 +81,42 @@ export default function AuditLogsPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage] = useState(20)
     const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null)
+    const [selectedSystemLog, setSelectedSystemLog] = useState<SupabaseAuditLog | null>(null)
 
     useEffect(() => {
-        loadLogs()
-    }, [currentPage, actionFilter, resourceFilter, dateFilter])
+        if (activeTab === 'custom') {
+            loadLogs()
+        } else {
+            loadSystemLogs()
+        }
+    }, [currentPage, actionFilter, resourceFilter, dateFilter, activeTab])
+
+    const loadSystemLogs = async () => {
+        setIsLoading(true)
+        try {
+            const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
+
+            const { data, error, count } = await supabase
+                .from('audit_log_entries')
+                .select('*', { count: 'exact' })
+                .order('created_at', { ascending: false })
+                .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1)
+
+            if (error) throw error
+
+            setSystemLogs(data || [])
+            setTotalSystemLogs(count || 0)
+        } catch (error) {
+            console.error('Error loading system logs:', error)
+            toast.error('Failed to load system audit logs')
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     const loadLogs = async () => {
         setIsLoading(true)
@@ -126,7 +178,16 @@ export default function AuditLogsPage() {
             }
         })
 
-    const totalPages = Math.ceil(totalLogs / itemsPerPage)
+    const filteredSystemLogs = systemLogs.filter(log => {
+        const matchesSearch = 
+            log.payload?.actor_username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            log.payload?.action?.toLowerCase().includes(searchQuery.toLowerCase())
+        return matchesSearch
+    })
+
+    const totalPages = activeTab === 'custom' 
+        ? Math.ceil(totalLogs / itemsPerPage)
+        : Math.ceil(totalSystemLogs / itemsPerPage)
 
     const handleSort = (field: SortField) => {
         if (sortField === field) {
@@ -138,24 +199,43 @@ export default function AuditLogsPage() {
     }
 
     const exportToCSV = () => {
-        const headers = ['Date', 'User', 'Role', 'Action', 'Resource Type', 'Resource ID', 'IP Address']
-        const rows = filteredAndSortedLogs.map(log => [
-            format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss'),
-            log.user_email,
-            log.user_role,
-            log.action,
-            log.resource_type,
-            log.resource_id,
-            log.ip_address || '-'
-        ])
+        if (activeTab === 'custom') {
+            const headers = ['Date', 'User', 'Role', 'Action', 'Resource Type', 'Resource ID', 'IP Address']
+            const rows = filteredAndSortedLogs.map(log => [
+                format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss'),
+                log.user_email,
+                log.user_role,
+                log.action,
+                log.resource_type,
+                log.resource_id,
+                log.ip_address || '-'
+            ])
 
-        const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
-        const blob = new Blob([csv], { type: 'text/csv' })
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`
-        a.click()
+            const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+            const blob = new Blob([csv], { type: 'text/csv' })
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `custom-audit-logs-${new Date().toISOString().split('T')[0]}.csv`
+            a.click()
+        } else {
+            const headers = ['Date', 'Action', 'Actor ID', 'Actor Username', 'Log Type']
+            const rows = filteredSystemLogs.map(log => [
+                format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss'),
+                log.payload?.action || '-',
+                log.payload?.actor_id || '-',
+                log.payload?.actor_username || '-',
+                log.payload?.log_type || '-'
+            ])
+
+            const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
+            const blob = new Blob([csv], { type: 'text/csv' })
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `system-audit-logs-${new Date().toISOString().split('T')[0]}.csv`
+            a.click()
+        }
         toast.success('Audit logs exported successfully')
     }
 
@@ -194,7 +274,9 @@ export default function AuditLogsPage() {
                     <CardContent className="pt-6">
                         <div className="text-center">
                             <p className="text-sm text-gray-600 mb-1">Total Logs</p>
-                            <p className="text-3xl font-bold text-gray-900">{totalLogs}</p>
+                            <p className="text-3xl font-bold text-gray-900">
+                                {activeTab === 'custom' ? totalLogs : totalSystemLogs}
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -203,7 +285,10 @@ export default function AuditLogsPage() {
                         <div className="text-center">
                             <p className="text-sm text-gray-600 mb-1">Today</p>
                             <p className="text-3xl font-bold text-blue-600">
-                                {logs.filter(l => new Date(l.created_at).toDateString() === new Date().toDateString()).length}
+                                {activeTab === 'custom' 
+                                    ? logs.filter(l => new Date(l.created_at).toDateString() === new Date().toDateString()).length
+                                    : systemLogs.filter(l => new Date(l.created_at).toDateString() === new Date().toDateString()).length
+                                }
                             </p>
                         </div>
                     </CardContent>
@@ -213,12 +298,20 @@ export default function AuditLogsPage() {
                         <div className="text-center">
                             <p className="text-sm text-gray-600 mb-1">This Week</p>
                             <p className="text-3xl font-bold text-green-600">
-                                {logs.filter(l => {
-                                    const logDate = new Date(l.created_at)
-                                    const weekAgo = new Date()
-                                    weekAgo.setDate(weekAgo.getDate() - 7)
-                                    return logDate >= weekAgo
-                                }).length}
+                                {activeTab === 'custom' 
+                                    ? logs.filter(l => {
+                                        const logDate = new Date(l.created_at)
+                                        const weekAgo = new Date()
+                                        weekAgo.setDate(weekAgo.getDate() - 7)
+                                        return logDate >= weekAgo
+                                    }).length
+                                    : systemLogs.filter(l => {
+                                        const logDate = new Date(l.created_at)
+                                        const weekAgo = new Date()
+                                        weekAgo.setDate(weekAgo.getDate() - 7)
+                                        return logDate >= weekAgo
+                                    }).length
+                                }
                             </p>
                         </div>
                     </CardContent>
@@ -226,79 +319,142 @@ export default function AuditLogsPage() {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="text-center">
-                            <p className="text-sm text-gray-600 mb-1">Staff Actions</p>
+                            <p className="text-sm text-gray-600 mb-1">{activeTab === 'custom' ? 'Staff Actions' : 'Auth Events'}</p>
                             <p className="text-3xl font-bold text-purple-600">
-                                {logs.filter(l => l.resource_type === 'staff' || l.resource_type === 'profile').length}
+                                {activeTab === 'custom' 
+                                    ? logs.filter(l => l.resource_type === 'staff' || l.resource_type === 'profile').length
+                                    : systemLogs.filter(l => l.payload?.log_type === 'account').length
+                                }
                             </p>
                         </div>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Filters */}
+            {/* Tabs */}
             <Card>
                 <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="relative md:col-span-1">
+                    <div className="flex items-center gap-2 border-b">
+                        <button
+                            onClick={() => {
+                                setActiveTab('custom')
+                                setCurrentPage(1)
+                            }}
+                            className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
+                                activeTab === 'custom'
+                                    ? 'border-green-600 text-green-600'
+                                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                            }`}
+                        >
+                            <Activity className="w-4 h-4" />
+                            Custom Audit Logs
+                            <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700">
+                                {totalLogs}
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => {
+                                setActiveTab('system')
+                                setCurrentPage(1)
+                            }}
+                            className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
+                                activeTab === 'system'
+                                    ? 'border-green-600 text-green-600'
+                                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                            }`}
+                        >
+                            <Database className="w-4 h-4" />
+                            Supabase System Logs
+                            <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700">
+                                {totalSystemLogs}
+                            </span>
+                        </button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Filters */}
+            {activeTab === 'custom' && (
+                <Card>
+                    <CardContent className="pt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="relative md:col-span-1">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <Input
+                                    placeholder="Search by user or ID..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+                            <Select value={actionFilter} onValueChange={(value) => {
+                                setActionFilter(value)
+                                setCurrentPage(1)
+                            }}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Filter by action" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Actions</SelectItem>
+                                    <SelectItem value="create">Created</SelectItem>
+                                    <SelectItem value="update">Updated</SelectItem>
+                                    <SelectItem value="delete">Deleted</SelectItem>
+                                    <SelectItem value="activate">Activated</SelectItem>
+                                    <SelectItem value="deactivate">Deactivated</SelectItem>
+                                    <SelectItem value="bulk_deactivate">Bulk Deactivated</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Select value={resourceFilter} onValueChange={(value) => {
+                                setResourceFilter(value)
+                                setCurrentPage(1)
+                            }}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Filter by resource" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Resources</SelectItem>
+                                    <SelectItem value="staff">Staff</SelectItem>
+                                    <SelectItem value="profile">Profile</SelectItem>
+                                    <SelectItem value="member">Member</SelectItem>
+                                    <SelectItem value="center">Center</SelectItem>
+                                    <SelectItem value="loan">Loan</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Select value={dateFilter} onValueChange={(value) => {
+                                setDateFilter(value)
+                                setCurrentPage(1)
+                            }}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Filter by date" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Time</SelectItem>
+                                    <SelectItem value="today">Today</SelectItem>
+                                    <SelectItem value="week">Last 7 Days</SelectItem>
+                                    <SelectItem value="month">Last 30 Days</SelectItem>
+                                    <SelectItem value="year">Last Year</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            {activeTab === 'system' && (
+                <Card>
+                    <CardContent className="pt-6">
+                        <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <Input
-                                placeholder="Search by user or ID..."
+                                placeholder="Search by action or username..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-10"
                             />
                         </div>
-                        <Select value={actionFilter} onValueChange={(value) => {
-                            setActionFilter(value)
-                            setCurrentPage(1)
-                        }}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Filter by action" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Actions</SelectItem>
-                                <SelectItem value="create">Created</SelectItem>
-                                <SelectItem value="update">Updated</SelectItem>
-                                <SelectItem value="delete">Deleted</SelectItem>
-                                <SelectItem value="activate">Activated</SelectItem>
-                                <SelectItem value="deactivate">Deactivated</SelectItem>
-                                <SelectItem value="bulk_deactivate">Bulk Deactivated</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Select value={resourceFilter} onValueChange={(value) => {
-                            setResourceFilter(value)
-                            setCurrentPage(1)
-                        }}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Filter by resource" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Resources</SelectItem>
-                                <SelectItem value="staff">Staff</SelectItem>
-                                <SelectItem value="profile">Profile</SelectItem>
-                                <SelectItem value="member">Member</SelectItem>
-                                <SelectItem value="center">Center</SelectItem>
-                                <SelectItem value="loan">Loan</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Select value={dateFilter} onValueChange={(value) => {
-                            setDateFilter(value)
-                            setCurrentPage(1)
-                        }}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Filter by date" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Time</SelectItem>
-                                <SelectItem value="today">Today</SelectItem>
-                                <SelectItem value="week">Last 7 Days</SelectItem>
-                                <SelectItem value="month">Last 30 Days</SelectItem>
-                                <SelectItem value="year">Last Year</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Logs Table */}
             <Card>

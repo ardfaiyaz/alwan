@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { GlassyButton } from '@/components/ui/glassy-button'
 import { Plus, Search, Edit, Trash2, Shield, UserCheck, UserX, ArrowUpDown, Download, Filter, Eye, EyeOff } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { createAuditLog } from '@/app/actions/audit'
+import { StatsCardSkeleton } from '@/components/skeletons/StatsCardSkeleton'
+import { TableSkeleton } from '@/components/skeletons/TableSkeleton'
+import { Skeleton } from '@/components/ui/Skeleton'
 
 type UserRole = 'admin' | 'area_manager' | 'branch_manager' | 'field_officer'
 type SortField = 'full_name' | 'email' | 'role' | 'created_at'
@@ -250,9 +253,20 @@ export default function StaffsPage() {
             return
         }
 
-        // Validate username format
-        if (!/^[a-z0-9._-]+$/.test(formData.username)) {
-            toast.error('Username can only contain lowercase letters, numbers, dots, hyphens, and underscores')
+        // Validate username format - must be valid email local part
+        if (formData.username.length < 3) {
+            toast.error('Username must be at least 3 characters')
+            return
+        }
+
+        if (!/^[a-z0-9]+([._-]?[a-z0-9]+)*$/.test(formData.username)) {
+            toast.error('Username must start and end with a letter or number. Special characters (._-) cannot be consecutive or at the start/end.')
+            return
+        }
+
+        // Check if username starts or ends with special characters
+        if (/^[._-]|[._-]$/.test(formData.username)) {
+            toast.error('Username cannot start or end with dots, hyphens, or underscores')
             return
         }
 
@@ -515,6 +529,9 @@ export default function StaffsPage() {
                         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle>Add New Staff Member</DialogTitle>
+                                <DialogDescription>
+                                    Create a new staff account with role and permissions
+                                </DialogDescription>
                             </DialogHeader>
                             <StaffForm
                                 formData={formData}
@@ -529,8 +546,30 @@ export default function StaffsPage() {
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {isLoading ? (
+                <>
+                    {/* Stats Cards Skeleton */}
+                    <StatsCardSkeleton count={4} />
+                    
+                    {/* Filters Skeleton */}
+                    <Card>
+                        <CardContent className="pt-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    
+                    {/* Table Skeleton */}
+                    <TableSkeleton rows={10} columns={7} />
+                </>
+            ) : (
+                <>
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <Card>
                     <CardContent className="pt-6">
                         <div className="text-center">
@@ -763,6 +802,9 @@ export default function StaffsPage() {
                                                             <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                                                                 <DialogHeader>
                                                                     <DialogTitle>Edit Staff Member</DialogTitle>
+                                                                    <DialogDescription>
+                                                                        Update staff information and role assignments
+                                                                    </DialogDescription>
                                                                 </DialogHeader>
                                                                 <StaffForm
                                                                     formData={formData}
@@ -852,6 +894,8 @@ export default function StaffsPage() {
                     )}
                 </CardContent>
             </Card>
+                </>
+            )}
         </div>
     )
 }
@@ -909,17 +953,27 @@ function StaffForm({
                         id="username"
                         type="text"
                         value={formData.username}
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, '') })}
+                        onChange={(e) => {
+                            let value = e.target.value.toLowerCase()
+                            // Remove invalid characters
+                            value = value.replace(/[^a-z0-9._-]/g, '')
+                            // Prevent consecutive special characters
+                            value = value.replace(/[._-]{2,}/g, (match) => match[0])
+                            // Prevent starting with special characters
+                            value = value.replace(/^[._-]+/, '')
+                            setFormData({ ...formData, username: value })
+                        }}
                         placeholder="juan.delacruz"
                         disabled={isEdit}
                         className={`pr-28 transition-all duration-200 ${isEdit ? 'bg-gray-50 cursor-not-allowed' : 'focus:ring-2 focus:ring-green-500'}`}
+                        maxLength={30}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none">
                         @alwan.com
                     </div>
                 </div>
                 {isEdit && <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>}
-                {!isEdit && <p className="text-xs text-gray-500 mt-1">Only lowercase letters, numbers, dots, hyphens, and underscores</p>}
+                {!isEdit && <p className="text-xs text-gray-500 mt-1">Min 3 characters. Letters, numbers, dots, hyphens, underscores (no consecutive special chars)</p>}
             </div>
 
             <div>
