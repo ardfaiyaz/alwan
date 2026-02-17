@@ -6,6 +6,24 @@ Alwan is a modern microfinance ecosystem designed to empower Filipinos with acce
 
 ## Project Structure
 
+```
+alwan/
+├── alwan-web/          # Next.js 15 Web Portal (Frontend)
+│   ├── src/            # Application source code
+│   ├── public/         # Static assets
+│   └── package.json    # Web dependencies
+├── alwan-mobile/       # React Native Expo App (Mobile)
+│   ├── app/            # Expo Router screens
+│   ├── assets/         # Mobile assets
+│   └── package.json    # Mobile dependencies
+├── alwan-api/          # API Server (Backend - Placeholder)
+├── package.json        # Root monorepo configuration
+├── .editorconfig       # Code style configuration
+└── README.md           # Project documentation
+```
+
+### Component Overview
+
 | Directory | Component | Technology | Description |
 | --------- | --------- | ---------- | ----------- |
 | `alwan-web` | **Web Portal** | Next.js 15, Tailwind CSS | The official landing page and web application for account management and loan tracking. |
