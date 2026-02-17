@@ -1,13 +1,64 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useState, useEffect } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
+import ConfirmModal from '../../components/ui/ConfirmModal';
 
 export default function AccountScreen() {
-  const router = useRouter();
-  const { profile, signOut } = useAuth();
+  const { profile, user, signOut } = useAuth();
+
+  // Computed health metrics from real data
+  const [creditUtilization, setCreditUtilization] = useState(0);
+  const [onTimePayment, setOnTimePayment] = useState(0);
+  const [paymentStreak, setPaymentStreak] = useState(0);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (user) fetchHealthMetrics();
+  }, [user]);
+
+  const fetchHealthMetrics = async () => {
+    if (!user) return;
+    try {
+      // 1. Credit utilization: active loan / max loanable (50k typical)
+      const MAX_LOANABLE = 50000;
+      const { data: activeLoan } = await supabase
+        .from('loan_applications')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      const utilization = activeLoan ? Math.round((activeLoan.amount / MAX_LOANABLE) * 100) : 0;
+      setCreditUtilization(utilization);
+
+      // 2. On-time payment % and streak from amortizations
+      if (activeLoan) {
+        const { data: paidAmorts } = await supabase
+          .from('amortizations')
+          .select('status')
+          .eq('loan_application_id', (activeLoan as any).id || '')
+          .in('status', ['paid', 'late']);
+
+        if (paidAmorts && paidAmorts.length > 0) {
+          const onTime = paidAmorts.filter(a => a.status === 'paid').length;
+          setOnTimePayment(Math.round((onTime / paidAmorts.length) * 100 * 10) / 10);
+        }
+      }
+
+      // Use profile repayment count as streak
+      setPaymentStreak(profile?.loan_repayment_count || 0);
+    } catch (error) {
+      console.error('Error fetching health metrics:', error);
+    }
+  };
+
+  const trustScore = profile?.trust_score || 0;
 
   const menuItems = [
     {
@@ -43,28 +94,22 @@ export default function AccountScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await signOut();
-            router.replace('/(auth)/login');
-          }
-        }
-      ]
-    );
+    console.log('[Account] Logout initiated');
+    setLogoutModalVisible(true);
   };
 
-  // KMBI Member Health Data
-  const healthScore = 92;
-  const creditUtilization = 45; // 45% of loanable amount used
-  const onTimePayment = 98.5;
-  const paymentStreak = 48; // weeks
+  const onConfirmLogout = async () => {
+    try {
+      console.log('[Account] Executing signOut...');
+      setLogoutModalVisible(false);
+      await signOut();
+      console.log('[Account] signOut success, redirecting to login');
+      router.replace('/(auth)/login');
+    } catch (error) {
+      console.error('[Account] Logout error:', error);
+      Alert.alert('Error', 'Failed to log out. Please try again.');
+    }
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -93,24 +138,24 @@ export default function AccountScreen() {
         </Text>
         <View className="mt-3 bg-[#F97316] px-4 py-1 rounded-full shadow-sm">
           <Text className="text-white text-xs font-bold uppercase tracking-widest">
-            {profile?.trust_score && profile.trust_score >= 90 ? 'Fully Verified' : 'Standard Member'}
+            {trustScore >= 90 ? 'Fully Verified' : 'Standard Member'}
           </Text>
         </View>
       </LinearGradient>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Account Health Section - Floating Card Layout */}
+        {/* Account Health Section */}
         <View className="px-6 -mt-10 mb-6">
           <View className="bg-white rounded-2xl p-5 shadow-md border border-emerald-50">
             <View className="flex-row items-center justify-between mb-4">
               <View>
                 <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">Alwan Trust Score</Text>
                 <View className="flex-row items-baseline mt-1">
-                  <Text className="text-[#047857] text-3xl font-bold">{profile?.trust_score || '0'}</Text>
+                  <Text className="text-[#047857] text-3xl font-bold">{trustScore}</Text>
                   <Text className="text-gray-400 text-sm ml-1">/100</Text>
                 </View>
                 <Text className="text-[#F97316] text-xs font-bold mt-1 uppercase">
-                  {profile?.trust_score && profile.trust_score >= 90 ? 'Excellent Member' : 'Active Member'}
+                  {trustScore >= 90 ? 'Excellent Member' : trustScore >= 70 ? 'Good Member' : 'Active Member'}
                 </Text>
               </View>
               <View className="w-16 h-16 bg-emerald-50 rounded-full items-center justify-center">
@@ -159,8 +204,8 @@ export default function AccountScreen() {
                     <Ionicons name="checkmark-circle" size={18} color="#047857" />
                   </View>
                   <View>
-                    <Text className="text-gray-800 text-xs font-bold">{onTimePayment}% On-Time</Text>
-                    <Text className="text-gray-500 text-[10px]">{paymentStreak} Week Streak</Text>
+                    <Text className="text-gray-800 text-xs font-bold">{onTimePayment > 0 ? `${onTimePayment}% On-Time` : 'No payments yet'}</Text>
+                    <Text className="text-gray-500 text-[10px]">{paymentStreak > 0 ? `${paymentStreak} Payments Made` : 'Start your streak!'}</Text>
                   </View>
                 </View>
                 <Ionicons name="trending-up" size={18} color="#047857" />
@@ -194,6 +239,7 @@ export default function AccountScreen() {
         {/* Logout Section */}
         <View className="px-6 pb-12">
           <TouchableOpacity
+            activeOpacity={0.7}
             className="flex-row items-center justify-center bg-gray-50 py-4 rounded-2xl border border-gray-100"
             onPress={handleLogout}
           >
@@ -203,6 +249,17 @@ export default function AccountScreen() {
           <Text className="text-center text-gray-300 text-[10px] mt-4 uppercase font-bold tracking-widest">Version 2.4.0 • Alwan 2026</Text>
         </View>
       </ScrollView>
+
+      <ConfirmModal
+        visible={logoutModalVisible}
+        title="Logout Member"
+        message="Are you sure you want to logout from your Alwan account?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        onConfirm={onConfirmLogout}
+        onCancel={() => setLogoutModalVisible(false)}
+        isDestructive={true}
+      />
     </View>
   );
 }

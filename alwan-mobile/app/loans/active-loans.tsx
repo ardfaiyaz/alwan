@@ -42,7 +42,34 @@ export default function LoansScreen() {
         try {
             setIsLoading(true);
 
-            // 1. Delete associated co-makers first (to avoid FK violation)
+            // 1. Check if document verifications exist
+            const { data: existingDocs, error: checkError } = await supabase
+                .from('loan_document_verifications')
+                .select('id', { count: 'exact' })
+                .eq('loan_application_id', loanId);
+
+            console.log('Existing doc verifications:', existingDocs?.length || 0);
+
+            // 2. Delete associated document verifications first (FK constraint)
+            if (existingDocs && existingDocs.length > 0) {
+                const { error: dvError, count: dvCount } = await supabase
+                    .from('loan_document_verifications')
+                    .delete({ count: 'exact' })
+                    .eq('loan_application_id', loanId);
+
+                console.log('Doc verifications deleted:', dvCount, 'Error:', dvError);
+
+                if (dvError) {
+                    console.error('Document verification deletion error:', dvError);
+                    throw new Error('Could not delete document verifications: ' + dvError.message);
+                }
+
+                if (dvCount === 0 && existingDocs.length > 0) {
+                    throw new Error('Document verifications exist but could not be deleted. Please check your RLS DELETE policy on loan_document_verifications table.');
+                }
+            }
+
+            // 3. Delete associated co-makers (FK constraint)
             const { error: cmError } = await supabase
                 .from('loan_co_makers')
                 .delete()
@@ -52,7 +79,7 @@ export default function LoansScreen() {
                 console.warn('Co-maker deletion error (might be none):', cmError);
             }
 
-            // 2. Delete the loan application
+            // 4. Delete the loan application
             const { error, count } = await supabase
                 .from('loan_applications')
                 .delete({ count: 'exact' })
@@ -64,7 +91,6 @@ export default function LoansScreen() {
             }
 
             if (count === 0) {
-                console.warn('No rows deleted. This is likely an RLS Policy issue.');
                 throw new Error('You do not have permission to delete this application. Please check your database RLS policies.');
             }
 

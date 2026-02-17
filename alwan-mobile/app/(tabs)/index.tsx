@@ -81,7 +81,10 @@ export default function HomeScreen() {
       {/* Alwan Header Style */}
       <View className="bg-[#047857] pt-12 pb-4 px-6">
         <View className="flex-row justify-between items-center mb-6">
-          <View className="flex-row items-center">
+          <TouchableOpacity
+            className="flex-row items-center"
+            onPress={() => router.push('/(tabs)/account')}
+          >
             <View className="w-10 h-10 bg-white/20 rounded-full items-center justify-center mr-3">
               <Ionicons name="person" size={20} color="white" />
             </View>
@@ -89,7 +92,7 @@ export default function HomeScreen() {
               <Text className="text-white text-xs font-medium">Welcome back,</Text>
               <Text className="text-white text-base font-bold">{profile?.full_name || 'Loading...'}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
           <View className="flex-row gap-4">
             <TouchableOpacity onPress={() => Alert.alert('Help', 'Alwan Support Hotline')}>
               <Ionicons name="help-circle-outline" size={26} color="white" />
