@@ -84,6 +84,10 @@ export default function StaffsPage() {
         setIsLoading(true)
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
             
             const { data: staffData, error: staffError } = await supabase
                 .from('profiles')
@@ -180,6 +184,10 @@ export default function StaffsPage() {
 
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
             const { error } = await supabase
                 .from('profiles')
                 .update({ is_active: false })
@@ -244,6 +252,10 @@ export default function StaffsPage() {
 
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
             const full_name = `${formData.first_name} ${formData.last_name}`.trim()
 
             const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -318,6 +330,10 @@ export default function StaffsPage() {
 
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
             const full_name = `${formData.first_name} ${formData.last_name}`.trim()
 
             const updates = {
@@ -364,6 +380,10 @@ export default function StaffsPage() {
     const handleToggleStatus = async (staff: Staff) => {
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
 
             const { error } = await supabase
                 .from('profiles')
@@ -399,6 +419,10 @@ export default function StaffsPage() {
 
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
 
             const { error } = await supabase
                 .from('profiles')

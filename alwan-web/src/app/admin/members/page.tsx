@@ -63,6 +63,10 @@ export default function MembersPage() {
         setIsLoading(true)
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
             
             // Load members with center information
             const { data: membersData, error: membersError } = await supabase
@@ -168,6 +172,10 @@ export default function MembersPage() {
 
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
             const { error } = await supabase
                 .from('members')
                 .update({ is_active: false })
@@ -190,6 +198,10 @@ export default function MembersPage() {
 
         try {
             const supabase = createClient()
+            if (!supabase) {
+                toast.error('Failed to initialize Supabase client')
+                return
+            }
             const { error } = await supabase
                 .from('members')
                 .delete()
@@ -399,6 +411,149 @@ export default function MembersPage() {
                     </CardContent>
                 </Card>
             )}
+
+            {/* Members Table */}
+            <Card>
+                <CardContent className="pt-6">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b">
+                                    <th className="text-left py-3 px-4">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedMembers.length === currentMembers.length && currentMembers.length > 0}
+                                            onChange={handleSelectAll}
+                                            className="rounded"
+                                        />
+                                    </th>
+                                    <th className="text-left py-3 px-4 cursor-pointer" onClick={() => handleSort('first_name')}>
+                                        Name {sortField === 'first_name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                    </th>
+                                    <th className="text-left py-3 px-4 cursor-pointer" onClick={() => handleSort('center_name')}>
+                                        Center {sortField === 'center_name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                    </th>
+                                    <th className="text-left py-3 px-4">Phone</th>
+                                    <th className="text-left py-3 px-4 cursor-pointer" onClick={() => handleSort('cbu_balance')}>
+                                        CBU Balance {sortField === 'cbu_balance' && (sortOrder === 'asc' ? '↑' : '↓')}
+                                    </th>
+                                    <th className="text-left py-3 px-4">Status</th>
+                                    <th className="text-right py-3 px-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={7} className="text-center py-8 text-gray-500">
+                                            Loading members...
+                                        </td>
+                                    </tr>
+                                ) : currentMembers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className="text-center py-8 text-gray-500">
+                                            No members found
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    currentMembers.map((member) => (
+                                        <tr key={member.id} className="border-b hover:bg-gray-50">
+                                            <td className="py-3 px-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedMembers.includes(member.id)}
+                                                    onChange={() => handleSelectMember(member.id)}
+                                                    className="rounded"
+                                                />
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                                                        {getInitials(member)}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium text-gray-900">{getFullName(member)}</p>
+                                                        <p className="text-sm text-gray-500">{member.business_name || 'No business'}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <span className="text-sm text-gray-700">{member.center?.name || 'N/A'}</span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <span className="text-sm text-gray-700">{member.phone || 'N/A'}</span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <span className="font-semibold text-blue-600">{formatCurrency(member.cbu_balance)}</span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                    member.is_active 
+                                                        ? 'bg-green-100 text-green-800' 
+                                                        : 'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                    {member.is_active ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Link href={`/admin/members/${member.id}`}>
+                                                        <GlassyButton variant="outline" size="sm" className="gap-1">
+                                                            <Eye className="w-4 h-4" />
+                                                        </GlassyButton>
+                                                    </Link>
+                                                    <Link href={`/admin/members/${member.id}/edit`}>
+                                                        <GlassyButton variant="outline" size="sm" className="gap-1">
+                                                            <Edit className="w-4 h-4" />
+                                                        </GlassyButton>
+                                                    </Link>
+                                                    <GlassyButton
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleDelete(member.id)}
+                                                        className="text-red-600 hover:text-red-700"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </GlassyButton>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between mt-6 pt-6 border-t">
+                            <p className="text-sm text-gray-600">
+                                Showing {startIndex + 1} to {Math.min(endIndex, filteredAndSortedMembers.length)} of {filteredAndSortedMembers.length} members
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <GlassyButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </GlassyButton>
+                                <span className="text-sm text-gray-600">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <GlassyButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </GlassyButton>
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     )
 }

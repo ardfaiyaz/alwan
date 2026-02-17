@@ -34,7 +34,37 @@ const journey = [
   },
 ]
 
-// ... (Developers array remains same) ...
+const developers = [
+  {
+    name: 'Melthon Faiyaz',
+    role: 'Full Stack Developer',
+    role1: 'Project Lead',
+    image: '/team/melthon.jpg'
+  },
+  {
+    name: 'Team Member 2',
+    role: 'Frontend Developer',
+    role1: 'UI/UX Specialist',
+    image: '/team/member2.jpg'
+  },
+  {
+    name: 'Team Member 3',
+    role: 'Backend Developer',
+    role1: 'Database Architect',
+    image: '/team/member3.jpg'
+  }
+]
+
+// TeamMemberImage Component
+function TeamMemberImage({ src, name }: { src: string; name: string }) {
+  return (
+    <div className="relative w-full aspect-square bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl overflow-hidden">
+      <div className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-emerald-600">
+        {name.split(' ').map(n => n[0]).join('')}
+      </div>
+    </div>
+  )
+}
 
 // JourneyItem Component
 function JourneyItem({ item, idx }: { item: any; idx: number }) {

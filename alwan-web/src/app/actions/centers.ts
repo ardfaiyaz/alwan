@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { logAudit } from './audit'
+import { createAuditLog } from './audit'
 import { z } from 'zod'
 
 const transferCenterSchema = z.object({
@@ -51,13 +51,12 @@ export async function transferCenter(formData: {
         const newBranch = updatedCenter.branch
 
         // 3. Log audit
-        await logAudit({
-            action: 'TRANSFER_CENTER',
+        await createAuditLog({
+            action: 'update',
             resourceType: 'center',
             resourceId: validated.centerId,
             oldValues: { branchId: prevBranch.id, branchName: prevBranch.name },
-            newValues: { branchId: newBranch.id, branchName: newBranch.name, reason: validated.reason },
-            success: true
+            newValues: { branchId: newBranch.id, branchName: newBranch.name, reason: validated.reason }
         })
 
         revalidatePath('/admin/centers')

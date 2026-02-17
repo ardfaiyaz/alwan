@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { weeklyCollectionSchema, type WeeklyCollectionInput } from '@/lib/validations'
-import { logAudit } from './audit'
+import { createAuditLog } from './audit'
 
 /**
  * Process weekly collection for a center
@@ -29,8 +29,8 @@ export async function processWeeklyCollection(data: WeeklyCollectionInput) {
         if (error) throw error
 
         // Log audit trail
-        await logAudit({
-            action: 'PROCESS_WEEKLY_COLLECTION',
+        await createAuditLog({
+            action: 'create',
             resourceType: 'collection',
             resourceId: result.collection_sheet_id,
             newValues: {
@@ -48,15 +48,6 @@ export async function processWeeklyCollection(data: WeeklyCollectionInput) {
             presentMembers: result.present_members
         }
     } catch (error: any) {
-        // Log failed attempt
-        await logAudit({
-            action: 'PROCESS_WEEKLY_COLLECTION',
-            resourceType: 'collection',
-            success: false,
-            errorMessage: error.message,
-            newValues: data
-        })
-
         throw error
     }
 }
@@ -145,8 +136,8 @@ export async function verifyCollectionSheet(collectionSheetId: string) {
     if (error) throw error
 
     // Log audit trail
-    await logAudit({
-        action: 'VERIFY_COLLECTION_SHEET',
+    await createAuditLog({
+        action: 'update',
         resourceType: 'collection',
         resourceId: collectionSheetId,
         newValues: { status: 'verified' }

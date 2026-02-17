@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { loanApprovalSchema, type LoanApprovalInput } from '@/lib/validations'
 import { getNextLoanStatus, canApproveLoan } from '@/lib/rbac/permissions'
-import { logAudit } from './audit'
+import { createAuditLog } from './audit'
 
 /**
  * Process loan approval/rejection
@@ -87,8 +87,8 @@ export async function processApproval(data: LoanApprovalInput) {
         })
 
         // Audit trail
-        await logAudit({
-            action: `${validated.action.toUpperCase()}_LOAN`,
+        await createAuditLog({
+            action: validated.action === 'approve' ? 'update' : 'delete',
             resourceType: 'loan',
             resourceId: validated.loanId,
             oldValues: { status: loan.status as unknown as Record<string, unknown> },
@@ -107,15 +107,6 @@ export async function processApproval(data: LoanApprovalInput) {
                 : 'Loan rejected'
         }
     } catch (error) {
-        // Log failed attempt
-        await logAudit({
-            action: 'APPROVAL_FAILED',
-            resourceType: 'loan',
-            resourceId: data.loanId,
-            success: false,
-            errorMessage: error instanceof Error ? error.message : String(error)
-        })
-
         throw error
     }
 }
