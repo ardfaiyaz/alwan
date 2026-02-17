@@ -3,6 +3,22 @@
 *.pem
 *.tsbuildinfo
 .vercel
+thumbs.db
+*~
+*.log
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+
+# --- Editor Configuration ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
 
 # --- Debug Logs ---
 npm-debug.log*
@@ -10,23 +26,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# --- Environment Files ---
-# Keeps keys and secrets out of GitHub for both web and mobile
-.env*
-.env*.local
-
 # --- Web (alwan-web) ---
-/alwan-web/node_modules
 /alwan-web/.next/
 /alwan-web/out/
-/alwan-web/build
 /alwan-web/coverage
-next-env.d.ts
+/alwan-web/next-env.d.ts
 
 # --- Mobile (alwan-mobile) ---
-/alwan-mobile/node_modules
 /alwan-mobile/.expo/
-/alwan-mobile/dist/
 /alwan-mobile/web-build/
 /alwan-mobile/expo-env.d.ts
 /alwan-mobile/app-example
