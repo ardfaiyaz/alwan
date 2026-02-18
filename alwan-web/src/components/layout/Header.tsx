@@ -5,10 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { Home, Briefcase, Info, HelpCircle, X, Menu } from 'lucide-react'
-import LoginModal from '../ui/LoginModal'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -19,11 +16,7 @@ const navLinks = [
 
 export default function Header() {
   const pathname = usePathname()
-  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const [user, setUser] = useState<{ email?: string } | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrolled, setScrolled] = useState(false)
 
@@ -38,28 +31,6 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  useEffect(() => {
-    const supabase = createClient()
-    if (!supabase) {
-      setIsLoading(false)
-      return
-    }
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      setIsLoading(false)
-    })
-  }, [])
-
-  const handleSignOut = async () => {
-    const supabase = createClient()
-    if (supabase) {
-      await supabase.auth.signOut()
-    }
-    setUser(null)
-    router.refresh()
-    setIsMenuOpen(false)
-  }
 
   if (pathname === '/login' || pathname === '/register') return null
 
@@ -294,23 +265,11 @@ export default function Header() {
 
             {/* Auth buttons */}
             <div className="hidden md:flex items-center gap-2">
-              {user ? (
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs font-medium text-slate-600 truncate max-w-[110px]">
-                    {user.email}
-                  </span>
-                  <button onClick={handleSignOut} className="btn-login">Sign Out</button>
-                </div>
-              ) : (
-                <>
-                  <button onClick={() => setIsLoginOpen(true)} className="btn-login">Log In</button>
-                  <Link href="/register">
-                    <button className="btn-signup">
-                      <span>Get Started</span>
-                    </button>
-                  </Link>
-                </>
-              )}
+              <Link href="/register">
+                <button className="btn-signup">
+                  <span>Get Started</span>
+                </button>
+              </Link>
             </div>
 
           </div>
@@ -353,42 +312,17 @@ export default function Header() {
 
                 {/* Auth */}
                 <div className="flex flex-col gap-2 px-1 pt-1">
-                  {!user ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsMenuOpen(false)
-                          setIsLoginOpen(true)
-                        }}
-                        className="btn-login w-full justify-center py-2.5"
-                      >
-                        Log In
-                      </button>
-                      <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                        <button type="button" className="btn-signup w-full justify-center py-2.5">
-                          <span>Get Started</span>
-                        </button>
-                      </Link>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleSignOut}
-                      className="btn-login w-full justify-center py-2.5"
-                    >
-                      Sign Out
+                  <Link href="/register" onClick={() => setIsMenuOpen(false)}>
+                    <button type="button" className="btn-signup w-full justify-center py-2.5">
+                      <span>Get Started</span>
                     </button>
-                  )}
+                  </Link>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </header>
-
-      {/* Login Modal */}
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
     </>
   )
 }
