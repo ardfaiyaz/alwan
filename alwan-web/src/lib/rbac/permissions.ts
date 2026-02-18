@@ -19,6 +19,10 @@ export type PermissionResource =
 
 export type PermissionAction = 'view' | 'create' | 'edit' | 'delete' | 'approve' | 'export'
 
+// Aliases for backward compatibility
+export type Resource = PermissionResource
+export type Action = PermissionAction
+
 export interface Permission {
     resource: PermissionResource
     action: PermissionAction
@@ -204,4 +208,44 @@ export function canAccessRoute(userRole: UserRole, route: string): boolean {
     if (!resource) return false
 
     return hasPermission(userRole, resource, 'view')
+}
+
+/**
+ * Page access control - defines which roles can access which pages
+ */
+const PAGE_ACCESS: Record<string, UserRole[]> = {
+    '/admin/dashboard': ['admin', 'area_manager', 'branch_manager', 'field_officer'],
+    '/admin/staffs': ['admin'],
+    '/admin/users': ['admin'],
+    '/admin/settings': ['admin'],
+    '/admin/logs': ['admin'],
+    '/admin/audit-logs': ['admin'],
+    '/admin/centers': ['admin', 'area_manager', 'branch_manager', 'field_officer'],
+    '/admin/members': ['admin', 'area_manager', 'branch_manager', 'field_officer'],
+    '/admin/loans': ['admin', 'area_manager', 'branch_manager', 'field_officer'],
+    '/admin/collections': ['admin', 'area_manager', 'branch_manager', 'field_officer'],
+    '/admin/reports': ['admin', 'area_manager', 'branch_manager', 'field_officer'],
+    '/admin/approvals': ['admin', 'area_manager', 'branch_manager'],
+}
+
+/**
+ * Check if a user can access a specific page
+ */
+export function canAccessPage(userRole: UserRole, pathname: string): boolean {
+    // Check exact match first
+    if (PAGE_ACCESS[pathname]) {
+        return PAGE_ACCESS[pathname].includes(userRole)
+    }
+    
+    // Check parent paths (for dynamic routes)
+    const pathParts = pathname.split('/').filter(Boolean)
+    for (let i = pathParts.length; i > 0; i--) {
+        const parentPath = '/' + pathParts.slice(0, i).join('/')
+        if (PAGE_ACCESS[parentPath]) {
+            return PAGE_ACCESS[parentPath].includes(userRole)
+        }
+    }
+    
+    // Default: only admin can access unlisted pages
+    return userRole === 'admin'
 }

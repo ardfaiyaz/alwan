@@ -1,10 +1,21 @@
 import { Sidebar } from '@/components/admin/Sidebar'
+import { requireAuth } from '@/lib/auth/server-auth'
+import { redirect } from 'next/navigation'
 
-export default function AdminLayout({
+export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    // Require authentication for all admin pages
+    const user = await requireAuth().catch(() => {
+        redirect('/login')
+    })
+
+    if (!user) {
+        redirect('/login')
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Sidebar />

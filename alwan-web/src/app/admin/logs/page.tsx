@@ -11,6 +11,7 @@ import { getAuditLogs } from '@/app/actions/audit'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
+import { AdminOnly } from '@/components/auth/PermissionGate'
 
 type AuditLog = {
     id: string
@@ -27,7 +28,6 @@ type AuditLog = {
     success: boolean
     created_at: string
 }
-
 type SupabaseAuditLog = {
     id: string
     instance_id: string
@@ -249,6 +249,7 @@ export default function AuditLogsPage() {
     }
 
     return (
+        <AdminOnly>
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -704,5 +705,6 @@ export default function AuditLogsPage() {
                 </CardContent>
             </Card>
         </div>
+        </AdminOnly>
     )
 }

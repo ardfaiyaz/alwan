@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { GlassyButton } from '@/components/ui/glassy-button'
-import { Plus, Search, Edit, Trash2, Shield, UserCheck, UserX, ArrowUpDown, Download, Filter, Eye, EyeOff, CheckCircle, XCircle, Loader2 } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Shield, UserCheck, UserX, ArrowUpDown, Download, Eye, EyeOff, CheckCircle, XCircle, Loader2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -15,6 +15,7 @@ import { createStaff, updateStaff, toggleStaffStatus, checkEmailAvailability } f
 import { StatsCardSkeleton } from '@/components/skeletons/StatsCardSkeleton'
 import { TableSkeleton } from '@/components/skeletons/TableSkeleton'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { AdminOnly } from '@/components/auth/PermissionGate'
 
 type UserRole = 'admin' | 'area_manager' | 'branch_manager' | 'field_officer'
 type SortField = 'full_name' | 'email' | 'role' | 'created_at'
@@ -423,6 +424,7 @@ export default function StaffsPage() {
         : branches
 
     return (
+        <AdminOnly>
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
@@ -816,6 +818,7 @@ export default function StaffsPage() {
                 </>
             )}
         </div>
+        </AdminOnly>
     )
 }
 
