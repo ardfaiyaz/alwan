@@ -1,25 +1,30 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
+import { useState } from 'react';
 
 export default function ProgramsScreen() {
   const router = useRouter();
-  const { updateUser } = useAuth();
+  const { submitLoanApplication } = useAuth();
+  const [loanData] = useState({
+    amount: 5000,
+    term: 20,
+    loanType: 'Business Capital'
+  });
 
   const handleSubmit = () => {
     console.log('[Programs] ========== SUBMIT APPLICATION CLICKED ==========');
     console.log('[Programs] Submitting loan application');
-    console.log('[Programs] Updating user hasSubmittedLoanType to true');
+    console.log('[Programs] Amount:', loanData.amount, 'Term:', loanData.term, 'Type:', loanData.loanType);
     
-    updateUser({ hasSubmittedLoanType: true });
+    submitLoanApplication(loanData.amount, loanData.term, loanData.loanType);
     
-    console.log('[Programs] User updated');
+    console.log('[Programs] Loan application submitted');
     console.log('[Programs] Redirecting to homepage...');
     
-    // Redirect immediately without alert
-    router.replace('/(tabs)/');
+    router.replace('/(tabs)');
     
     console.log('[Programs] Navigation command executed');
   };

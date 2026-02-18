@@ -6,23 +6,20 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user, userGroup } = useAuth();
+  const { user, userGroup, loanApplication, savingsAccount, insuranceAccount, paymentSchedules } = useAuth();
 
   console.log('[HomeScreen] Rendering with user:', {
     isApproved: user?.isApproved,
-    hasSubmittedLoanType: user?.hasSubmittedLoanType,
-    loanTypeApproved: user?.loanTypeApproved,
     hasGroup: !!userGroup,
     groupName: userGroup?.name,
+    hasLoan: !!loanApplication,
+    loanStatus: loanApplication?.status,
+    hasSavings: !!savingsAccount,
+    hasInsurance: !!insuranceAccount,
   });
 
   const handleLoanClick = () => {
     console.log('[HomeScreen] handleLoanClick called');
-    console.log('[HomeScreen] User state:', {
-      isApproved: user?.isApproved,
-      hasSubmittedLoanType: user?.hasSubmittedLoanType,
-      loanTypeApproved: user?.loanTypeApproved,
-    });
 
     if (!user?.isApproved) {
       console.log('[HomeScreen] User not approved - showing alert');
@@ -34,27 +31,59 @@ export default function HomeScreen() {
       return;
     }
 
-    // If approved but hasn't submitted loan type yet
-    if (!user?.hasSubmittedLoanType) {
-      console.log('[HomeScreen] User approved but no loan type submitted - navigating to loan orientation');
+    // NEW FLOW: Must join group first before applying for loan
+    if (!userGroup) {
+      console.log('[HomeScreen] User has no group - must join/create group first');
+      Alert.alert(
+        'Join a Group First',
+        'You need to join or create a solidarity group before applying for a loan. Groups provide mutual support and guarantee each other\'s loans.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Join/Create Group', onPress: () => router.push('/loans/group-options') }
+        ]
+      );
+      return;
+    }
+
+    // If in group but hasn't applied for loan yet
+    if (!loanApplication) {
+      console.log('[HomeScreen] User in group but no loan application - navigating to loan orientation');
       router.push('/loans/orientation-1');
       return;
     }
 
-    // If submitted but not approved yet
-    if (!user?.loanTypeApproved) {
-      console.log('[HomeScreen] Loan type submitted but not approved - showing alert');
+    // If loan is pending approval
+    if (loanApplication.status === 'pending') {
+      console.log('[HomeScreen] Loan pending approval');
       Alert.alert(
-        'Loan Type Pending',
-        'Your loan documents are being reviewed. Please wait for approval.',
+        'Loan Under Review',
+        'Your loan application is being reviewed. You will be notified once approved.',
         [{ text: 'OK' }]
       );
       return;
     }
 
-    // If everything is approved, show group options
-    console.log('[HomeScreen] Everything approved - navigating to group-options');
-    router.push('/loans/group-options');
+    // If loan approved but no savings/insurance accounts
+    if (loanApplication.status === 'approved' && (!savingsAccount || !insuranceAccount)) {
+      console.log('[HomeScreen] Loan approved but missing savings/insurance - redirecting');
+      Alert.alert(
+        'Required Accounts',
+        'You need to create savings and insurance accounts before loan disbursement.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Create Accounts', onPress: () => router.push('/loans/group-options') } // Temporary route
+        ]
+      );
+      return;
+    }
+
+    // If everything is set up, show loan details
+    console.log('[HomeScreen] All set up - showing loan details');
+    Alert.alert(
+      'Loan Active',
+      `Your loan of ₱${loanApplication.amount.toLocaleString()} is active.\n\nNext payment: ${paymentSchedules.find(s => s.status === 'pending')?.dueDate.toLocaleDateString() || 'N/A'}`,
+      [{ text: 'OK' }]
+    );
   };
 
   return (
@@ -108,31 +137,22 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* Approved Message */}
-          {user?.isApproved && (
-            <View className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-6">
-              <View className="flex-row items-start">
-                <Ionicons name="checkmark-circle" size={24} color="#10B981" />
-                <View className="flex-1 ml-3">
-                  <Text className="text-green-900 font-semibold mb-1">Membership Approved!</Text>
-                  <Text className="text-green-800 text-sm">
-                    Your account is now active. You can access all KMBI services.
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Loan Type Pending Message */}
-          {user?.isApproved && user?.hasSubmittedLoanType && !user?.loanTypeApproved && (
+          {/* Approved but No Group */}
+          {user?.isApproved && !userGroup && (
             <View className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
               <View className="flex-row items-start">
-                <Ionicons name="document-text-outline" size={24} color="#3B82F6" />
+                <Ionicons name="people-outline" size={24} color="#3B82F6" />
                 <View className="flex-1 ml-3">
-                  <Text className="text-blue-900 font-semibold mb-1">Loan Documents Under Review</Text>
-                  <Text className="text-blue-800 text-sm">
-                    Your loan type documents are being reviewed. You'll be notified once approved.
+                  <Text className="text-blue-900 font-semibold mb-1">Join a Solidarity Group</Text>
+                  <Text className="text-blue-800 text-sm mb-2">
+                    Before applying for a loan, you need to join or create a solidarity group.
                   </Text>
+                  <TouchableOpacity
+                    onPress={() => router.push('/loans/group-options')}
+                    className="bg-blue-600 py-2 px-4 rounded-lg self-start"
+                  >
+                    <Text className="text-white text-sm font-semibold">Join/Create Group</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -153,6 +173,80 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               </View>
+            </View>
+          )}
+
+          {/* Loan Status */}
+          {loanApplication && (
+            <View className={`border-2 rounded-2xl p-4 mb-6 ${
+              loanApplication.status === 'pending' ? 'bg-yellow-50 border-yellow-200' :
+              loanApplication.status === 'approved' ? 'bg-green-50 border-green-200' :
+              'bg-blue-50 border-blue-200'
+            }`}>
+              <View className="flex-row items-start">
+                <Ionicons 
+                  name={loanApplication.status === 'approved' ? 'checkmark-circle' : 'time-outline'} 
+                  size={24} 
+                  color={loanApplication.status === 'approved' ? '#10B981' : '#F59E0B'} 
+                />
+                <View className="flex-1 ml-3">
+                  <Text className={`font-semibold mb-1 ${
+                    loanApplication.status === 'approved' ? 'text-green-900' : 'text-yellow-900'
+                  }`}>
+                    Loan {loanApplication.status === 'approved' ? 'Approved' : 'Under Review'}
+                  </Text>
+                  <Text className={`text-sm ${
+                    loanApplication.status === 'approved' ? 'text-green-800' : 'text-yellow-800'
+                  }`}>
+                    ₱{loanApplication.amount.toLocaleString()} • {loanApplication.term} weeks
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Required Accounts Alert */}
+          {loanApplication?.status === 'approved' && (!savingsAccount || !insuranceAccount) && (
+            <View className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
+              <View className="flex-row items-start">
+                <Ionicons name="alert-circle" size={24} color="#DC2626" />
+                <View className="flex-1 ml-3">
+                  <Text className="text-red-900 font-semibold mb-1">Action Required</Text>
+                  <Text className="text-red-800 text-sm mb-2">
+                    You must open savings and insurance accounts before loan disbursement.
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => Alert.alert('Info', 'Please go to Account tab to approve your loan first.')}
+                    className="bg-red-600 py-2 px-4 rounded-lg self-start"
+                  >
+                    <Text className="text-white text-sm font-semibold">Open Accounts</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Next Payment */}
+          {loanApplication?.status === 'approved' && savingsAccount && insuranceAccount && paymentSchedules.length > 0 && (
+            <View className="bg-white border-2 border-green-200 rounded-2xl p-4 mb-6">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-900 font-semibold">Next Payment</Text>
+                <View className="bg-green-100 px-3 py-1 rounded-full">
+                  <Text className="text-green-700 text-xs font-semibold">
+                    {paymentSchedules.filter(s => s.status === 'pending').length} pending
+                  </Text>
+                </View>
+              </View>
+              {paymentSchedules.find(s => s.status === 'pending') && (
+                <>
+                  <Text className="text-2xl font-bold text-gray-900 mb-1">
+                    ₱{paymentSchedules.find(s => s.status === 'pending')?.amount.toFixed(2)}
+                  </Text>
+                  <Text className="text-sm text-gray-600">
+                    Due: {paymentSchedules.find(s => s.status === 'pending')?.dueDate.toLocaleDateString()}
+                  </Text>
+                </>
+              )}
             </View>
           )}
 

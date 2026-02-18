@@ -2,16 +2,20 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'expo-router';
 
 export default function AccountScreen() {
-  const { user, approveSignup, approveLoanType, userGroup } = useAuth();
+  const router = useRouter();
+  const { user, approveSignup, userGroup, loanApplication, approveLoan, savingsAccount, insuranceAccount } = useAuth();
 
   console.log('[AccountScreen] Rendering with user:', {
     isApproved: user?.isApproved,
-    hasSubmittedLoanType: user?.hasSubmittedLoanType,
-    loanTypeApproved: user?.loanTypeApproved,
     hasGroup: !!userGroup,
     groupName: userGroup?.name,
+    hasLoan: !!loanApplication,
+    loanStatus: loanApplication?.status,
+    hasSavings: !!savingsAccount,
+    hasInsurance: !!insuranceAccount,
   });
 
   const handleSignupApproval = () => {
@@ -21,25 +25,30 @@ export default function AccountScreen() {
     approveSignup();
     console.log('[AccountScreen] approveSignup() called directly');
     
-    Alert.alert('Success', 'Account approved! Go to Home tab to see changes.');
+    Alert.alert('Success', 'Account approved! User can now join/create groups.');
   };
 
-  const handleLoanTypeApproval = () => {
-    console.log('[AccountScreen] handleLoanTypeApproval clicked');
-    console.log('[AccountScreen] Current user:', user);
-    console.log('[AccountScreen] hasSubmittedLoanType:', user?.hasSubmittedLoanType);
+  const handleLoanApproval = () => {
+    console.log('[AccountScreen] handleLoanApproval clicked');
+    console.log('[AccountScreen] Current loan:', loanApplication);
     
-    if (!user?.hasSubmittedLoanType) {
-      console.log('[AccountScreen] User has not submitted loan type - showing error');
-      Alert.alert('Error', 'User has not submitted loan type documents yet.');
+    if (!loanApplication) {
+      console.log('[AccountScreen] No loan application to approve');
+      Alert.alert('Error', 'No loan application found.');
       return;
     }
 
-    console.log('[AccountScreen] Calling approveLoanType()');
-    approveLoanType();
-    console.log('[AccountScreen] approveLoanType() called directly');
+    if (loanApplication.status !== 'pending') {
+      console.log('[AccountScreen] Loan already processed');
+      Alert.alert('Error', 'Loan has already been processed.');
+      return;
+    }
+
+    console.log('[AccountScreen] Calling approveLoan()');
+    approveLoan();
+    console.log('[AccountScreen] approveLoan() called - loan approved and payment schedules created');
     
-    Alert.alert('Success', 'Loan type approved! User can now proceed to group selection.');
+    Alert.alert('Success', 'Loan approved! User must now create savings and insurance accounts.');
   };
 
   if (!user) {
@@ -98,18 +107,63 @@ export default function AccountScreen() {
           <View className="bg-white rounded-xl p-4 mb-4">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <View className={`w-3 h-3 rounded-full mr-3 ${user?.hasSubmittedLoanType ? 'bg-blue-500' : 'bg-gray-300'}`} />
+                <View className={`w-3 h-3 rounded-full mr-3 ${userGroup ? 'bg-purple-500' : 'bg-gray-300'}`} />
                 <View>
-                  <Text className="font-semibold text-gray-900">Loan Documents</Text>
+                  <Text className="font-semibold text-gray-900">Group Membership</Text>
                   <Text className="text-sm text-gray-600">
-                    {user?.hasSubmittedLoanType ? 'Submitted' : 'Not Submitted'}
+                    {userGroup ? `${userGroup.name} ✓` : 'Not in a group'}
                   </Text>
                 </View>
               </View>
               <Ionicons 
-                name={user?.hasSubmittedLoanType ? 'document-text' : 'document-outline'} 
+                name={userGroup ? 'people' : 'people-outline'} 
                 size={24} 
-                color={user?.hasSubmittedLoanType ? '#3B82F6' : '#9CA3AF'} 
+                color={userGroup ? '#9333EA' : '#9CA3AF'} 
+              />
+            </View>
+          </View>
+
+          <View className="bg-white rounded-xl p-4 mb-4">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <View className={`w-3 h-3 rounded-full mr-3 ${
+                  loanApplication?.status === 'approved' ? 'bg-green-500' :
+                  loanApplication?.status === 'pending' ? 'bg-yellow-500' :
+                  'bg-gray-300'
+                }`} />
+                <View>
+                  <Text className="font-semibold text-gray-900">Loan Status</Text>
+                  <Text className="text-sm text-gray-600">
+                    {loanApplication ? 
+                      `${loanApplication.status.charAt(0).toUpperCase() + loanApplication.status.slice(1)} - ₱${loanApplication.amount.toLocaleString()}` : 
+                      'No loan application'
+                    }
+                  </Text>
+                </View>
+              </View>
+              <Ionicons 
+                name={loanApplication?.status === 'approved' ? 'checkmark-circle' : 'cash-outline'} 
+                size={24} 
+                color={loanApplication?.status === 'approved' ? '#10B981' : '#9CA3AF'} 
+              />
+            </View>
+          </View>
+
+          <View className="bg-white rounded-xl p-4 mb-4">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center">
+                <View className={`w-3 h-3 rounded-full mr-3 ${savingsAccount ? 'bg-purple-500' : 'bg-gray-300'}`} />
+                <View>
+                  <Text className="font-semibold text-gray-900">Savings Account</Text>
+                  <Text className="text-sm text-gray-600">
+                    {savingsAccount ? `Active - ₱${savingsAccount.balance.toFixed(2)}` : 'Not created'}
+                  </Text>
+                </View>
+              </View>
+              <Ionicons 
+                name={savingsAccount ? 'wallet' : 'wallet-outline'} 
+                size={24} 
+                color={savingsAccount ? '#8B5CF6' : '#9CA3AF'} 
               />
             </View>
           </View>
@@ -117,39 +171,21 @@ export default function AccountScreen() {
           <View className="bg-white rounded-xl p-4 mb-6">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <View className={`w-3 h-3 rounded-full mr-3 ${user?.loanTypeApproved ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                <View className={`w-3 h-3 rounded-full mr-3 ${insuranceAccount ? 'bg-yellow-500' : 'bg-gray-300'}`} />
                 <View>
-                  <Text className="font-semibold text-gray-900">Loan Type Status</Text>
+                  <Text className="font-semibold text-gray-900">Insurance Account</Text>
                   <Text className="text-sm text-gray-600">
-                    {user?.loanTypeApproved ? 'Approved ✓' : 'Pending'}
+                    {insuranceAccount ? `${insuranceAccount.plan} ✓` : 'Not created'}
                   </Text>
                 </View>
               </View>
               <Ionicons 
-                name={user?.loanTypeApproved ? 'checkmark-circle' : 'time'} 
+                name={insuranceAccount ? 'shield-checkmark' : 'shield-outline'} 
                 size={24} 
-                color={user?.loanTypeApproved ? '#10B981' : '#F59E0B'} 
+                color={insuranceAccount ? '#F59E0B' : '#9CA3AF'} 
               />
             </View>
           </View>
-
-          {/* Group Status */}
-          {userGroup && (
-            <View className="bg-white rounded-xl p-4 mb-6">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-3 h-3 rounded-full mr-3 bg-purple-500" />
-                  <View>
-                    <Text className="font-semibold text-gray-900">Solidarity Group</Text>
-                    <Text className="text-sm text-gray-600">
-                      {userGroup.name} ({userGroup.members.length}/{userGroup.maxMembers} members)
-                    </Text>
-                  </View>
-                </View>
-                <Ionicons name="people" size={24} color="#9333EA" />
-              </View>
-            </View>
-          )}
 
           {/* Test Buttons */}
           <Text className="text-lg font-bold text-gray-900 mb-4">Admin Controls (Testing)</Text>
@@ -165,16 +201,33 @@ export default function AccountScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={handleLoanTypeApproval}
-            disabled={!user?.hasSubmittedLoanType || user?.loanTypeApproved}
-            className={`py-4 rounded-xl mb-6 ${
-              !user?.hasSubmittedLoanType || user?.loanTypeApproved ? 'bg-gray-300' : 'bg-blue-600'
+            onPress={handleLoanApproval}
+            disabled={!loanApplication || loanApplication.status !== 'pending'}
+            className={`py-4 rounded-xl mb-3 ${
+              loanApplication?.status === 'pending' ? 'bg-blue-600' : 'bg-gray-300'
             }`}
           >
             <Text className="text-white text-center text-base font-semibold">
-              {user?.loanTypeApproved ? '✓ Loan Type Approved' : 'Approve Loan Type'}
+              {loanApplication?.status === 'approved' ? '✓ Loan Approved' : 
+               loanApplication?.status === 'pending' ? 'Approve Loan' : 
+               'No Loan to Approve'}
             </Text>
           </TouchableOpacity>
+
+          {/* Open Required Accounts Button */}
+          {loanApplication?.status === 'approved' && (!savingsAccount || !insuranceAccount) && (
+            <TouchableOpacity
+              onPress={() => {
+                console.log('[AccountScreen] Navigating to required accounts page');
+                router.push('/loans/group-options' as any); // Will update route later
+              }}
+              className="bg-orange-600 py-4 rounded-xl mb-6"
+            >
+              <Text className="text-white text-center text-base font-semibold">
+                Open Savings & Insurance Accounts
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* Menu Items */}
           <Text className="text-lg font-bold text-gray-900 mb-4">Settings</Text>

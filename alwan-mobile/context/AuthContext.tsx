@@ -24,12 +24,69 @@ export interface GroupMember {
   loanAmount?: number;
 }
 
+export interface LoanApplication {
+  id: string;
+  userId: string;
+  amount: number;
+  term: number; // weeks
+  loanType: string;
+  status: 'pending' | 'approved' | 'rejected' | 'disbursed';
+  weeklyPayment: number;
+  totalRepayment: number;
+  appliedAt: Date;
+  approvedAt?: Date;
+  disbursedAt?: Date;
+}
+
+export interface PaymentSchedule {
+  id: string;
+  loanId: string;
+  weekNumber: number;
+  dueDate: Date;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue';
+  paidAt?: Date;
+  paidAmount?: number;
+}
+
+export interface Transaction {
+  id: string;
+  userId: string;
+  type: 'loan_disbursement' | 'loan_payment' | 'savings_deposit' | 'savings_withdrawal' | 'insurance_payment';
+  amount: number;
+  date: Date;
+  description: string;
+  status: 'completed' | 'pending' | 'failed';
+}
+
+export interface SavingsAccount {
+  id: string;
+  userId: string;
+  balance: number;
+  status: 'pending' | 'active';
+  createdAt: Date;
+}
+
+export interface InsuranceAccount {
+  id: string;
+  userId: string;
+  plan: string;
+  premium: number;
+  status: 'pending' | 'active';
+  createdAt: Date;
+}
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   userGroup: Group | null;
   allGroups: Group[];
+  loanApplication: LoanApplication | null;
+  paymentSchedules: PaymentSchedule[];
+  transactions: Transaction[];
+  savingsAccount: SavingsAccount | null;
+  insuranceAccount: InsuranceAccount | null;
   login: (phoneNumber: string, pin: string) => Promise<void>;
   logout: () => Promise<void>;
   signup: (data: any) => Promise<void>;
@@ -39,6 +96,11 @@ interface AuthContextType {
   createGroup: (groupData: Omit<Group, 'id' | 'leaderId' | 'leaderName' | 'members' | 'createdAt' | 'status'>) => void;
   joinGroup: (groupId: string) => void;
   approveGroupMember: (groupId: string, userId: string) => void;
+  submitLoanApplication: (amount: number, term: number, loanType: string) => void;
+  approveLoan: () => void;
+  createSavingsAccount: () => void;
+  createInsuranceAccount: (plan: string, premium: number) => void;
+  makePayment: (scheduleId: string, amount: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,6 +110,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userGroup, setUserGroup] = useState<Group | null>(null);
+  const [loanApplication, setLoanApplication] = useState<LoanApplication | null>(null);
+  const [paymentSchedules, setPaymentSchedules] = useState<PaymentSchedule[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [savingsAccount, setSavingsAccount] = useState<SavingsAccount | null>(null);
+  const [insuranceAccount, setInsuranceAccount] = useState<InsuranceAccount | null>(null);
   const [allGroups, setAllGroups] = useState<Group[]>([
     // Mock groups for testing
     {
@@ -325,12 +392,175 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('[AuthContext] Member approved in group');
   };
 
+  const submitLoanApplication = (amount: number, term: number, loanType: string) => {
+    if (!user) {
+      console.log('[AuthContext] submitLoanApplication - No user logged in');
+      return;
+    }
+
+    console.log('[AuthContext] submitLoanApplication called');
+    console.log('[AuthContext] Amount:', amount, 'Term:', term, 'Type:', loanType);
+
+    const interestRate = 0.02; // 2% per week
+    const totalInterest = amount * interestRate * term;
+    const totalRepayment = amount + totalInterest;
+    const weeklyPayment = totalRepayment / term;
+
+    const newLoan: LoanApplication = {
+      id: `loan-${Date.now()}`,
+      userId: user.id,
+      amount,
+      term,
+      loanType,
+      status: 'pending',
+      weeklyPayment,
+      totalRepayment,
+      appliedAt: new Date(),
+    };
+
+    console.log('[AuthContext] Loan application created:', newLoan);
+    setLoanApplication(newLoan);
+    updateUser({ hasSubmittedLoanType: true });
+  };
+
+  const approveLoan = () => {
+    console.log('[AuthContext] approveLoan called');
+    
+    if (!loanApplication) {
+      console.log('[AuthContext] No loan application to approve');
+      return;
+    }
+
+    const approvedLoan: LoanApplication = {
+      ...loanApplication,
+      status: 'approved',
+      approvedAt: new Date(),
+    };
+
+    console.log('[AuthContext] Loan approved:', approvedLoan);
+    setLoanApplication(approvedLoan);
+    updateUser({ loanTypeApproved: true });
+
+    // Create payment schedules
+    const schedules: PaymentSchedule[] = [];
+    const startDate = new Date();
+    
+    for (let i = 1; i <= loanApplication.term; i++) {
+      const dueDate = new Date(startDate);
+      dueDate.setDate(dueDate.getDate() + (i * 7)); // Add weeks
+
+      schedules.push({
+        id: `schedule-${loanApplication.id}-${i}`,
+        loanId: loanApplication.id,
+        weekNumber: i,
+        dueDate,
+        amount: loanApplication.weeklyPayment,
+        status: 'pending',
+      });
+    }
+
+    console.log('[AuthContext] Payment schedules created:', schedules.length, 'payments');
+    setPaymentSchedules(schedules);
+
+    // Add disbursement transaction
+    const transaction: Transaction = {
+      id: `txn-${Date.now()}`,
+      userId: user?.id || '',
+      type: 'loan_disbursement',
+      amount: loanApplication.amount,
+      date: new Date(),
+      description: `Loan disbursement - ${loanApplication.loanType}`,
+      status: 'completed',
+    };
+
+    console.log('[AuthContext] Disbursement transaction created');
+    setTransactions(prev => [transaction, ...prev]);
+  };
+
+  const createSavingsAccount = () => {
+    if (!user) {
+      console.log('[AuthContext] createSavingsAccount - No user logged in');
+      return;
+    }
+
+    console.log('[AuthContext] createSavingsAccount called');
+
+    const newSavings: SavingsAccount = {
+      id: `savings-${Date.now()}`,
+      userId: user.id,
+      balance: 0,
+      status: 'active',
+      createdAt: new Date(),
+    };
+
+    console.log('[AuthContext] Savings account created:', newSavings);
+    setSavingsAccount(newSavings);
+  };
+
+  const createInsuranceAccount = (plan: string, premium: number) => {
+    if (!user) {
+      console.log('[AuthContext] createInsuranceAccount - No user logged in');
+      return;
+    }
+
+    console.log('[AuthContext] createInsuranceAccount called');
+    console.log('[AuthContext] Plan:', plan, 'Premium:', premium);
+
+    const newInsurance: InsuranceAccount = {
+      id: `insurance-${Date.now()}`,
+      userId: user.id,
+      plan,
+      premium,
+      status: 'active',
+      createdAt: new Date(),
+    };
+
+    console.log('[AuthContext] Insurance account created:', newInsurance);
+    setInsuranceAccount(newInsurance);
+  };
+
+  const makePayment = (scheduleId: string, amount: number) => {
+    console.log('[AuthContext] makePayment called for schedule:', scheduleId, 'amount:', amount);
+
+    setPaymentSchedules(prev =>
+      prev.map(schedule =>
+        schedule.id === scheduleId
+          ? {
+              ...schedule,
+              status: 'paid' as const,
+              paidAt: new Date(),
+              paidAmount: amount,
+            }
+          : schedule
+      )
+    );
+
+    // Add payment transaction
+    const transaction: Transaction = {
+      id: `txn-${Date.now()}`,
+      userId: user?.id || '',
+      type: 'loan_payment',
+      amount,
+      date: new Date(),
+      description: `Loan payment - Week ${paymentSchedules.find(s => s.id === scheduleId)?.weekNumber}`,
+      status: 'completed',
+    };
+
+    console.log('[AuthContext] Payment transaction created');
+    setTransactions(prev => [transaction, ...prev]);
+  };
+
   const value = {
     user,
     isAuthenticated,
     isLoading,
     userGroup,
     allGroups,
+    loanApplication,
+    paymentSchedules,
+    transactions,
+    savingsAccount,
+    insuranceAccount,
     login,
     logout,
     signup,
@@ -340,6 +570,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     createGroup,
     joinGroup,
     approveGroupMember,
+    submitLoanApplication,
+    approveLoan,
+    createSavingsAccount,
+    createInsuranceAccount,
+    makePayment,
   };
 
   return (
