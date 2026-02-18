@@ -6,12 +6,14 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, userGroup } = useAuth();
 
   console.log('[HomeScreen] Rendering with user:', {
     isApproved: user?.isApproved,
     hasSubmittedLoanType: user?.hasSubmittedLoanType,
     loanTypeApproved: user?.loanTypeApproved,
+    hasGroup: !!userGroup,
+    groupName: userGroup?.name,
   });
 
   const handleLoanClick = () => {
@@ -130,6 +132,24 @@ export default function HomeScreen() {
                   <Text className="text-blue-900 font-semibold mb-1">Loan Documents Under Review</Text>
                   <Text className="text-blue-800 text-sm">
                     Your loan type documents are being reviewed. You'll be notified once approved.
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Group Information */}
+          {userGroup && (
+            <View className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-6">
+              <View className="flex-row items-start">
+                <Ionicons name="people" size={24} color="#9333EA" />
+                <View className="flex-1 ml-3">
+                  <Text className="text-purple-900 font-semibold mb-1">Your Solidarity Group</Text>
+                  <Text className="text-purple-800 text-sm mb-1">
+                    {userGroup.name}
+                  </Text>
+                  <Text className="text-purple-700 text-xs">
+                    {userGroup.members.length}/{userGroup.maxMembers} members • {userGroup.meetingDay}s at {userGroup.meetingTime}
                   </Text>
                 </View>
               </View>

@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 
 export default function AccountScreen() {
-  const { user, approveSignup, approveLoanType } = useAuth();
+  const { user, approveSignup, approveLoanType, userGroup } = useAuth();
 
   console.log('[AccountScreen] Rendering with user:', {
     isApproved: user?.isApproved,
     hasSubmittedLoanType: user?.hasSubmittedLoanType,
     loanTypeApproved: user?.loanTypeApproved,
+    hasGroup: !!userGroup,
+    groupName: userGroup?.name,
   });
 
   const handleSignupApproval = () => {
@@ -130,6 +132,24 @@ export default function AccountScreen() {
               />
             </View>
           </View>
+
+          {/* Group Status */}
+          {userGroup && (
+            <View className="bg-white rounded-xl p-4 mb-6">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <View className="w-3 h-3 rounded-full mr-3 bg-purple-500" />
+                  <View>
+                    <Text className="font-semibold text-gray-900">Solidarity Group</Text>
+                    <Text className="text-sm text-gray-600">
+                      {userGroup.name} ({userGroup.members.length}/{userGroup.maxMembers} members)
+                    </Text>
+                  </View>
+                </View>
+                <Ionicons name="people" size={24} color="#9333EA" />
+              </View>
+            </View>
+          )}
 
           {/* Test Buttons */}
           <Text className="text-lg font-bold text-gray-900 mb-4">Admin Controls (Testing)</Text>

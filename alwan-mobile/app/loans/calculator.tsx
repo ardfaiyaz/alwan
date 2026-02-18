@@ -85,7 +85,7 @@ export default function LoanCalculatorScreen() {
                 value={loanTerm.toString()}
                 onChangeText={(value) => {
                   const num = parseInt(value) || 0;
-                  if (num >= 10 && num <= 50) {
+                  if (num >= 12 && num <= 25) {
                     setLoanTerm(num);
                   }
                 }}
@@ -98,8 +98,8 @@ export default function LoanCalculatorScreen() {
             <View className="mb-2">
               <Slider
                 style={{ width: '100%', height: 40 }}
-                minimumValue={10}
-                maximumValue={50}
+                minimumValue={12}
+                maximumValue={25}
                 step={1}
                 value={loanTerm}
                 onValueChange={setLoanTerm}
@@ -108,8 +108,8 @@ export default function LoanCalculatorScreen() {
                 thumbTintColor="#009245"
               />
               <View className="flex-row justify-between">
-                <Text className="text-xs text-gray-500">10 weeks</Text>
-                <Text className="text-xs text-gray-500">50 weeks</Text>
+                <Text className="text-xs text-gray-500">12 weeks</Text>
+                <Text className="text-xs text-gray-500">25 weeks</Text>
               </View>
             </View>
           </View>

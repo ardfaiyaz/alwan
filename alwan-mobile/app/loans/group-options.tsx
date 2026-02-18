@@ -57,7 +57,7 @@ export default function GroupOptionsScreen() {
               </Text>
               <View className="bg-green-50 px-4 py-2 rounded-full">
                 <Text className="text-[#009245] font-semibold text-sm">
-                  Minimum 5 members required
+                  Requires 2-15 members
                 </Text>
               </View>
             </View>
