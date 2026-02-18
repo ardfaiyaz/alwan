@@ -2,71 +2,57 @@
 
 import { motion } from 'framer-motion'
 
-const savingsFeatures = [
-  {
-    title: 'Capital Build-Up (CBU)',
-    description: 'Automatically save a portion of your loan for future security. Build your financial cushion while you borrow.'
-  },
-  {
-    title: 'Grow Your Savings',
-    description: 'Watch your savings grow with competitive interest rates. Your money works harder for you over time.'
-  },
-  {
-    title: 'Secure & Protected',
-    description: 'Your savings are safe and insured. Access your funds anytime through our mobile app or at any center.'
-  }
-]
-
 export default function SavingsSection() {
   return (
-    <section className="py-16 sm:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 sm:py-32 bg-white">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center"
         >
           <p className="text-sm font-medium uppercase tracking-wider mb-4 bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
             Smart Savings
           </p>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-            Save While You{' '}
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-slate-800 mb-8 leading-tight">
+            Your Future Starts with{' '}
             <span className="bg-gradient-to-r from-[#009245] to-[#4dd88f] bg-clip-text text-transparent">
-              Borrow
+              Every Save
             </span>
           </h2>
-          <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
-            Build your financial future with our integrated savings program
-          </p>
-        </motion.div>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {savingsFeatures.map((feature, idx) => (
+          
+          <div className="space-y-6 text-lg sm:text-xl text-slate-600 leading-relaxed">
+            <p>
+              Building wealth doesn't happen overnight, but every small step counts. With Alwan's integrated savings program, you're not just borrowing—you're investing in your tomorrow.
+            </p>
+            
+            <p className="text-2xl sm:text-3xl font-semibold text-slate-800 py-6">
+              Save automatically while you grow your business
+            </p>
+            
+            <p>
+              Our Capital Build-Up (CBU) program works quietly in the background, setting aside a portion of your loan as savings. No extra effort needed. Just watch your financial cushion grow month after month.
+            </p>
+            
             <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="group relative bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300"
+              transition={{ delay: 0.3 }}
+              className="mt-12 p-8 rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100"
             >
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#009245]/5 to-[#4dd88f]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              <div className="relative">
-                <h3 className="text-xl font-bold text-slate-900 mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-slate-600 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
+              <p className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
+                Ready to secure your financial future?
+              </p>
+              <p className="text-lg text-slate-700">
+                Download the Alwan app and discover how easy it is to save while you borrow. Your dreams are closer than you think.
+              </p>
             </motion.div>
-          ))}
-        </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   )

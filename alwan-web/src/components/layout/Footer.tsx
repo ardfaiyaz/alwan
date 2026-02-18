@@ -10,6 +10,7 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { MagneticButton } from '@/components/ui/MagneticButton'
+import { Github } from 'lucide-react'
 
 const footerLinks = {
   product: [
@@ -46,9 +47,19 @@ export default function Footer() {
             <p className="text-sm text-slate-500 max-w-xs">
               Empowering Filipinos with accessible microfinance solutions. Your dreams, within reach.
             </p>
-            <p className="mt-4 text-sm font-medium text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #4dd88f 0%, #009245 60%)' }}>
-              Proudly Philippine-based
-            </p>
+            <div className="flex items-center gap-4 mt-4">
+              <p className="text-sm font-medium text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg, #4dd88f 0%, #009245 60%)' }}>
+                Proudly Philippine-based
+              </p>
+              <Link 
+                href="https://github.com/ardfaiyaz/alwan" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors group"
+              >
+                <Github className="w-4 h-4 text-slate-600 group-hover:text-slate-900 transition-colors" />
+              </Link>
+            </div>
           </motion.div>
 
           <motion.div

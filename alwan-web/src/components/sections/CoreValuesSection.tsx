@@ -62,7 +62,7 @@ export default function CoreValuesSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
-                            className="group relative z-10 hover:z-50"
+                            className="group relative"
                         >
                             {/* Main Card Image Area */}
                             <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-xl bg-slate-100 border border-slate-200">
