@@ -118,10 +118,7 @@ export async function createStaff(data: CreateStaffData) {
 
     return { 
       success: true, 
-      data: { 
-        id: authData.user.id,
-        ...newProfile 
-      } 
+      data: newProfile
     }
   } catch (error: any) {
     console.error('Error creating staff:', error)
