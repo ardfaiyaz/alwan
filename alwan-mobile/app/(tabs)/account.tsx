@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 
 export default function AccountScreen() {
   const router = useRouter();
-  const { user, approveSignup, userGroup, loanApplication, approveLoan, savingsAccount, insuranceAccount } = useAuth();
+  const { user, approveSignup, userGroup, loanApplication, approveLoan, savingsAccount, insuranceAccount, paymentSchedules, toggleOverduePayments } = useAuth();
 
   console.log('[AccountScreen] Rendering with user:', {
     isApproved: user?.isApproved,
@@ -49,6 +49,25 @@ export default function AccountScreen() {
     console.log('[AccountScreen] approveLoan() called - loan approved and payment schedules created');
     
     Alert.alert('Success', 'Loan approved! User must now create savings and insurance accounts.');
+  };
+
+  const handleToggleOverdue = () => {
+    console.log('[AccountScreen] handleToggleOverdue clicked');
+    
+    if (!paymentSchedules || paymentSchedules.length === 0) {
+      Alert.alert('Error', 'No payment schedules found.');
+      return;
+    }
+
+    const hasOverdue = paymentSchedules.some(s => s.status === 'overdue');
+    toggleOverduePayments();
+    
+    Alert.alert(
+      'Success', 
+      hasOverdue 
+        ? 'All overdue payments reverted to pending status.' 
+        : 'All pending payments set to overdue status.'
+    );
   };
 
   if (!user) {
@@ -211,6 +230,20 @@ export default function AccountScreen() {
               {loanApplication?.status === 'approved' ? '✓ Loan Approved' : 
                loanApplication?.status === 'pending' ? 'Approve Loan' : 
                'No Loan to Approve'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleToggleOverdue}
+            disabled={!paymentSchedules || paymentSchedules.length === 0}
+            className={`py-4 rounded-xl mb-3 ${
+              paymentSchedules && paymentSchedules.length > 0 ? 'bg-red-600' : 'bg-gray-300'
+            }`}
+          >
+            <Text className="text-white text-center text-base font-semibold">
+              {paymentSchedules?.some(s => s.status === 'overdue') 
+                ? '↻ Revert Overdue to Pending' 
+                : '⚠ Set Payments to Overdue'}
             </Text>
           </TouchableOpacity>
 

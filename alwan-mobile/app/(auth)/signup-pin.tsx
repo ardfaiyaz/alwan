@@ -24,8 +24,10 @@ export default function SignupPinScreen() {
         inputRefs.current[index + 1]?.focus();
       }
 
+      // Check if all digits are filled and this is the last one
       if (newPin.every(digit => digit !== '') && index === 4) {
-        handleComplete();
+        // Pass the newPin directly to avoid state update delay
+        handleComplete(newPin);
       }
     } else {
       const newPin = [...pin];
@@ -37,8 +39,12 @@ export default function SignupPinScreen() {
       }
 
       if (newPin.every(digit => digit !== '') && index === 4) {
+        console.log('[SignupPin] PIN created:', newPin.join(''));
         setStep('confirm');
-        setTimeout(() => inputRefs.current[0]?.focus(), 100);
+        setTimeout(() => {
+          setConfirmPin(['', '', '', '', '']);
+          inputRefs.current[0]?.focus();
+        }, 100);
       }
     }
   };
@@ -50,9 +56,19 @@ export default function SignupPinScreen() {
     }
   };
 
-  const handleComplete = async () => {
-    if (pin.join('') === confirmPin.join('')) {
-      // PIN created successfully, create user and redirect to orientation
+  const handleComplete = async (confirmedPin?: string[]) => {
+    const pinToCheck = confirmedPin || confirmPin;
+    const originalPin = pin.join('');
+    const confirmPinStr = pinToCheck.join('');
+    
+    console.log('[SignupPin] Checking PIN match');
+    console.log('[SignupPin] Original PIN:', originalPin);
+    console.log('[SignupPin] Confirm PIN:', confirmPinStr);
+    
+    if (originalPin === confirmPinStr) {
+      console.log('[SignupPin] ✓ PIN matched successfully!');
+      console.log('[SignupPin] Creating user account');
+      
       try {
         await signup({
           firstName: 'Maria',
@@ -60,15 +76,22 @@ export default function SignupPinScreen() {
           phoneNumber: '1234567890',
           address: 'Sample Address',
         });
-        router.replace('/(auth)/orientation-1');
+        
+        console.log('[SignupPin] User account created');
+        console.log('[SignupPin] Redirecting to dashboard (homepage)');
+        
+        router.replace('/(tabs)');
       } catch (error) {
-        console.error('Signup error:', error);
+        console.error('[SignupPin] Signup error:', error);
       }
     } else {
+      console.log('[SignupPin] ✗ PIN mismatch - resetting');
+      console.log('[SignupPin] Expected:', originalPin, 'Got:', confirmPinStr);
       // Reset confirm PIN
       setConfirmPin(['', '', '', '', '']);
       setStep('create');
-      inputRefs.current[0]?.focus();
+      setPin(['', '', '', '', '']);
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
   };
 

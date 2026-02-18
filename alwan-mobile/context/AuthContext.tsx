@@ -44,6 +44,7 @@ export interface PaymentSchedule {
   weekNumber: number;
   dueDate: Date;
   amount: number;
+  originalAmount?: number; // Store original amount before penalty
   status: 'pending' | 'paid' | 'overdue';
   paidAt?: Date;
   paidAmount?: number;
@@ -94,13 +95,14 @@ interface AuthContextType {
   approveSignup: () => void;
   approveLoanType: () => void;
   createGroup: (groupData: Omit<Group, 'id' | 'leaderId' | 'leaderName' | 'members' | 'createdAt' | 'status'>) => void;
-  joinGroup: (groupId: string) => void;
+  joinGroup: (groupCode: string) => void;
   approveGroupMember: (groupId: string, userId: string) => void;
   submitLoanApplication: (amount: number, term: number, loanType: string) => void;
   approveLoan: () => void;
   createSavingsAccount: () => void;
   createInsuranceAccount: (plan: string, premium: number) => void;
   makePayment: (scheduleId: string, amount: number) => void;
+  toggleOverduePayments: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -319,44 +321,142 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('[AuthContext] User is now group leader of:', newGroup.name);
   };
 
-  const joinGroup = (groupId: string) => {
+  const joinGroup = (groupCode: string) => {
     if (!user) {
       console.log('[AuthContext] joinGroup - No user logged in');
       return;
     }
 
-    console.log('[AuthContext] joinGroup called for groupId:', groupId);
+    console.log('[AuthContext] joinGroup called with code:', groupCode);
 
-    const group = allGroups.find(g => g.id === groupId);
+    // Check if a group with this code already exists
+    let group = allGroups.find(g => g.id === `group-${groupCode.toLowerCase()}`);
+
     if (!group) {
-      console.log('[AuthContext] Group not found:', groupId);
+      // Create a new group based on the code with multiple members
+      console.log('[AuthContext] Creating new group with code:', groupCode);
+      
+      group = {
+        id: `group-${groupCode.toLowerCase()}`,
+        name: `${groupCode.toUpperCase()} Center`,
+        leaderId: 'leader-default',
+        leaderName: 'Ana Santos',
+        centerLocation: 'Brgy. Malaya, Quezon City',
+        meetingDay: 'Monday',
+        meetingTime: '9:00 AM',
+        members: [
+          {
+            userId: 'leader-default',
+            name: 'Ana Santos',
+            phoneNumber: '09171234567',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-1',
+            name: 'Maria Santos',
+            phoneNumber: '09171234568',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-2',
+            name: 'Rosa Dela Cruz',
+            phoneNumber: '09171234569',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-3',
+            name: 'Luz Bautista',
+            phoneNumber: '09171234570',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-4',
+            name: 'Elena Ramos',
+            phoneNumber: '09171234571',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-5',
+            name: 'Carmen Reyes',
+            phoneNumber: '09171234572',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-6',
+            name: 'Gloria Martinez',
+            phoneNumber: '09171234573',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-7',
+            name: 'Teresa Garcia',
+            phoneNumber: '09171234574',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-8',
+            name: 'Linda Torres',
+            phoneNumber: '09171234575',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+          {
+            userId: 'member-9',
+            name: 'Sofia Mendoza',
+            phoneNumber: '09171234576',
+            joinedAt: new Date(),
+            status: 'active',
+          },
+        ],
+        maxMembers: 15,
+        createdAt: new Date(),
+        status: 'active',
+      };
+
+      setAllGroups(prev => [...prev, group!]);
+      console.log('[AuthContext] New group created:', group.name);
+    }
+
+    // Check if user is already a member
+    const isAlreadyMember = group.members.some(m => m.userId === user.id);
+    if (isAlreadyMember) {
+      console.log('[AuthContext] User is already a member of this group');
+      setUserGroup(group);
       return;
     }
 
-    if (group.members.length >= group.maxMembers) {
-      console.log('[AuthContext] Group is full:', group.name);
-      return;
-    }
-
+    // Add user as a new member
     const newMember: GroupMember = {
       userId: user.id,
       name: `${user.firstName} ${user.lastName}`,
       phoneNumber: user.phoneNumber,
       joinedAt: new Date(),
-      status: 'pending', // Requires leader approval
+      status: 'active', // Instantly active, no approval needed
     };
 
-    console.log('[AuthContext] Adding member to group:', newMember);
+    console.log('[AuthContext] Adding user to group:', newMember);
+
+    const updatedGroup = {
+      ...group,
+      members: [...group.members, newMember],
+    };
 
     setAllGroups(prev =>
       prev.map(g =>
-        g.id === groupId
-          ? { ...g, members: [...g.members, newMember] }
-          : g
+        g.id === group!.id ? updatedGroup : g
       )
     );
 
-    console.log('[AuthContext] Join request sent to group:', group.name);
+    setUserGroup(updatedGroup);
+    console.log('[AuthContext] User successfully joined group:', updatedGroup.name);
   };
 
   const approveGroupMember = (groupId: string, userId: string) => {
@@ -550,6 +650,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTransactions(prev => [transaction, ...prev]);
   };
 
+  const toggleOverduePayments = () => {
+    console.log('[AuthContext] toggleOverduePayments called');
+    
+    setPaymentSchedules(prev => {
+      const hasOverdue = prev.some(s => s.status === 'overdue');
+      
+      if (hasOverdue) {
+        // Revert all overdue to pending and restore original amounts
+        console.log('[AuthContext] Reverting overdue payments to pending');
+        return prev.map(schedule => {
+          if (schedule.status === 'overdue') {
+            return {
+              ...schedule,
+              status: 'pending' as const,
+              amount: schedule.originalAmount || schedule.amount, // Restore original amount
+              originalAmount: undefined, // Clear the stored original
+            };
+          }
+          return schedule;
+        });
+      } else {
+        // Set all pending to overdue and add 5% penalty
+        console.log('[AuthContext] Setting pending payments to overdue with 5% penalty');
+        const PENALTY_RATE = 0.05; // 5% penalty
+        
+        return prev.map(schedule => {
+          if (schedule.status === 'pending') {
+            const penaltyAmount = schedule.amount * PENALTY_RATE;
+            const newAmount = schedule.amount + penaltyAmount;
+            
+            console.log(`[AuthContext] Week ${schedule.weekNumber}: Original ₱${schedule.amount.toFixed(2)} + Penalty ₱${penaltyAmount.toFixed(2)} = ₱${newAmount.toFixed(2)}`);
+            
+            return {
+              ...schedule,
+              status: 'overdue' as const,
+              originalAmount: schedule.amount, // Store original amount
+              amount: newAmount, // New amount with penalty
+            };
+          }
+          return schedule;
+        });
+      }
+    });
+  };
+
   const value = {
     user,
     isAuthenticated,
@@ -575,6 +720,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     createSavingsAccount,
     createInsuranceAccount,
     makePayment,
+    toggleOverduePayments,
   };
 
   return (

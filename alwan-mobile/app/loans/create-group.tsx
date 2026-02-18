@@ -38,11 +38,8 @@ export default function CreateGroupScreen() {
     console.log('[CreateGroup] User is now group leader:', user?.firstName, user?.lastName);
     console.log('[CreateGroup] Redirecting to homepage');
 
-    Alert.alert(
-      'Group Created Successfully!',
-      `Your solidarity lending group "${groupName}" has been created.\n\nAs group leader, you will:\n• Coordinate weekly meetings at ${centerLocation}\n• Support members with their loans\n• Collect weekly payments\n• Maintain group solidarity\n\nShare your group code with 1-14 more members to complete your group.`,
-      [{ text: 'OK', onPress: () => router.replace('/(tabs)') }]
-    );
+    // Navigate immediately to homepage
+    router.push('/(tabs)');
   };
 
   return (

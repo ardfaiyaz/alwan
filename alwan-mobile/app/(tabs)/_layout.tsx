@@ -7,7 +7,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#047857',
+        tabBarActiveTintColor: '#009245',
         tabBarInactiveTintColor: '#6B7280',
         tabBarStyle: {
           backgroundColor: 'white',
@@ -32,11 +32,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="savings"
+        name="services"
         options={{
-          title: 'Savings',
+          title: 'Services',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'wallet' : 'wallet-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'apps' : 'apps-outline'} size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="center"
+        options={{
+          title: 'Center',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'people' : 'people-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -45,7 +54,7 @@ export default function TabLayout() {
         options={{
           title: 'Payment',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'card' : 'card-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'wallet' : 'wallet-outline'} size={24} color={color} />
           ),
         }}
       />
@@ -56,6 +65,38 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
           ),
+        }}
+      />
+      
+      {/* Hidden tabs */}
+      <Tabs.Screen
+        name="transactions"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="savings"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="insurance"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="group"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

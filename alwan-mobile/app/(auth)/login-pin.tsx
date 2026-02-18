@@ -36,11 +36,17 @@ export default function LoginPinScreen() {
 
   const handleLogin = async () => {
     // For testing, accept any 5-digit PIN and create a mock user
+    console.log('[LoginPin] PIN entered, attempting login');
+    
     try {
       await login('1234567890', pin.join(''));
-      router.replace('/(auth)/orientation-1');
+      
+      console.log('[LoginPin] Login successful');
+      console.log('[LoginPin] Redirecting to dashboard (homepage)');
+      
+      router.replace('/(tabs)');
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[LoginPin] Login error:', error);
     }
   };
 
@@ -58,7 +64,7 @@ export default function LoginPinScreen() {
           {pin.map((digit, index) => (
             <TextInput
               key={index}
-              ref={(ref) => (inputRefs.current[index] = ref)}
+              ref={(ref) => { inputRefs.current[index] = ref; }}
               className="w-14 h-14 border-2 border-gray-300 rounded-xl text-center text-2xl font-bold text-gray-900"
               keyboardType="number-pad"
               maxLength={1}

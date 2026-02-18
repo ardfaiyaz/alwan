@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function RequiredAccountsScreen() {
   const router = useRouter();
-  const { createSavingsAccount, createInsuranceAccount, savingsAccount, insuranceAccount } = useAuth();
+  const { createSavingsAccount, createInsuranceAccount, savingsAccount, insuranceAccount, userGroup } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<string>('');
 
   const insurancePlans = [
@@ -45,12 +45,24 @@ export default function RequiredAccountsScreen() {
       return;
     }
 
-    console.log('[RequiredAccounts] Both accounts created - redirecting to homepage');
-    Alert.alert(
-      'Accounts Created!',
-      'Your savings and insurance accounts are now active. Your loan will be disbursed shortly.',
-      [{ text: 'OK', onPress: () => router.replace('/(tabs)') }]
-    );
+    console.log('[RequiredAccounts] Both accounts created');
+    
+    // Check if user already has a group
+    if (userGroup) {
+      console.log('[RequiredAccounts] User already has a group - redirecting to homepage');
+      Alert.alert(
+        'Accounts Created!',
+        'Your savings and insurance accounts are now active. Your loan will be disbursed shortly.',
+        [{ text: 'OK', onPress: () => router.replace('/(tabs)') }]
+      );
+    } else {
+      console.log('[RequiredAccounts] User needs to join/create a group');
+      Alert.alert(
+        'Accounts Created!',
+        'Your savings and insurance accounts are now active. Next, you need to join or create a solidarity group.',
+        [{ text: 'Continue', onPress: () => router.push('/loans/group-options') }]
+      );
+    }
   };
 
   return (

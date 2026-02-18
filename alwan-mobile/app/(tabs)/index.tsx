@@ -8,15 +8,12 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user, userGroup, loanApplication, savingsAccount, insuranceAccount, paymentSchedules } = useAuth();
 
-  console.log('[HomeScreen] Rendering with user:', {
-    isApproved: user?.isApproved,
-    hasGroup: !!userGroup,
-    groupName: userGroup?.name,
-    hasLoan: !!loanApplication,
-    loanStatus: loanApplication?.status,
-    hasSavings: !!savingsAccount,
-    hasInsurance: !!insuranceAccount,
-  });
+  // Calculate savings balance (mock data)
+  const savingsBalance = 3250;
+  const savingsThisWeek = 250;
+
+  // Check if loan is approved
+  const isLoanApproved = loanApplication?.status === 'approved';
 
   const handleLoanClick = () => {
     console.log('[HomeScreen] handleLoanClick called');
@@ -33,13 +30,13 @@ export default function HomeScreen() {
 
     // NEW FLOW: Must join group first before applying for loan
     if (!userGroup) {
-      console.log('[HomeScreen] User has no group - must join/create group first');
+      console.log('[HomeScreen] User has no group - must join group first');
       Alert.alert(
         'Join a Group First',
-        'You need to join or create a solidarity group before applying for a loan. Groups provide mutual support and guarantee each other\'s loans.',
+        'You need to join a solidarity group before applying for a loan. Groups provide mutual support and guarantee each other\'s loans.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Join/Create Group', onPress: () => router.push('/loans/group-options') }
+          { text: 'Join Group', onPress: () => router.push('/loans/join-group') }
         ]
       );
       return;
@@ -71,7 +68,7 @@ export default function HomeScreen() {
         'You need to create savings and insurance accounts before loan disbursement.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Create Accounts', onPress: () => router.push('/loans/group-options') } // Temporary route
+          { text: 'Create Accounts', onPress: () => router.push('/loans/required-accounts') }
         ]
       );
       return;
@@ -90,247 +87,216 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1">
         {/* Header */}
-        <View className="bg-[#009245] px-6 pt-6 pb-8 rounded-b-3xl">
-          <View className="flex-row justify-between items-center mb-6">
+        <View className="bg-[#009245] px-6 pt-6 pb-12 rounded-b-3xl">
+          <View className="flex-row justify-between items-start mb-6">
             <View>
-              <Text className="text-white text-lg">Welcome back,</Text>
-              <Text className="text-white text-2xl font-bold">
-                {user?.firstName} {user?.lastName}
-              </Text>
-            </View>
-            <TouchableOpacity className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
-              <Ionicons name="notifications-outline" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Status Card */}
-          <View className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 border border-white/20">
-            <View className="flex-row items-center justify-between">
-              <View>
-                <Text className="text-white/80 text-sm mb-1">Membership Status</Text>
-                <View className="flex-row items-center">
-                  <View className={`w-2 h-2 rounded-full mr-2 ${user?.isApproved ? 'bg-green-400' : 'bg-yellow-400'}`} />
-                  <Text className="text-white text-lg font-semibold">
-                    {user?.isApproved ? 'Active Member' : 'Pending Approval'}
-                  </Text>
-                </View>
+              <Text className="text-white/80 text-base">Welcome back,</Text>
+              <View className="flex-row items-center">
+                <Text className="text-white text-3xl font-bold">{user?.firstName || 'Maria'}</Text>
+                <Text className="text-3xl ml-2">👋</Text>
               </View>
-              <Ionicons name="information-circle-outline" size={24} color="white" />
             </View>
+            <TouchableOpacity className="w-12 h-12 bg-white/20 rounded-full items-center justify-center relative">
+              <Ionicons name="notifications" size={24} color="white" />
+              <View className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full items-center justify-center">
+                <Text className="text-white text-xs font-bold">2</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Main Content */}
-        <View className="px-6 py-6">
-          {/* Pending Message */}
-          {!user?.isApproved && (
-            <View className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-6">
-              <View className="flex-row items-start">
-                <Ionicons name="time-outline" size={24} color="#D97706" />
-                <View className="flex-1 ml-3">
-                  <Text className="text-yellow-900 font-semibold mb-1">Verification in Progress</Text>
-                  <Text className="text-yellow-800 text-sm">
-                    Our team is reviewing your documents. You'll be notified once approved.
-                  </Text>
+        <View className="px-6 -mt-6">
+          {/* Credit Balance / Pending Approval Card */}
+          <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            {user?.isApproved && isLoanApproved ? (
+              <>
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="card" size={20} color="#6B7280" />
+                  <Text className="text-gray-500 text-sm ml-2">Credit Balance</Text>
                 </View>
-              </View>
-            </View>
-          )}
-
-          {/* Approved but No Group */}
-          {user?.isApproved && !userGroup && (
-            <View className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
-              <View className="flex-row items-start">
-                <Ionicons name="people-outline" size={24} color="#3B82F6" />
-                <View className="flex-1 ml-3">
-                  <Text className="text-blue-900 font-semibold mb-1">Join a Solidarity Group</Text>
-                  <Text className="text-blue-800 text-sm mb-2">
-                    Before applying for a loan, you need to join or create a solidarity group.
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => router.push('/loans/group-options')}
-                    className="bg-blue-600 py-2 px-4 rounded-lg self-start"
-                  >
-                    <Text className="text-white text-sm font-semibold">Join/Create Group</Text>
-                  </TouchableOpacity>
+                <Text className="text-gray-900 text-4xl font-bold mb-4">₱15,000</Text>
+                
+                <View className="border-t border-gray-100 pt-4">
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <Ionicons name="calendar" size={16} color="#6B7280" />
+                      <Text className="text-gray-500 text-sm ml-2">Next Payment</Text>
+                    </View>
+                    <View className="bg-amber-100 px-3 py-1 rounded-full flex-row items-center">
+                      <Text className="text-amber-700 text-xs font-semibold mr-1">Due</Text>
+                      <Text className="text-amber-700 text-lg">●</Text>
+                    </View>
+                  </View>
+                  <Text className="text-gray-900 text-lg font-bold mt-1">Feb 24, 2026</Text>
                 </View>
-              </View>
-            </View>
-          )}
-
-          {/* Group Information */}
-          {userGroup && (
-            <View className="bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-6">
-              <View className="flex-row items-start">
-                <Ionicons name="people" size={24} color="#9333EA" />
-                <View className="flex-1 ml-3">
-                  <Text className="text-purple-900 font-semibold mb-1">Your Solidarity Group</Text>
-                  <Text className="text-purple-800 text-sm mb-1">
-                    {userGroup.name}
-                  </Text>
-                  <Text className="text-purple-700 text-xs">
-                    {userGroup.members.length}/{userGroup.maxMembers} members • {userGroup.meetingDay}s at {userGroup.meetingTime}
-                  </Text>
+              </>
+            ) : (
+              <>
+                <View className="flex-row items-center mb-2">
+                  <Ionicons name="time" size={20} color="#F59E0B" />
+                  <Text className="text-gray-500 text-sm ml-2">Account Status</Text>
                 </View>
-              </View>
-            </View>
-          )}
+                <Text className="text-gray-900 text-2xl font-bold mb-2">Pending Approval</Text>
+                <Text className="text-gray-600 text-sm">
+                  Your account is being reviewed. You'll be notified once approved.
+                </Text>
+              </>
+            )}
+          </View>
 
-          {/* Loan Status */}
-          {loanApplication && (
-            <View className={`border-2 rounded-2xl p-4 mb-6 ${
-              loanApplication.status === 'pending' ? 'bg-yellow-50 border-yellow-200' :
-              loanApplication.status === 'approved' ? 'bg-green-50 border-green-200' :
-              'bg-blue-50 border-blue-200'
-            }`}>
-              <View className="flex-row items-start">
-                <Ionicons 
-                  name={loanApplication.status === 'approved' ? 'checkmark-circle' : 'time-outline'} 
-                  size={24} 
-                  color={loanApplication.status === 'approved' ? '#10B981' : '#F59E0B'} 
-                />
-                <View className="flex-1 ml-3">
-                  <Text className={`font-semibold mb-1 ${
-                    loanApplication.status === 'approved' ? 'text-green-900' : 'text-yellow-900'
+          {/* Apply for a Loan Button */}
+          <TouchableOpacity
+            onPress={handleLoanClick}
+            disabled={!user?.isApproved || !userGroup}
+            className={`py-4 rounded-xl mb-4 flex-row items-center justify-center ${
+              user?.isApproved && userGroup ? 'bg-[#009245]' : 'bg-gray-300'
+            }`}
+          >
+            <Ionicons name="trending-up" size={24} color="white" />
+            <Text className="text-white text-lg font-bold ml-2">
+              {!loanApplication ? 'Apply for a Loan' : 
+               loanApplication.status === 'pending' ? 'Loan Under Review' :
+               'View Loan Details'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Savings and Insurance Cards */}
+          <View className="flex-row mb-4">
+            {/* Savings Balance */}
+            <TouchableOpacity
+              onPress={() => isLoanApproved ? router.push('/(tabs)/savings') : null}
+              disabled={!isLoanApproved}
+              className={`flex-1 rounded-2xl p-5 mr-2 shadow-sm ${
+                isLoanApproved ? 'bg-white' : 'bg-gray-200'
+              }`}
+            >
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="wallet" size={20} color={isLoanApproved ? '#10B981' : '#9CA3AF'} />
+                <Text className={`text-sm ml-2 ${isLoanApproved ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Savings Balance
+                </Text>
+              </View>
+              <Text className={`text-2xl font-bold mb-1 ${isLoanApproved ? 'text-gray-900' : 'text-gray-500'}`}>
+                ₱{savingsBalance.toLocaleString()}
+              </Text>
+              <Text className={`text-xs ${isLoanApproved ? 'text-green-600' : 'text-gray-400'}`}>
+                ↑ ₱{savingsThisWeek} this week
+              </Text>
+            </TouchableOpacity>
+
+            {/* Insurance Status */}
+            <TouchableOpacity
+              onPress={() => isLoanApproved ? router.push('/microinsurance') : null}
+              disabled={!isLoanApproved}
+              className={`flex-1 rounded-2xl p-5 ml-2 shadow-sm ${
+                isLoanApproved ? 'bg-white' : 'bg-gray-200'
+              }`}
+            >
+              <View className="flex-row items-center mb-2">
+                <Ionicons name="shield-checkmark" size={20} color={isLoanApproved ? '#3B82F6' : '#9CA3AF'} />
+                <Text className={`text-sm ml-2 ${isLoanApproved ? 'text-gray-500' : 'text-gray-400'}`}>
+                  Insurance Status
+                </Text>
+              </View>
+              <View className={`px-3 py-1.5 rounded-full self-start ${
+                isLoanApproved ? 'bg-green-100' : 'bg-gray-300'
+              }`}>
+                <View className="flex-row items-center">
+                  <Ionicons 
+                    name="checkmark-circle" 
+                    size={16} 
+                    color={isLoanApproved ? '#10B981' : '#9CA3AF'} 
+                  />
+                  <Text className={`text-sm font-semibold ml-1 ${
+                    isLoanApproved ? 'text-green-700' : 'text-gray-500'
                   }`}>
-                    Loan {loanApplication.status === 'approved' ? 'Approved' : 'Under Review'}
-                  </Text>
-                  <Text className={`text-sm ${
-                    loanApplication.status === 'approved' ? 'text-green-800' : 'text-yellow-800'
-                  }`}>
-                    ₱{loanApplication.amount.toLocaleString()} • {loanApplication.term} weeks
+                    {isLoanApproved ? 'Active' : 'Inactive'}
                   </Text>
                 </View>
               </View>
-            </View>
-          )}
+            </TouchableOpacity>
+          </View>
 
-          {/* Required Accounts Alert */}
-          {loanApplication?.status === 'approved' && (!savingsAccount || !insuranceAccount) && (
-            <View className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
-              <View className="flex-row items-start">
-                <Ionicons name="alert-circle" size={24} color="#DC2626" />
-                <View className="flex-1 ml-3">
-                  <Text className="text-red-900 font-semibold mb-1">Action Required</Text>
-                  <Text className="text-red-800 text-sm mb-2">
-                    You must open savings and insurance accounts before loan disbursement.
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => Alert.alert('Info', 'Please go to Account tab to approve your loan first.')}
-                    className="bg-red-600 py-2 px-4 rounded-lg self-start"
-                  >
-                    <Text className="text-white text-sm font-semibold">Open Accounts</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Next Payment */}
-          {loanApplication?.status === 'approved' && savingsAccount && insuranceAccount && paymentSchedules.length > 0 && (
-            <View className="bg-white border-2 border-green-200 rounded-2xl p-4 mb-6">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-gray-900 font-semibold">Next Payment</Text>
-                <View className="bg-green-100 px-3 py-1 rounded-full">
-                  <Text className="text-green-700 text-xs font-semibold">
-                    {paymentSchedules.filter(s => s.status === 'pending').length} pending
-                  </Text>
-                </View>
-              </View>
-              {paymentSchedules.find(s => s.status === 'pending') && (
-                <>
-                  <Text className="text-2xl font-bold text-gray-900 mb-1">
-                    ₱{paymentSchedules.find(s => s.status === 'pending')?.amount.toFixed(2)}
-                  </Text>
-                  <Text className="text-sm text-gray-600">
-                    Due: {paymentSchedules.find(s => s.status === 'pending')?.dueDate.toLocaleDateString()}
-                  </Text>
-                </>
-              )}
-            </View>
-          )}
-
-          {/* Main Services Grid */}
-          <Text className="text-lg font-bold text-gray-900 mb-4">Services</Text>
-          <View className="flex-row flex-wrap -mx-2 mb-6">
-            <View className="w-1/2 px-2 mb-4">
-              <TouchableOpacity 
-                disabled={true}
-                className="rounded-xl p-4 bg-gray-200"
+          {/* Quick Access */}
+          <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            <Text className="text-gray-500 text-sm font-semibold uppercase mb-4">QUICK ACCESS</Text>
+            
+            <View className="flex-row justify-between">
+              {/* How to Apply for a Loan */}
+              <TouchableOpacity
+                onPress={() => router.push('/(tabs)/services')}
+                className="items-center flex-1"
               >
-                <View className="w-12 h-12 rounded-full items-center justify-center mb-3 bg-gray-300">
-                  <Ionicons name="wallet-outline" size={24} color="#9CA3AF" />
+                <View className="w-16 h-16 bg-teal-100 rounded-2xl items-center justify-center mb-2">
+                  <Ionicons name="book" size={28} color="#14B8A6" />
                 </View>
-                <Text className="font-semibold text-gray-500">Savings</Text>
-                <Text className="text-xs text-gray-400">Coming soon</Text>
+                <Text className="text-gray-900 text-xs font-semibold text-center">
+                  How to Apply{'\n'}for a Loan
+                </Text>
               </TouchableOpacity>
-            </View>
 
-            <View className="w-1/2 px-2 mb-4">
-              <TouchableOpacity 
-                onPress={handleLoanClick}
+              {/* Savings */}
+              <TouchableOpacity
+                onPress={() => isLoanApproved ? router.push('/(tabs)/savings') : null}
+                disabled={!isLoanApproved}
+                className="items-center flex-1"
+              >
+                <View className={`w-16 h-16 rounded-2xl items-center justify-center mb-2 ${
+                  isLoanApproved ? 'bg-green-100' : 'bg-gray-200'
+                }`}>
+                  <Ionicons name="wallet" size={28} color={isLoanApproved ? '#10B981' : '#9CA3AF'} />
+                </View>
+                <Text className={`text-xs font-semibold text-center ${
+                  isLoanApproved ? 'text-gray-900' : 'text-gray-400'
+                }`}>
+                  Savings
+                </Text>
+              </TouchableOpacity>
+
+              {/* Insurance */}
+              <TouchableOpacity
+                onPress={() => isLoanApproved ? router.push('/microinsurance') : null}
+                disabled={!isLoanApproved}
+                className="items-center flex-1"
+              >
+                <View className={`w-16 h-16 rounded-2xl items-center justify-center mb-2 ${
+                  isLoanApproved ? 'bg-amber-100' : 'bg-gray-200'
+                }`}>
+                  <Ionicons name="shield-checkmark" size={28} color={isLoanApproved ? '#F59E0B' : '#9CA3AF'} />
+                </View>
+                <Text className={`text-xs font-semibold text-center ${
+                  isLoanApproved ? 'text-gray-900' : 'text-gray-400'
+                }`}>
+                  Insurance
+                </Text>
+              </TouchableOpacity>
+
+              {/* Group */}
+              <TouchableOpacity
+                onPress={() => user?.isApproved ? router.push('/(tabs)/center') : null}
                 disabled={!user?.isApproved}
-                className={`rounded-xl p-4 ${user?.isApproved ? 'bg-white' : 'bg-gray-200'}`}
+                className="items-center flex-1"
               >
-                <View className={`w-12 h-12 rounded-full items-center justify-center mb-3 ${user?.isApproved ? 'bg-green-100' : 'bg-gray-300'}`}>
-                  <Ionicons name="cash-outline" size={24} color={user?.isApproved ? '#10B981' : '#9CA3AF'} />
+                <View className={`w-16 h-16 rounded-2xl items-center justify-center mb-2 ${
+                  user?.isApproved ? 'bg-blue-100' : 'bg-gray-200'
+                }`}>
+                  <Ionicons name="people" size={28} color={user?.isApproved ? '#3B82F6' : '#9CA3AF'} />
                 </View>
-                <Text className={`font-semibold ${user?.isApproved ? 'text-gray-900' : 'text-gray-500'}`}>Loans</Text>
-                <Text className={`text-xs ${user?.isApproved ? 'text-gray-600' : 'text-gray-400'}`}>Apply for loan</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View className="w-1/2 px-2 mb-4">
-              <TouchableOpacity 
-                disabled={true}
-                className="rounded-xl p-4 bg-gray-200"
-              >
-                <View className="w-12 h-12 rounded-full items-center justify-center mb-3 bg-gray-300">
-                  <Ionicons name="card-outline" size={24} color="#9CA3AF" />
-                </View>
-                <Text className="font-semibold text-gray-500">Payments</Text>
-                <Text className="text-xs text-gray-400">Coming soon</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View className="w-1/2 px-2 mb-4">
-              <TouchableOpacity 
-                disabled={true}
-                className="rounded-xl p-4 bg-gray-200"
-              >
-                <View className="w-12 h-12 rounded-full items-center justify-center mb-3 bg-gray-300">
-                  <Ionicons name="school-outline" size={24} color="#9CA3AF" />
-                </View>
-                <Text className="font-semibold text-gray-500">Education</Text>
-                <Text className="text-xs text-gray-400">Coming soon</Text>
+                <Text className={`text-xs font-semibold text-center ${
+                  user?.isApproved ? 'text-gray-900' : 'text-gray-400'
+                }`}>
+                  Center
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* Community Section */}
-          <Text className="text-lg font-bold text-gray-900 mb-4">Community</Text>
-          <View className="bg-gray-200 rounded-xl p-4 mb-4">
-            <View className="flex-row items-center mb-3">
-              <View className="w-12 h-12 bg-gray-300 rounded-full items-center justify-center mr-3">
-                <Ionicons name="people-outline" size={24} color="#9CA3AF" />
-              </View>
-              <View className="flex-1">
-                <Text className="font-semibold text-gray-500">Group Meetings</Text>
-                <Text className="text-xs text-gray-400">Coming soon</Text>
-              </View>
-            </View>
-          </View>
-
-          <View className="bg-gray-200 rounded-xl p-4">
-            <View className="flex-row items-center">
-              <View className="w-12 h-12 bg-gray-300 rounded-full items-center justify-center mr-3">
-                <Ionicons name="help-circle-outline" size={24} color="#9CA3AF" />
-              </View>
-              <View className="flex-1">
-                <Text className="font-semibold text-gray-500">Support Center</Text>
-                <Text className="text-xs text-gray-400">Coming soon</Text>
-              </View>
-            </View>
+          {/* Info Banner */}
+          <View className="bg-teal-50 border border-teal-200 rounded-2xl p-4 mb-4 flex-row items-start">
+            <Text className="text-2xl mr-3">💡</Text>
+            <Text className="flex-1 text-teal-900 text-sm">
+              Part of your loan goes to savings and insurance for your protection.
+            </Text>
           </View>
         </View>
       </ScrollView>
