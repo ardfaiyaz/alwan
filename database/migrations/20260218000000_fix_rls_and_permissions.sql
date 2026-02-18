@@ -83,15 +83,17 @@ ALTER TABLE public.global_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION public.get_user_role()
 RETURNS user_role AS $$
+DECLARE
+  user_role_val user_role;
 BEGIN
-  RETURN (
-    SELECT role 
-    FROM public.profiles 
-    WHERE id = auth.uid()
-    LIMIT 1
-  );
+  SELECT role INTO user_role_val
+  FROM public.profiles 
+  WHERE id = auth.uid()
+  LIMIT 1;
+  
+  RETURN user_role_val;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
 -- =====================================================
 -- 4. HELPER FUNCTION: Check if user is admin
@@ -99,15 +101,17 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS boolean AS $$
+DECLARE
+  user_is_admin boolean;
 BEGIN
-  RETURN (
-    SELECT role = 'admin'
-    FROM public.profiles 
-    WHERE id = auth.uid()
-    LIMIT 1
-  );
+  SELECT (role = 'admin') INTO user_is_admin
+  FROM public.profiles 
+  WHERE id = auth.uid()
+  LIMIT 1;
+  
+  RETURN COALESCE(user_is_admin, false);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
 -- =====================================================
 -- 5. PROFILES TABLE POLICIES
@@ -118,13 +122,12 @@ CREATE POLICY "profiles_select_own"
 ON public.profiles FOR SELECT
 USING (id = auth.uid());
 
--- Allow admins to read all profiles
+-- Allow admins to read all profiles (using direct query to avoid recursion)
 CREATE POLICY "profiles_select_admin"
 ON public.profiles FOR SELECT
 USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
+  auth.uid() IN (
+    SELECT id FROM public.profiles WHERE role = 'admin'
   )
 );
 
@@ -156,9 +159,8 @@ USING (
 CREATE POLICY "profiles_insert_admin"
 ON public.profiles FOR INSERT
 WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
+  auth.uid() IN (
+    SELECT id FROM public.profiles WHERE role = 'admin'
   )
 );
 
@@ -172,9 +174,8 @@ WITH CHECK (id = auth.uid());
 CREATE POLICY "profiles_update_admin"
 ON public.profiles FOR UPDATE
 USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
+  auth.uid() IN (
+    SELECT id FROM public.profiles WHERE role = 'admin'
   )
 );
 
@@ -182,9 +183,8 @@ USING (
 CREATE POLICY "profiles_delete_admin"
 ON public.profiles FOR DELETE
 USING (
-  EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND role = 'admin'
+  auth.uid() IN (
+    SELECT id FROM public.profiles WHERE role = 'admin'
   )
 );
 

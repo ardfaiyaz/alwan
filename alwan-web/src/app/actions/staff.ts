@@ -65,11 +65,11 @@ export async function createStaff(data: CreateStaffData) {
       return { error: 'This email is already taken' }
     }
 
-    // Create auth user with admin client
+    // Create auth user with admin client (without email confirmation)
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: email,
       password: data.password,
-      email_confirm: true, // Auto-confirm email
+      email_confirm: true,
       user_metadata: {
         full_name,
         role: data.role
@@ -77,15 +77,30 @@ export async function createStaff(data: CreateStaffData) {
     })
 
     if (authError) {
-      console.error('Auth error:', authError)
-      return { error: authError.message }
+      console.error('Auth error details:', {
+        message: authError.message,
+        status: authError.status,
+        code: (authError as any).code,
+        details: (authError as any).details
+      })
+      
+      // More specific error messages
+      if (authError.message.includes('duplicate') || authError.message.includes('already exists')) {
+        return { error: 'This email is already registered' }
+      }
+      if (authError.message.includes('trigger') || authError.message.includes('profiles')) {
+        // Trigger failed, but user might be created - try to create profile manually
+        console.log('Trigger may have failed, attempting manual profile creation')
+      } else {
+        return { error: authError.message }
+      }
     }
 
-    if (!authData.user) {
-      return { error: 'Failed to create user' }
+    if (!authData?.user) {
+      return { error: 'Failed to create user - no user data returned' }
     }
 
-    // Create profile (trigger should handle this, but we'll do it explicitly for safety)
+    // Always explicitly create/update profile (in case trigger failed or doesn't exist)
     const newProfile = {
       id: authData.user.id,
       email: email,
@@ -99,22 +114,34 @@ export async function createStaff(data: CreateStaffData) {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .upsert(newProfile, { onConflict: 'id' })
+      .upsert(newProfile, { 
+        onConflict: 'id',
+        ignoreDuplicates: false 
+      })
 
     if (profileError) {
       console.error('Profile error:', profileError)
       // Try to clean up auth user if profile creation fails
-      await supabase.auth.admin.deleteUser(authData.user.id)
-      return { error: profileError.message }
+      try {
+        await supabase.auth.admin.deleteUser(authData.user.id)
+      } catch (cleanupError) {
+        console.error('Failed to cleanup user:', cleanupError)
+      }
+      return { error: `Failed to create profile: ${profileError.message}` }
     }
 
     // Create audit log
-    await createAuditLog({
-      action: 'create',
-      resourceType: 'staff',
-      resourceId: authData.user.id,
-      newValues: newProfile
-    })
+    try {
+      await createAuditLog({
+        action: 'create',
+        resourceType: 'staff',
+        resourceId: authData.user.id,
+        newValues: newProfile
+      })
+    } catch (auditError) {
+      console.error('Audit log error:', auditError)
+      // Don't fail the whole operation if audit log fails
+    }
 
     return { 
       success: true, 
