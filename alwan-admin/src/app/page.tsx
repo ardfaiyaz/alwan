@@ -6,9 +6,18 @@ import Image from 'next/image'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
 import { logUserLogin } from '@/app/actions/auth-logging'
 import { useAuthStore } from '@/stores/useAuthStore'
+
+// Disable static generation for this page
+export const dynamic = 'force-dynamic'
+
+// Simple toast function
+const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    if (typeof window !== 'undefined') {
+        alert(message) // Temporary solution until sonner is fixed
+    }
+}
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
@@ -22,7 +31,7 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!supabase) {
-            toast.error('Supabase is not configured. Check your environment variables.')
+            showToast('Supabase is not configured. Check your environment variables.', 'error')
             return
         }
         setIsLoading(true)
@@ -34,7 +43,7 @@ export default function LoginPage() {
             })
 
             if (error) {
-                toast.error(error.message)
+                showToast(error.message, 'error')
                 return
             }
 
@@ -48,7 +57,7 @@ export default function LoginPage() {
 
                 if (profileError) {
                     console.error('Error fetching profile:', profileError.message, profileError.details)
-                    toast.error('User profile not found. Please contact an administrator.')
+                    showToast('User profile not found. Please contact an administrator.', 'error')
                     return
                 }
 
@@ -56,12 +65,12 @@ export default function LoginPage() {
                 const isAdminOrStaff = ['admin', 'field_officer', 'branch_manager', 'area_manager'].includes(profile.role)
                 
                 if (!isAdminOrStaff) {
-                    toast.error('Access denied. This portal is for staff members only.')
+                    showToast('Access denied. This portal is for staff members only.', 'error')
                     await supabase.auth.signOut()
                     return
                 }
 
-                toast.success('Successfully logged in!')
+                showToast('Successfully logged in!', 'success')
                 await logUserLogin(data.user.email || 'unknown')
 
                 // Update auth store
@@ -81,7 +90,7 @@ export default function LoginPage() {
                 router.refresh()
             }
         } catch (error) {
-            toast.error('An unexpected error occurred')
+            showToast('An unexpected error occurred', 'error')
         } finally {
             setIsLoading(false)
         }
