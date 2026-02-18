@@ -9,7 +9,7 @@ import { ChevronDown, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import { LeftOverlayCard } from '@/components/ui/LeftOverlayCard'
 import { RightOverlayCard } from '@/components/ui/RightOverlayCard'
-import FeatureShowcase from '@/components/sections/FeatureShowcase'
+import SavingsSection from '@/components/sections/SavingsSection'
 import FAQSection from '@/components/sections/FAQSection'
 import CoreValuesSection from '@/components/sections/CoreValuesSection'
 import ScrollProgress from '@/components/ui/ScrollProgress'
@@ -578,8 +578,8 @@ export default function HomePage() {
         </motion.div>
       </section >
 
-      {/* ═══════════════════ FEATURE SHOWCASE ═══════════════════ */}
-      < FeatureShowcase />
+      {/* ═══════════════════ SAVINGS SECTION ═══════════════════ */}
+      <SavingsSection />
 
       {/* ═══════════════════ WHY CHOOSE ALWAN ═══════════════════ */}
       < CoreValuesSection />
