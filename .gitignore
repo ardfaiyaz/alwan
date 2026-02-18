@@ -32,6 +32,12 @@ yarn-error.log*
 /alwan-web/coverage
 /alwan-web/next-env.d.ts
 
+# --- Admin (alwan-admin) ---
+/alwan-admin/.next/
+/alwan-admin/out/
+/alwan-admin/coverage
+/alwan-admin/next-env.d.ts
+
 # --- Mobile (alwan-mobile) ---
 /alwan-mobile/.expo/
 /alwan-mobile/web-build/
