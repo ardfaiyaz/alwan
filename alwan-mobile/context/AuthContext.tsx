@@ -1,118 +1,155 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, AuthState } from '@/types';
 
-type Profile = {
-    id: string;
-    full_name: string | null;
-    cbu_balance: number | null;
-    center_id: string | null;
-    role: string | null;
-    trust_score: number | null;
-    total_savings: number | null;
-    savings_goal: number | null;
-    last_savings_date: string | null;
-    business_sector: string | null;
-    years_in_business: number | null;
-    primary_income_source: string | null;
-    loan_repayment_count: number | null;
-    total_loan_amount_disbursed: number | null;
-    centers?: {
-        name: string;
-        meeting_day: string;
-    } | null;
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (phoneNumber: string, pin: string) => Promise<void>;
+  logout: () => Promise<void>;
+  signup: (data: any) => Promise<void>;
+  updateUser: (userData: Partial<User>) => void;
+  approveSignup: () => void;
+  approveLoanType: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    checkAuthState();
+  }, []);
+
+  const checkAuthState = async () => {
+    try {
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error checking auth state:', error);
+      setIsLoading(false);
+    }
+  };
+
+  const login = async (phoneNumber: string, pin: string) => {
+    try {
+      const mockUser: User = {
+        id: '1',
+        firstName: 'Maria',
+        lastName: 'Santos',
+        phoneNumber,
+        address: 'Sample Address',
+        isApproved: false,
+        isVerified: true,
+        loanTypeApproved: false,
+        hasSubmittedLoanType: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
+  };
+
+  const signup = async (data: any) => {
+    try {
+      const mockUser: User = {
+        id: '1',
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phoneNumber,
+        address: data.address,
+        isApproved: false,
+        isVerified: false,
+        loanTypeApproved: false,
+        hasSubmittedLoanType: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Signup error:', error);
+      throw error;
+    }
+  };
+
+  const updateUser = (userData: Partial<User>) => {
+    setUser(prevUser => {
+      if (!prevUser) return null;
+      return { ...prevUser, ...userData };
+    });
+  };
+
+  const approveSignup = () => {
+    console.log('[AuthContext] approveSignup called, current user:', user);
+    setUser(prevUser => {
+      if (!prevUser) {
+        console.log('[AuthContext] No user to approve');
+        return null;
+      }
+      const updatedUser = { ...prevUser, isApproved: true };
+      console.log('[AuthContext] User approved, new user:', updatedUser);
+      return updatedUser;
+    });
+  };
+
+  const approveLoanType = () => {
+    console.log('[AuthContext] approveLoanType called, current user:', user);
+    setUser(prevUser => {
+      if (!prevUser) {
+        console.log('[AuthContext] No user to approve loan type');
+        return null;
+      }
+      const updatedUser = { ...prevUser, loanTypeApproved: true };
+      console.log('[AuthContext] Loan type approved, new user:', updatedUser);
+      return updatedUser;
+    });
+  };
+
+  const value = {
+    user,
+    isAuthenticated,
+    isLoading,
+    login,
+    logout,
+    signup,
+    updateUser,
+    approveSignup,
+    approveLoanType,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-type AuthContextType = {
-    session: Session | null;
-    user: User | null;
-    profile: Profile | null;
-    isLoading: boolean;
-    signOut: () => Promise<void>;
-    refreshProfile: () => Promise<void>;
-};
-
-const AuthContext = createContext<AuthContextType>({
-    session: null,
-    user: null,
-    profile: null,
-    isLoading: true,
-    signOut: async () => { },
-    refreshProfile: async () => { },
-});
-
-export const useAuth = () => useContext(AuthContext);
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [session, setSession] = useState<Session | null>(null);
-    const [user, setUser] = useState<User | null>(null);
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        // 1. Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                fetchProfile(session.user.id);
-            } else {
-                setIsLoading(false);
-            }
-        });
-
-        // 2. Listen for changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                fetchProfile(session.user.id);
-            } else {
-                setProfile(null);
-                setIsLoading(false);
-            }
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
-    const fetchProfile = async (userId: string) => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*, centers(name, meeting_day)')
-                .eq('id', userId)
-                .single();
-
-            if (error) {
-                console.error('Error fetching profile:', error);
-            } else {
-                setProfile(data);
-            }
-        } catch (error) {
-            console.error('Unexpected error fetching profile:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const refreshProfile = async () => {
-        if (user) await fetchProfile(user.id);
-    };
-
-    const signOut = async () => {
-        try {
-            await supabase.auth.signOut();
-            console.log('[AuthContext] Sign out successful');
-        } catch (error) {
-            console.error('[AuthContext] Sign out error:', error);
-            throw error;
-        }
-    };
-
-    return (
-        <AuthContext.Provider value={{ session, user, profile, isLoading, signOut, refreshProfile }}>
-            {children}
-        </AuthContext.Provider>
-    );
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
