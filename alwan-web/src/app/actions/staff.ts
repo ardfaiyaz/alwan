@@ -1,209 +1,242 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
+import { createAuditLog } from './audit'
 
-const StaffSchema = z.object({
-    fullName: z.string().min(2),
-    email: z.string().email(),
-    role: z.enum(['admin', 'area_manager', 'branch_manager', 'field_officer']),
-    phone: z.string().optional(),
-    password: z.string().min(6), // Only for creation
-    areaId: z.string().uuid().optional().nullable(),
-    branchId: z.string().uuid().optional().nullable(),
-})
+type UserRole = 'admin' | 'area_manager' | 'branch_manager' | 'field_officer'
 
-export type Staff = {
-    id: string
-    fullName: string
-    email: string
-    role: 'admin' | 'area_manager' | 'branch_manager' | 'field_officer'
-    phone?: string | null
-    isActive: boolean
-    createdAt: string
-    branch?: { id: string; name: string } | null
-    area?: { id: string; name: string } | null
+export interface CreateStaffData {
+  username: string
+  first_name: string
+  last_name: string
+  role: UserRole
+  area_id?: string
+  branch_id?: string
+  phone?: string
+  password: string
 }
 
-export async function getStaffMembers() {
-    const supabase = await createClient()
-
-    const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select(`
-      *,
-      branch:branches(id, name),
-      area:areas(id, name)
-    `)
-        .order('created_at', { ascending: false })
-
-    if (error) {
-        console.error('Error fetching staff:', error)
-        throw new Error('Failed to fetch staff members')
-    }
-
-    return profiles.map((p: any) => ({
-        id: p.id,
-        fullName: p.full_name,
-        email: p.email,
-        role: p.role,
-        phone: p.phone,
-        isActive: p.is_active,
-        createdAt: p.created_at,
-        branch: p.branch,
-        area: p.area,
-    })) as Staff[]
+export interface UpdateStaffData {
+  id: string
+  first_name: string
+  last_name: string
+  role: UserRole
+  area_id?: string
+  branch_id?: string
+  phone?: string
 }
 
-export async function createStaffMember(data: z.infer<typeof StaffSchema>) {
-    const adminClient = createAdminClient()
-    const supabase = await createClient()
-
-    // 1. Verify permissions (only admin can create staff)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Unauthorized')
-
-    const { data: currentUserProfile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-    if (currentUserProfile?.role !== 'admin') {
-        throw new Error('Only admins can create staff members')
+/**
+ * Create a new staff member using admin privileges
+ * This bypasses RLS policies and creates both auth user and profile
+ */
+export async function createStaff(data: CreateStaffData) {
+  try {
+    const supabase = createAdminClient()
+    
+    // Validate username format
+    if (data.username.length < 3) {
+      return { error: 'Username must be at least 3 characters' }
     }
 
-    // 2. Create Auth User
-    const { data: authUser, error: authError } = await adminClient.auth.admin.createUser({
-        email: data.email,
-        password: data.password,
-        email_confirm: true,
-        user_metadata: {
-            full_name: data.fullName,
-            role: data.role
-        }
+    if (!/^[a-z0-9]+([._-]?[a-z0-9]+)*$/.test(data.username)) {
+      return { error: 'Invalid username format. Use letters, numbers, and single dots/hyphens/underscores.' }
+    }
+
+    if (/^[._-]|[._-]$/.test(data.username)) {
+      return { error: 'Username cannot start or end with special characters' }
+    }
+
+    if (data.password.length < 6) {
+      return { error: 'Password must be at least 6 characters' }
+    }
+
+    const full_name = `${data.first_name} ${data.last_name}`.trim()
+    const email = `${data.username}@alwan.com`
+
+    // Check if email already exists
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email)
+      .single()
+
+    if (existingProfile) {
+      return { error: 'This email is already taken' }
+    }
+
+    // Create auth user with admin client
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email: email,
+      password: data.password,
+      email_confirm: true, // Auto-confirm email
+      user_metadata: {
+        full_name,
+        role: data.role
+      }
     })
 
     if (authError) {
-        console.error('Auth creation error:', authError)
-        throw new Error(authError.message)
+      console.error('Auth error:', authError)
+      return { error: authError.message }
     }
 
-    if (!authUser.user) throw new Error('Failed to create user')
-
-    // 3. Create Profile (check if trigger already created it)
-    const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', authUser.user.id)
-        .single()
-
-    if (existingProfile) {
-        // Update existing profile
-        const { error: updateError } = await adminClient
-            .from('profiles')
-            .update({
-                full_name: data.fullName,
-                role: data.role,
-                phone: data.phone,
-                area_id: data.areaId,
-                branch_id: data.branchId,
-                is_active: true
-            })
-            .eq('id', authUser.user.id)
-
-        if (updateError) throw updateError
-    } else {
-        // Insert if not exists
-        const { error: profileError } = await adminClient
-            .from('profiles')
-            .insert({
-                id: authUser.user.id,
-                email: data.email,
-                full_name: data.fullName,
-                role: data.role,
-                phone: data.phone,
-                area_id: data.areaId,
-                branch_id: data.branchId,
-                is_active: true
-            })
-
-        if (profileError) throw profileError
+    if (!authData.user) {
+      return { error: 'Failed to create user' }
     }
 
-    revalidatePath('/admin/staffs')
+    // Create profile (trigger should handle this, but we'll do it explicitly for safety)
+    const newProfile = {
+      id: authData.user.id,
+      email: email,
+      full_name,
+      role: data.role,
+      area_id: data.area_id || null,
+      branch_id: data.branch_id || null,
+      phone: data.phone || null,
+      is_active: true
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert(newProfile, { onConflict: 'id' })
+
+    if (profileError) {
+      console.error('Profile error:', profileError)
+      // Try to clean up auth user if profile creation fails
+      await supabase.auth.admin.deleteUser(authData.user.id)
+      return { error: profileError.message }
+    }
+
+    // Create audit log
+    await createAuditLog({
+      action: 'create',
+      resourceType: 'staff',
+      resourceId: authData.user.id,
+      newValues: newProfile
+    })
+
+    return { 
+      success: true, 
+      data: { 
+        id: authData.user.id,
+        ...newProfile 
+      } 
+    }
+  } catch (error: any) {
+    console.error('Error creating staff:', error)
+    return { error: error.message || 'Failed to create staff member' }
+  }
+}
+
+/**
+ * Update an existing staff member
+ */
+export async function updateStaff(data: UpdateStaffData) {
+  try {
+    const supabase = createAdminClient()
+    
+    const full_name = `${data.first_name} ${data.last_name}`.trim()
+
+    const updates = {
+      full_name,
+      role: data.role,
+      area_id: data.area_id || null,
+      branch_id: data.branch_id || null,
+      phone: data.phone || null,
+      updated_at: new Date().toISOString()
+    }
+
+    // Get old values for audit
+    const { data: oldProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', data.id)
+      .single()
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', data.id)
+
+    if (error) {
+      console.error('Update error:', error)
+      return { error: error.message }
+    }
+
+    // Create audit log
+    await createAuditLog({
+      action: 'update',
+      resourceType: 'staff',
+      resourceId: data.id,
+      oldValues: oldProfile,
+      newValues: updates
+    })
+
     return { success: true }
+  } catch (error: any) {
+    console.error('Error updating staff:', error)
+    return { error: error.message || 'Failed to update staff member' }
+  }
 }
 
-export async function updateStaffMember(id: string, data: Partial<z.infer<typeof StaffSchema>>) {
-    const supabase = await createClient()
-    const adminClient = createAdminClient()
+/**
+ * Toggle staff active status
+ */
+export async function toggleStaffStatus(id: string, currentStatus: boolean) {
+  try {
+    const supabase = createAdminClient()
 
-    // Verify permission
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) throw new Error('Unauthorized')
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        is_active: !currentStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
 
-    // Update profile
-    const { error } = await adminClient
-        .from('profiles')
-        .update({
-            full_name: data.fullName,
-            role: data.role,
-            phone: data.phone,
-            area_id: data.areaId,
-            branch_id: data.branchId,
-        })
-        .eq('id', id)
-
-    if (error) throw error
-
-    // If email changed
-    if (data.email) {
-        await adminClient.auth.admin.updateUserById(id, { email: data.email })
+    if (error) {
+      console.error('Toggle status error:', error)
+      return { error: error.message }
     }
 
-    // If password changed
-    if (data.password) {
-        await adminClient.auth.admin.updateUserById(id, { password: data.password })
-    }
+    // Create audit log
+    await createAuditLog({
+      action: currentStatus ? 'deactivate' : 'activate',
+      resourceType: 'staff',
+      resourceId: id,
+      oldValues: { is_active: currentStatus },
+      newValues: { is_active: !currentStatus }
+    })
 
-    revalidatePath('/admin/staffs')
     return { success: true }
+  } catch (error: any) {
+    console.error('Error toggling status:', error)
+    return { error: error.message || 'Failed to update status' }
+  }
 }
 
-export async function toggleStaffStatus(id: string, isActive: boolean) {
-    const adminClient = createAdminClient()
+/**
+ * Check if email is available
+ */
+export async function checkEmailAvailability(username: string) {
+  try {
+    const supabase = createAdminClient()
+    const email = `${username}@alwan.com`
 
-    // Update profile status
-    const { error } = await adminClient
-        .from('profiles')
-        .update({ is_active: isActive })
-        .eq('id', id)
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email)
+      .single()
 
-    if (error) throw error
-
-    // Update auth user ban duration
-    if (isActive) {
-        await adminClient.auth.admin.updateUserById(id, { ban_duration: 'none' })
-    } else {
-        // Ban for 100 years to effectively deactivate login
-        await adminClient.auth.admin.updateUserById(id, { ban_duration: '876000h' })
+    if (error && error.code !== 'PGRST116') {
+      return { error: error.message }
     }
 
-    revalidatePath('/admin/staffs')
-    return { success: true }
-}
-
-export async function getBranches() {
-    const supabase = await createClient()
-    const { data } = await supabase.from('branches').select('id, name, area_id').order('name')
-    return data || []
-}
-
-export async function getAreas() {
-    const supabase = await createClient()
-    const { data } = await supabase.from('areas').select('id, name').order('name')
-    return data || []
+    return { available: !data }
+  } catch (error: any) {
+    console.error('Error checking email:', error)
+    return { error: error.message }
+  }
 }

@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { createAuditLog } from '@/app/actions/audit'
+import { createStaff, updateStaff, toggleStaffStatus, checkEmailAvailability } from '@/app/actions/staff'
 import { StatsCardSkeleton } from '@/components/skeletons/StatsCardSkeleton'
 import { TableSkeleton } from '@/components/skeletons/TableSkeleton'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -254,69 +255,22 @@ export default function StaffsPage() {
             return
         }
 
-        // Validate username format - must be valid email local part
-        if (formData.username.length < 3) {
-            toast.error('Username must be at least 3 characters')
-            return
-        }
-
-        if (!/^[a-z0-9]+([._-]?[a-z0-9]+)*$/.test(formData.username)) {
-            toast.error('Username must start and end with a letter or number. Special characters (._-) cannot be consecutive or at the start/end.')
-            return
-        }
-
-        // Check if username starts or ends with special characters
-        if (/^[._-]|[._-]$/.test(formData.username)) {
-            toast.error('Username cannot start or end with dots, hyphens, or underscores')
-            return
-        }
-
         try {
-            const supabase = createClient()
-            if (!supabase) {
-                toast.error('Failed to initialize Supabase client')
+            const result = await createStaff({
+                username: formData.username,
+                first_name: formData.first_name,
+                last_name: formData.last_name,
+                role: formData.role,
+                area_id: formData.area_id || undefined,
+                branch_id: formData.branch_id || undefined,
+                phone: formData.phone || undefined,
+                password: formData.password
+            })
+
+            if (result.error) {
+                toast.error(result.error)
                 return
             }
-            const full_name = `${formData.first_name} ${formData.last_name}`.trim()
-            const email = `${formData.username}@alwan.com`
-
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: email,
-                password: formData.password,
-                options: {
-                    data: {
-                        full_name,
-                        role: formData.role
-                    }
-                }
-            })
-
-            if (authError) throw authError
-
-            const newProfile = {
-                id: authData.user?.id,
-                email: email,
-                full_name,
-                role: formData.role,
-                area_id: formData.area_id || null,
-                branch_id: formData.branch_id || null,
-                phone: formData.phone || null,
-                is_active: true
-            }
-
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .insert(newProfile)
-
-            if (profileError) throw profileError
-
-            // Create audit log
-            await createAuditLog({
-                action: 'create',
-                resourceType: 'staff',
-                resourceId: authData.user?.id || '',
-                newValues: newProfile
-            })
 
             toast.success('Staff member added successfully')
             setIsAddDialogOpen(false)
@@ -353,45 +307,23 @@ export default function StaffsPage() {
         if (!editingStaff) return
 
         try {
-            const supabase = createClient()
-            if (!supabase) {
-                toast.error('Failed to initialize Supabase client')
-                return
-            }
-            const full_name = `${formData.first_name} ${formData.last_name}`.trim()
-
-            const updates = {
-                full_name,
+            const result = await updateStaff({
+                id: editingStaff.id,
+                first_name: formData.first_name,
+                last_name: formData.last_name,
                 role: formData.role,
-                area_id: formData.area_id || null,
-                branch_id: formData.branch_id || null,
-                phone: formData.phone || null,
-                updated_at: new Date().toISOString()
-            }
-
-            const { error } = await supabase
-                .from('profiles')
-                .update(updates)
-                .eq('id', editingStaff.id)
-
-            if (error) throw error
-
-            // Create audit log
-            await createAuditLog({
-                action: 'update',
-                resourceType: 'staff',
-                resourceId: editingStaff.id,
-                oldValues: {
-                    full_name: editingStaff.full_name,
-                    role: editingStaff.role,
-                    area_id: editingStaff.area_id,
-                    branch_id: editingStaff.branch_id,
-                    phone: editingStaff.phone
-                },
-                newValues: updates
+                area_id: formData.area_id || undefined,
+                branch_id: formData.branch_id || undefined,
+                phone: formData.phone || undefined
             })
 
+            if (result.error) {
+                toast.error(result.error)
+                return
+            }
+
             toast.success('Staff member updated successfully')
+            setIsEditDialogOpen(false)
             setEditingStaff(null)
             resetForm()
             loadData()
@@ -403,30 +335,12 @@ export default function StaffsPage() {
 
     const handleToggleStatus = async (staff: Staff) => {
         try {
-            const supabase = createClient()
-            if (!supabase) {
-                toast.error('Failed to initialize Supabase client')
+            const result = await toggleStaffStatus(staff.id, staff.is_active)
+
+            if (result.error) {
+                toast.error(result.error)
                 return
             }
-
-            const { error } = await supabase
-                .from('profiles')
-                .update({
-                    is_active: !staff.is_active,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', staff.id)
-
-            if (error) throw error
-
-            // Create audit log
-            await createAuditLog({
-                action: staff.is_active ? 'deactivate' : 'activate',
-                resourceType: 'staff',
-                resourceId: staff.id,
-                oldValues: { is_active: staff.is_active },
-                newValues: { is_active: !staff.is_active }
-            })
 
             toast.success(`Staff member ${!staff.is_active ? 'activated' : 'deactivated'} successfully`)
             loadData()
@@ -959,36 +873,25 @@ function StaffForm({
 
         setEmailValidation({ isValid: null, message: '', isChecking: true })
 
-        // Check if email exists in database
+        // Check if email exists using server action
         try {
-            const supabase = createClient()
-            if (!supabase) {
-                setEmailValidation({ isValid: false, message: 'Connection error', isChecking: false })
-                return
-            }
+            const result = await checkEmailAvailability(username)
 
-            const email = `${username}@alwan.com`
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('email')
-                .eq('email', email)
-                .single()
-
-            if (error && error.code !== 'PGRST116') { // PGRST116 = not found (which is good)
+            if (result.error) {
                 setEmailValidation({ isValid: false, message: 'Error checking email', isChecking: false })
                 return
             }
 
-            if (data) {
+            if (result.available) {
                 setEmailValidation({ 
-                    isValid: false, 
-                    message: 'This email is already taken', 
+                    isValid: true, 
+                    message: 'Email is available', 
                     isChecking: false 
                 })
             } else {
                 setEmailValidation({ 
-                    isValid: true, 
-                    message: 'Email is available', 
+                    isValid: false, 
+                    message: 'This email is already taken', 
                     isChecking: false 
                 })
             }
