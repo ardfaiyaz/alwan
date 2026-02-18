@@ -6,13 +6,16 @@
   "workspaces": [
     "alwan-web",
     "alwan-mobile",
-    "alwan-api"
+    "alwan-api",
+    "alwan-admin"
   ],
   "scripts": {
     "dev:web": "cd alwan-web && npm run dev",
     "dev:mobile": "cd alwan-mobile && npm start",
+    "dev:admin": "cd alwan-admin && npm run dev",
     "build:web": "cd alwan-web && npm run build",
-    "build:mobile": "cd alwan-mobile && npm run build"
+    "build:mobile": "cd alwan-mobile && npm run build",
+    "build:admin": "cd alwan-admin && npm run build"
   },
   "repository": {
     "type": "git",
