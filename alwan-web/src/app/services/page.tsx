@@ -53,7 +53,6 @@ const services = [
   },
 ]
 
-import FeatureShowcase from '@/components/sections/FeatureShowcase'
 
 export default function ServicesPage() {
   return (
@@ -89,8 +88,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Features Showcase */}
-      <FeatureShowcase />
+    
 
       {/* Services List - Alternating Layout */}
       <section className="py-24 bg-slate-50">
