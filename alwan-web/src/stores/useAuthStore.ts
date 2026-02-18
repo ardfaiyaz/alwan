@@ -1,9 +1,10 @@
 /**
  * Zustand store for authentication state
- * Manages current user profile and permissions
+ * Manages current user profile and permissions with localStorage persistence
  */
 
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 export type UserRole = 'field_officer' | 'branch_manager' | 'area_manager' | 'admin'
 
@@ -34,46 +35,54 @@ interface AuthStoreState {
     canRecordCollection: () => boolean
 }
 
-export const useAuthStore = create<AuthStoreState>((set, get) => ({
-    user: null,
-    isLoading: true,
+export const useAuthStore = create<AuthStoreState>()(
+    persist(
+        (set, get) => ({
+            user: null,
+            isLoading: true,
 
-    setUser: (user) => set({ user, isLoading: false }),
-    setLoading: (isLoading) => set({ isLoading }),
-    clearUser: () => set({ user: null }),
+            setUser: (user) => set({ user, isLoading: false }),
+            setLoading: (isLoading) => set({ isLoading }),
+            clearUser: () => set({ user: null }),
 
-    // Permission helpers
-    canCreateLoan: () => {
-        const { user } = get()
-        if (!user) return false
-        return ['field_officer', 'branch_manager', 'admin'].includes(user.role)
-    },
+            // Permission helpers
+            canCreateLoan: () => {
+                const { user } = get()
+                if (!user) return false
+                return ['field_officer', 'branch_manager', 'admin'].includes(user.role)
+            },
 
-    canApproveLoan: (loanAmount: number) => {
-        const { user } = get()
-        if (!user) return false
+            canApproveLoan: (loanAmount: number) => {
+                const { user } = get()
+                if (!user) return false
 
-        // Admin can approve any loan
-        if (user.role === 'admin') return true
+                // Admin can approve any loan
+                if (user.role === 'admin') return true
 
-        // Area Manager can approve any loan
-        if (user.role === 'area_manager') return true
+                // Area Manager can approve any loan
+                if (user.role === 'area_manager') return true
 
-        // Branch Manager can approve loans up to ₱50,000
-        if (user.role === 'branch_manager' && loanAmount <= 50000) return true
+                // Branch Manager can approve loans up to ₱50,000
+                if (user.role === 'branch_manager' && loanAmount <= 50000) return true
 
-        return false
-    },
+                return false
+            },
 
-    canViewAllCenters: () => {
-        const { user } = get()
-        if (!user) return false
-        return ['admin', 'area_manager'].includes(user.role)
-    },
+            canViewAllCenters: () => {
+                const { user } = get()
+                if (!user) return false
+                return ['admin', 'area_manager'].includes(user.role)
+            },
 
-    canRecordCollection: () => {
-        const { user } = get()
-        if (!user) return false
-        return ['field_officer', 'branch_manager', 'admin'].includes(user.role)
-    }
-}))
+            canRecordCollection: () => {
+                const { user } = get()
+                if (!user) return false
+                return ['field_officer', 'branch_manager', 'admin'].includes(user.role)
+            }
+        }),
+        {
+            name: 'auth-storage',
+            partialize: (state) => ({ user: state.user })
+        }
+    )
+)

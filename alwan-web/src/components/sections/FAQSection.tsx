@@ -6,24 +6,24 @@ import { Plus, Minus } from 'lucide-react'
 
 const faqs = [
     {
-        question: "How do I apply for a loan?",
-        answer: "To start your application, simply download the Alwan app from the App Store or Google Play. Sign up with your mobile number, verify your identity with one valid government ID, and complete our intuitive 5-minute application form directly from your phone. Our system will then process your details instantly for a quick decision."
+        question: "What is KMBI and what services do you offer?",
+        answer: "Kabalikat para sa Maunlad na Buhay, Inc. (KMBI) is a Christ-centered microfinance institution established in 1986. We provide microloans, savings programs, and microinsurance to low-income Filipino families and micro-entrepreneurs. Our services are designed to promote integral transformation - addressing not just economic needs, but the physical, emotional, and spiritual well-being of our members and their communities."
     },
     {
-        question: "What are the requirements?",
-        answer: "We strive to keep our services accessible to all Filipinos. You must be a Filipino citizen aged 18 to 65 with a stable source of income or employment. A single valid government-issued ID is required for verification, and unlike traditional banks, no collateral or complex paperwork is necessary for most of our loan types."
+        question: "How does the center-based lending model work?",
+        answer: "KMBI operates through a center-based approach where members form groups within their communities. Each center meets weekly for loan repayments, savings deposits, and fellowship. This model promotes accountability, mutual support, and community building. Members benefit from peer encouragement and shared financial responsibility, making microfinance more accessible and sustainable for everyone involved."
     },
     {
-        question: "How long does approval take?",
-        answer: "Our cutting-edge AI-powered system is designed for speed and reliability, approving eligible applications in just a few minutes. Once your loan is approved and you've accepted the terms, the funds are typically transferred to your designated bank account or e-wallet within 1 to 2 hours, ensuring you get help when it's needed."
+        question: "What is Capital Build-Up (CBU) and why is it required?",
+        answer: "Capital Build-Up (CBU) is a mandatory savings component where a portion of your loan is automatically set aside as savings. This serves as your financial cushion and security for future needs. CBU helps members build assets over time and provides a safety net for emergencies. It's part of our commitment to holistic financial development, ensuring you're not just borrowing but also building wealth."
     },
     {
-        question: "What are the interest rates?",
-        answer: "Alwan offers competitive interest rates starting as low as 2.5% per month. Your specific rate and terms will be determined based on your credit profile and repayment history. We are committed to complete transparency, meaning you will see a full breakdown of all interest and fees upfront before you ever commit to a loan."
+        question: "What are the loan requirements and approval process?",
+        answer: "To qualify for a KMBI loan, you must be a Filipino citizen aged 18-65, have a stable source of income or business, and be willing to join a center in your community. The process includes attending an orientation, submitting basic documents (valid ID, proof of income/business), and undergoing a Credit Investigation and Business Inspection (CIBI). Our field officers work closely with you throughout the process to ensure you understand the terms and responsibilities."
     },
     {
-        question: "Can I repay my loan early?",
-        answer: "Absolutely! We encourage responsible borrowing and early repayment. Paying back your loan ahead of schedule not only helps you save on total interest but also significantly boosts your credit score within our platform. There are never any pre-termination fees, hidden penalties, or extra charges for settling your balance early."
+        question: "How is KMBI different from traditional banks and other lenders?",
+        answer: "Unlike traditional banks, KMBI doesn't require collateral or extensive paperwork. We focus on character-based lending and community support rather than just credit scores. Our interest rates are transparent and competitive, with no hidden fees. Most importantly, we're a non-profit organization driven by our mission of integral transformation, not profit maximization. We provide financial literacy training, values formation, and ongoing support to help our members succeed in their businesses and life goals."
     }
 ]
 
@@ -38,28 +38,6 @@ export default function FAQSection() {
         <section className="relative py-12 sm:py-16 overflow-hidden" id="faq">
             {/* Background Effects (Matching Hero) */}
             <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06] z-0">
-                <style>{`
-                    @keyframes glass-shimmer {
-                        0% { transform: translateX(-100%) skewX(-15deg); }
-                        100% { transform: translateX(200%) skewX(-15deg); }
-                    }
-                    .glass-shine-active::after {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 50%;
-                        height: 100%;
-                        background: linear-gradient(
-                            to right,
-                            transparent 0%,
-                            rgba(255, 255, 255, 0.15) 50%,
-                            transparent 100%
-                        );
-                        animation: glass-shimmer 1s forwards ease-in-out;
-                        pointer-events: none;
-                    }
-                `}</style>
                 <div
                     className="absolute inset-0 opacity-[0.20]"
                     style={{
@@ -97,7 +75,7 @@ export default function FAQSection() {
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
                             className={`relative border rounded-2xl overflow-hidden backdrop-blur-sm transition-all duration-300 ${openIndex === idx
-                                ? 'bg-white/10 border-emerald-500/30 shadow-[0_0_20px_rgba(0,146,69,0.2)] glass-shine-active'
+                                ? 'bg-white/10 border-emerald-500/30 shadow-[0_0_20px_rgba(0,146,69,0.2)]'
                                 : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10'
                                 }`}
                         >

@@ -5,12 +5,6 @@ import { motion } from 'framer-motion'
 
 const coreValues = [
     {
-        title: 'Christian Faith',
-        description:
-            'We are a Christ-centered organization. We seek to honor God in all we do, trusting in His provision and guidance as we serve our communities.',
-        image: '/images/values/community-first.png',
-    },
-    {
         title: "People's Well-being",
         description:
             'We prioritize the holistic development of our clients and staff. True prosperity includes physical, emotional, and spiritual health.',
@@ -60,7 +54,7 @@ export default function CoreValuesSection() {
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-center">
                     {coreValues.map((value, idx) => (
                         <motion.div
                             key={value.title}
