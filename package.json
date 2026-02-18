@@ -1,0 +1,28 @@
+{
+  "name": "alwan",
+  "version": "1.0.0",
+  "description": "Alwan Microfinance Platform - Monorepo",
+  "private": true,
+  "workspaces": [
+    "alwan-web",
+    "alwan-mobile",
+    "alwan-api"
+  ],
+  "scripts": {
+    "dev:web": "cd alwan-web && npm run dev",
+    "dev:mobile": "cd alwan-mobile && npm start",
+    "build:web": "cd alwan-web && npm run build",
+    "build:mobile": "cd alwan-mobile && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ardfaiyaz/alwan.git"
+  },
+  "keywords": [
+    "microfinance",
+    "kmbi",
+    "alwan"
+  ],
+  "author": "",
+  "license": "ISC"
+}
