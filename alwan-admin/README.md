@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Alwan Admin Dashboard
 
-## Getting Started
+The internal administrative dashboard for Alwan Microfinance, providing staff with tools to manage members, loans, collections, and system operations.
 
-First, run the development server:
+---
+
+## 📋 Overview
+
+This is the admin dashboard built with Next.js 15, featuring comprehensive management tools for microfinance operations. It serves as the control center for Alwan staff to handle day-to-day operations and oversight.
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** 18+ and npm
+- **Git** for version control
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Start development server (default port 3001)
+npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Start on specific port
+npm run dev -- -p 3001
 
-## Learn More
+# Build for production
+npm run build
 
-To learn more about Next.js, take a look at the following resources:
+# Start production server
+npm start
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Run linter
+npm run lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🏗️ Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+alwan-admin/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── actions/           # Server actions
+│   │   │   ├── approvals.ts
+│   │   │   ├── audit.ts
+│   │   │   ├── auth-logging.ts
+│   │   │   ├── centers.ts
+│   │   │   ├── collections.ts
+│   │   │   ├── members.ts
+│   │   │   └── staff.ts
+│   │   ├── admin/             # Admin pages
+│   │   │   ├── centers/      # Center management
+│   │   │   ├── collections/  # Collection tracking
+│   │   │   ├── dashboard/    # Main dashboard
+│   │   │   ├── loans/        # Loan management
+│   │   │   ├── logs/         # Audit logs
+│   │   │   ├── members/      # Member management
+│   │   │   ├── reports/      # Reports & analytics
+│   │   │   ├── settings/     # System settings
+│   │   │   ├── staffs/       # Staff management
+│   │   │   └── users/        # User administration
+│   │   ├── layout.tsx        # Root layout
+│   │   ├── page.tsx          # Landing page
+│   │   └── globals.css       # Global styles
+│   ├── components/           # React components
+│   │   ├── admin/           # Admin-specific components
+│   │   │   ├── charts/      # Chart components
+│   │   │   └── Sidebar.tsx  # Navigation sidebar
+│   │   ├── auth/            # Authentication components
+│   │   ├── skeletons/       # Loading skeletons
+│   │   ├── ui/              # Reusable UI components
+│   │   └── providers.tsx    # Context providers
+│   └── lib/                  # Utilities and configurations
+│       ├── supabase/        # Supabase client setup
+│       ├── utils.ts         # Helper functions
+│       └── ...
+├── public/                   # Static assets
+│   ├── icons/               # Logo and icon files
+│   └── images/              # Image assets
+├── .env.local               # Environment variables (not in git)
+├── next.config.ts           # Next.js configuration
+├── tailwind.config.ts       # Tailwind CSS configuration
+├── tsconfig.json            # TypeScript configuration
+└── package.json             # Dependencies and scripts
+```
