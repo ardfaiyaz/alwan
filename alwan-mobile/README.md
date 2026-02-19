@@ -1,12 +1,12 @@
-# Alwan Mobile – Mobile Application
+# Alwan Mobile App
 
-The core mobile experience for Alwan Microfinance members. Built with React Native and Expo for cross-platform iOS and Android support.
+The core mobile application for Alwan Microfinance, providing members with instant access to financial services, loan applications, and account management.
 
 ---
 
 ## 📋 Overview
 
-Alwan Mobile is the primary interface for microfinance members to manage their accounts, apply for loans, make payments, and track their financial activities. The app provides a seamless, native experience with offline capabilities and real-time synchronization.
+This is the mobile application built with React Native and Expo, featuring a native experience for iOS and Android. It serves as the primary interface for Alwan members to manage their finances on the go.
 
 ---
 
@@ -14,75 +14,71 @@ Alwan Mobile is the primary interface for microfinance members to manage their a
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Expo CLI (installed globally or via npx)
-- For iOS: Xcode and iOS Simulator
-- For Android: Android Studio and Android Emulator
-- Expo Go app (for testing on physical devices)
+- **Node.js** 18+ and npm
+- **Expo CLI** (installed globally or via npx)
+- **iOS Simulator** (Mac only) or **Android Studio** for emulators
+- **Expo Go** app on your physical device (for testing)
 
 ### Installation
 
-1. **Navigate to the mobile directory**
-   ```bash
-   cd alwan-mobile
-   ```
+```bash
+# Install dependencies
+npm install
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your Supabase credentials
+```
 
-3. **Set up environment variables**
-   
-   Create a `.env` file in the root of `alwan-mobile`:
-   ```env
-   EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+### Development
 
-4. **Start the development server**
-   ```bash
-   npm start
-   ```
+```bash
+# Start Expo development server
+npm start
 
-5. **Run on your preferred platform**
-   - Press `i` for iOS simulator
-   - Press `a` for Android emulator
-   - Scan QR code with Expo Go app for physical device
+# Run on Android emulator/device
+npm run android
+
+# Run on iOS simulator (Mac only)
+npm run ios
+
+# Run in web browser
+npm run web
+
+# Reset project (clear cache)
+npm run reset-project
+
+# Run linter
+npm run lint
+```
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Project Structure
 
 ```
 alwan-mobile/
 ├── app/                       # Expo Router screens
 │   ├── (tabs)/               # Tab-based navigation
-│   │   ├── index.tsx         # Home screen
-│   │   ├── loans.tsx         # Loans screen
-│   │   ├── payments.tsx      # Payments screen
-│   │   └── profile.tsx       # Profile screen
+│   │   ├── index.tsx         # Home tab
+│   │   ├── explore.tsx       # Explore tab
+│   │   └── ...
 │   ├── _layout.tsx           # Root layout
 │   └── +not-found.tsx        # 404 screen
 ├── components/               # React Native components
-│   ├── ui/                   # UI primitives
-│   ├── navigation/           # Navigation components
-│   └── ThemedText.tsx        # Themed components
+│   ├── ui/                  # Reusable UI components
+│   └── ...
 ├── assets/                   # Static assets
-│   ├── fonts/                # Custom fonts
-│   └── images/               # Image assets
-├── constants/                # App constants
-│   └── Colors.ts             # Color definitions
-├── hooks/                    # Custom React hooks
-│   └── useSupabase.ts        # Supabase hooks
-├── scripts/                  # Utility scripts
-│   └── reset-project.js      # Project reset script
-├── .env                      # Environment variables (create this)
-├── app.json                  # Expo configuration
-├── expo-router.config.js     # Router configuration
-├── tailwind.config.js        # NativeWind configuration
-├── tsconfig.json             # TypeScript configuration
-└── package.json              # Dependencies and scripts
+│   ├── fonts/               # Custom fonts
+│   └── images/              # Image files
+├── constants/               # App constants
+├── hooks/                   # Custom React hooks
+├── scripts/                 # Utility scripts
+├── .env                     # Environment variables (not in git)
+├── app.json                 # Expo configuration
+├── expo-env.d.ts           # Expo TypeScript definitions
+├── tsconfig.json           # TypeScript configuration
+└── package.json            # Dependencies and scripts
 ```
 
 ---
@@ -90,112 +86,64 @@ alwan-mobile/
 ## 🛠️ Technology Stack
 
 ### Core Framework
-- **Expo 54.0.33**: React Native development platform
-- **React Native 0.81.5**: Mobile UI framework
-- **React 19.1.0**: UI library
-- **TypeScript 5.9.2**: Type safety
+- **Expo** 54.0.33 - React Native development platform
+- **React Native** 0.81.5 - Mobile UI framework
+- **React** 19.1.0 - UI library
+- **TypeScript** 5.9.2 - Type safety
 
-### Navigation & Routing
-- **Expo Router 6.0.23**: File-based routing
-- **@react-navigation/native 7.1.8**: Navigation library
-- **@react-navigation/bottom-tabs 7.4.0**: Tab navigation
-- **@react-navigation/elements 2.6.3**: Navigation elements
+### Navigation
+- **Expo Router** 6.0.23 - File-based routing
+- **React Navigation** 7.1.8 - Navigation library
+  - `@react-navigation/bottom-tabs` 7.4.0
+  - `@react-navigation/elements` 2.6.3
+  - `@react-navigation/native` 7.1.8
 
 ### Styling
-- **NativeWind 4.2.1**: Tailwind CSS for React Native
-- **Tailwind CSS 3.4.19**: Utility-first CSS
-- **react-native-css-interop 0.2.1**: CSS interoperability
-- **Expo Linear Gradient 15.0.8**: Gradient components
+- **NativeWind** 4.2.1 - Tailwind CSS for React Native
+- **Tailwind CSS** 3.4.19 - Utility-first CSS
+- **react-native-css-interop** 0.2.1 - CSS interoperability
 
-### UI Components & Icons
-- **Expo Symbols 1.0.8**: Symbol icons
-- **@expo/vector-icons 15.0.3**: Icon library
-- **Expo Image 3.0.11**: Optimized image component
+### UI Components & Animations
+- **React Native Reanimated** 4.1.1 - Smooth animations
+- **React Native Gesture Handler** 2.28.0 - Touch gestures
+- **React Native Screens** 4.16.0 - Native screen optimization
+- **Expo Symbols** 1.0.8 - SF Symbols support
+- **Expo Vector Icons** 15.0.3 - Icon library
+- **Expo Linear Gradient** 15.0.8 - Gradient backgrounds
 
-### Animations & Gestures
-- **React Native Reanimated 4.1.1**: Smooth animations
-- **React Native Gesture Handler 2.28.0**: Touch gestures
-- **react-native-worklets 0.5.1**: JavaScript worklets
+### Data & Authentication
+- **Supabase** 2.95.3 - Database and authentication
+- **react-native-url-polyfill** 3.0.0 - URL polyfill for React Native
 
-### Backend & Data
-- **@supabase/supabase-js 2.95.3**: Supabase client
-- **react-native-url-polyfill 3.0.0**: URL polyfill for React Native
-
-### File Handling
-- **Expo Document Picker 14.0.8**: Document selection
-- **Expo File System 19.0.21**: File system access
-- **base64-arraybuffer 1.0.2**: Base64 encoding
+### File & Media Handling
+- **Expo Document Picker** 14.0.8 - File selection
+- **Expo File System** 19.0.21 - File system access
+- **Expo Image** 3.0.11 - Optimized image component
+- **base64-arraybuffer** 1.0.2 - Base64 encoding
 
 ### Device Features
-- **Expo Haptics 15.0.8**: Haptic feedback
-- **Expo Status Bar 3.0.9**: Status bar control
-- **Expo System UI 6.0.9**: System UI control
-- **Expo Web Browser 15.0.10**: In-app browser
-- **Expo Linking 8.0.11**: Deep linking
+- **Expo Haptics** 15.0.8 - Haptic feedback
+- **Expo Status Bar** 3.0.9 - Status bar control
+- **Expo System UI** 6.0.9 - System UI customization
+- **Expo Splash Screen** 31.0.13 - Splash screen management
+- **React Native Safe Area Context** 5.6.0 - Safe area handling
+
+### Utilities
+- **Expo Constants** 18.0.13 - App constants
+- **Expo Font** 14.0.11 - Custom fonts
+- **Expo Linking** 8.0.11 - Deep linking
+- **Expo Web Browser** 15.0.10 - In-app browser
+- **react-native-worklets** 0.5.1 - JavaScript worklets
 
 ### Development Tools
-- **Expo Constants 18.0.13**: App constants
-- **Expo Font 14.0.11**: Custom fonts
-- **Expo Splash Screen 31.0.13**: Splash screen
-- **React Native Safe Area Context 5.6.0**: Safe area handling
-- **React Native Screens 4.16.0**: Native screen optimization
-
----
-
-## 📜 Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start Expo development server |
-| `npm run android` | Run on Android emulator/device |
-| `npm run ios` | Run on iOS simulator/device |
-| `npm run web` | Run in web browser |
-| `npm run lint` | Run ESLint for code quality |
-| `npm run reset-project` | Reset project to blank state |
-
----
-
-## 🎨 Key Features
-
-### Member Dashboard
-- Account overview and balance
-- Recent transactions
-- Loan status and payment schedule
-- Quick actions (apply for loan, make payment)
-
-### Loan Management
-- Browse available loan products
-- Submit loan applications with document upload
-- Track application status
-- View loan history and details
-- Payment reminders and notifications
-
-### Payments & Collections
-- Make loan payments
-- View payment history
-- Weekly collection schedules
-- Payment receipts and confirmations
-
-### Profile & Settings
-- Personal information management
-- Document uploads (ID, proof of income)
-- Notification preferences
-- Security settings
-- Language selection
-
-### Design Features
-- **Native Feel**: Platform-specific UI patterns
-- **Offline Support**: Core features work without internet
-- **Real-time Sync**: Instant updates via Supabase
-- **Haptic Feedback**: Touch feedback for actions
-- **Smooth Animations**: 60fps animations with Reanimated
-- **Optimized Images**: Fast loading with Expo Image
+- **ESLint** 9.25.0 - Code linting
+- **eslint-config-expo** 10.0.0 - Expo ESLint config
 
 ---
 
 ## 🌐 Environment Variables
 
-Create a `.env` file with the following variables:
+Create a `.env` file in the root directory:
 
 ```env
 # Supabase Configuration
@@ -205,126 +153,200 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ---
 
+## 🎨 Key Features
+
+### User Experience
+- **Tab Navigation**: Easy access to main features
+- **Native Feel**: Platform-specific UI patterns
+- **Smooth Animations**: 60fps animations with Reanimated
+- **Haptic Feedback**: Touch feedback for better UX
+- **Gesture Support**: Swipe, pinch, and other native gestures
+
+### Functionality
+- **Loan Applications**: Apply for loans with document upload
+- **Account Management**: View balance, transactions, and history
+- **Document Upload**: Pick and upload required documents
+- **Real-time Updates**: Live data synchronization with Supabase
+- **Offline Support**: Basic functionality without internet
+
+### Design
+- **NativeWind Styling**: Tailwind CSS utility classes
+- **Custom Fonts**: Brand-specific typography
+- **Optimized Images**: Fast loading with Expo Image
+- **Responsive Layout**: Adapts to different screen sizes
+- **Dark Mode**: Signature Alwan dark theme
+
+---
+
+## 📦 Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start Expo development server |
+| `npm run android` | Run on Android |
+| `npm run ios` | Run on iOS |
+| `npm run web` | Run in web browser |
+| `npm run reset-project` | Clear cache and reset |
+| `npm run lint` | Run ESLint |
+
+---
+
 ## 📱 Platform Support
 
 | Platform | Support | Notes |
 |----------|---------|-------|
-| iOS | ✅ Full | iOS 13.4+ |
-| Android | ✅ Full | Android 5.0+ (API 21+) |
-| Web | ⚠️ Limited | For testing only |
+| iOS | ✅ Full | Requires Mac for development |
+| Android | ✅ Full | Works on all platforms |
+| Web | ✅ Limited | Basic functionality only |
 
 ---
 
-## 🔧 Configuration Files
+## 🔗 Integration
 
-### app.json
-Expo configuration including app name, version, icons, splash screen, and platform-specific settings.
+### Supabase
+The mobile app integrates with Supabase for:
+- User authentication (sign up, login, logout)
+- Database queries (members, loans, transactions)
+- Real-time subscriptions (live updates)
+- File storage (document uploads)
 
-### tailwind.config.js
-NativeWind configuration with custom colors and design tokens matching the Alwan brand.
-
-### tsconfig.json
-TypeScript compiler options optimized for React Native and Expo.
+### Expo Services
+- **Expo Go**: Quick testing on physical devices
+- **EAS Build**: Cloud-based builds for production
+- **EAS Submit**: App store submission
+- **EAS Update**: Over-the-air updates
 
 ---
 
-## 🚢 Building for Production
+## 🚢 Deployment
 
-### Android APK/AAB
-
-```bash
-# Build APK for testing
-npx expo build:android -t apk
-
-# Build AAB for Play Store
-npx expo build:android -t app-bundle
-```
-
-### iOS IPA
-
-```bash
-# Build for App Store
-npx expo build:ios -t archive
-```
-
-### Using EAS Build (Recommended)
-
+### Development Build
 ```bash
 # Install EAS CLI
 npm install -g eas-cli
 
-# Configure EAS
+# Login to Expo
+eas login
+
+# Configure project
 eas build:configure
 
-# Build for Android
-eas build --platform android
-
-# Build for iOS
-eas build --platform ios
+# Create development build
+eas build --profile development --platform android
+eas build --profile development --platform ios
 ```
 
----
-
-## 🧪 Testing
-
-### On Physical Device
-
-1. Install Expo Go from App Store or Play Store
-2. Run `npm start`
-3. Scan QR code with Expo Go
-
-### On Emulator/Simulator
-
+### Production Build
 ```bash
-# iOS Simulator
-npm run ios
+# Build for production
+eas build --profile production --platform android
+eas build --profile production --platform ios
 
-# Android Emulator
-npm run android
+# Submit to stores
+eas submit --platform android
+eas submit --platform ios
 ```
 
 ---
 
-## 🔗 Integration with Other Projects
+## 🎯 Development Guidelines
 
-This mobile app integrates with:
-- **alwan-admin**: Backend data management
-- **alwan-web**: Consistent branding and user experience
-- **Supabase**: Real-time database and authentication
+### Code Style
+- Use TypeScript for all new files
+- Follow ESLint rules
+- Use NativeWind for styling
+- Keep components small and focused
+- Use Expo Router for navigation
+
+### Component Structure
+```tsx
+import { View, Text } from 'react-native'
+
+interface MyComponentProps {
+  title: string
+  // ... other props
+}
+
+export function MyComponent({ title }: MyComponentProps) {
+  return (
+    <View className="flex-1 items-center justify-center">
+      <Text className="text-lg font-bold">{title}</Text>
+    </View>
+  )
+}
+```
+
+### Naming Conventions
+- Components: PascalCase (e.g., `Button.tsx`)
+- Screens: PascalCase (e.g., `HomeScreen.tsx`)
+- Utilities: camelCase (e.g., `formatDate.ts`)
+- Constants: UPPER_SNAKE_CASE (e.g., `API_URL`)
+
+### File Organization
+- Screens go in `app/` directory
+- Reusable components go in `components/`
+- Shared utilities go in `lib/` or `utils/`
+- Constants go in `constants/`
+- Custom hooks go in `hooks/`
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**Metro bundler issues:**
+```bash
+# Clear cache and restart
+npm start -- --clear
+```
+
+**Expo Go not connecting:**
+- Ensure device and computer are on the same network
+- Try scanning QR code again
+- Restart Expo Go app
+
+**Build errors:**
+```bash
+# Clear node modules and reinstall
+rm -rf node_modules
+npm install
+
+# Clear Expo cache
+npx expo start --clear
+```
+
+**iOS simulator not opening:**
+```bash
+# Open simulator manually
+open -a Simulator
+
+# Then run
+npm run ios
+```
+
+**Android emulator issues:**
+- Ensure Android Studio is installed
+- Check that emulator is running
+- Verify ANDROID_HOME environment variable
+
+---
+
+## 📚 Resources
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Documentation](https://reactnative.dev/docs/getting-started)
+- [Expo Router Documentation](https://docs.expo.dev/router/introduction/)
+- [NativeWind Documentation](https://www.nativewind.dev/)
+- [Supabase React Native Guide](https://supabase.com/docs/guides/getting-started/tutorials/with-expo-react-native)
+- [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/)
 
 ---
 
 ## 🤝 Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Test on both iOS and Android
-4. Submit a pull request
+This is part of the Alwan monorepo. See the [root README](../README.md) for contribution guidelines.
 
 ---
 
-## 📄 License
-
-ISC License
-
----
-
-## 🆘 Support
-
-For issues specific to the mobile app:
-1. Check the main repository README
-2. Review existing GitHub issues
-3. Create a new issue with "mobile:" prefix
-
----
-
-## 📚 Learn More
-
-- [Expo Documentation](https://docs.expo.dev/)
-- [React Native Documentation](https://reactnative.dev/)
-- [Expo Router Documentation](https://docs.expo.dev/router/introduction/)
-- [NativeWind Documentation](https://www.nativewind.dev/)
-
----
-
-**Part of the Alwan Microfinance Ecosystem**
+**Part of the Alwan Microfinance Platform** | [Back to Root](../README.md)
