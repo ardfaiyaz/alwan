@@ -4,12 +4,20 @@
   "description": "Alwan Microfinance Platform - Monorepo",
   "private": true,
   "scripts": {
+    "web": "cd alwan-web && npm run dev -- -p 3000",
+    "mobile": "cd alwan-mobile && npm start",
+    "mobile:web": "cd alwan-mobile && npm run web -- --port 19006",
+    "admin": "cd alwan-admin && npm run dev -- -p 3001",
+    "dev:all": "concurrently \"npm run web\" \"npm run mobile:web\" \"npm run admin\" --names \"web,mobile,admin\" --prefix-colors \"cyan,magenta,yellow\"",
     "dev:web": "cd alwan-web && npm run dev",
     "dev:mobile": "cd alwan-mobile && npm start",
     "dev:admin": "cd alwan-admin && npm run dev",
     "build:web": "cd alwan-web && npm run build",
     "build:mobile": "cd alwan-mobile && npm run build",
     "build:admin": "cd alwan-admin && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   },
   "repository": {
     "type": "git",
