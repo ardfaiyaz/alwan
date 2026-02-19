@@ -4,6 +4,10 @@
   "description": "Alwan Microfinance Platform - Monorepo",
   "private": true,
   "scripts": {
+    "start": "npm run dev:mobile",
+    "web": "npm run dev:web",
+    "admin": "npm run dev:admin",
+
     "dev:web": "cd alwan-web && npm run dev",
     "dev:mobile": "cd alwan-mobile && npm start",
     "dev:admin": "cd alwan-admin && npm run dev",
