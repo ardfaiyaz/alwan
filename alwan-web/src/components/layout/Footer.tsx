@@ -121,16 +121,18 @@ export default function Footer() {
             © {new Date().getFullYear()} Alwan. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <button onClick={() => setIsLoginModalOpen(true)}>
-              <MagneticButton className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
-                Log In
-              </MagneticButton>
-            </button>
-            <button onClick={() => setIsSignupModalOpen(true)}>
-              <MagneticButton className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd88f] via-[#009245] to-[#007a3d] hover:opacity-90 rounded-lg transition-opacity cursor-pointer">
-                Get Started
-              </MagneticButton>
-            </button>
+            <MagneticButton 
+              onClick={() => setIsLoginModalOpen(true)}
+              className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              Log In
+            </MagneticButton>
+            <MagneticButton 
+              onClick={() => setIsSignupModalOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd88f] via-[#009245] to-[#007a3d] hover:opacity-90 rounded-lg transition-opacity cursor-pointer"
+            >
+              Get Started
+            </MagneticButton>
           </div>
         </motion.div>
       </div>
