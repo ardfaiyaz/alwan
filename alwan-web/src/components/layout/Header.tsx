@@ -5,9 +5,11 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Briefcase, Info, HelpCircle, X, Menu } from 'lucide-react'
+import { Home, Briefcase, Info, HelpCircle, X, Menu, LogOut } from 'lucide-react'
 import LoginModal from '@/components/ui/LoginModal'
 import SignupModal from '@/components/ui/SignupModal'
+import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -23,6 +25,36 @@ export default function Header() {
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrolled, setScrolled] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setIsLoading(false)
+    }
+    
+    checkAuth()
+
+    // Listen for auth changes
+    const supabase = createClient()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    setUser(null)
+    toast.success('Signed out successfully')
+    window.location.href = '/'
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -269,18 +301,32 @@ export default function Header() {
 
             {/* Auth buttons */}
             <div className="hidden md:flex items-center gap-2">
-              <button 
-                onClick={() => setIsLoginModalOpen(true)}
-                className="btn-login"
-              >
-                Log In
-              </button>
-              <button 
-                onClick={() => setIsSignupModalOpen(true)}
-                className="btn-signup"
-              >
-                <span>Get Started</span>
-              </button>
+              {!isLoading && (
+                user ? (
+                  <button 
+                    onClick={handleSignOut}
+                    className="btn-login flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => setIsLoginModalOpen(true)}
+                      className="btn-login"
+                    >
+                      Log In
+                    </button>
+                    <button 
+                      onClick={() => setIsSignupModalOpen(true)}
+                      className="btn-signup"
+                    >
+                      <span>Get Started</span>
+                    </button>
+                  </>
+                )
+              )}
             </div>
 
           </div>
@@ -323,26 +369,44 @@ export default function Header() {
 
                 {/* Auth */}
                 <div className="flex flex-col gap-2 px-1 pt-1">
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      setIsMenuOpen(false)
-                      setIsLoginModalOpen(true)
-                    }}
-                    className="btn-login w-full justify-center py-2.5"
-                  >
-                    Log In
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      setIsMenuOpen(false)
-                      setIsSignupModalOpen(true)
-                    }}
-                    className="btn-signup w-full justify-center py-2.5"
-                  >
-                    <span>Get Started</span>
-                  </button>
+                  {!isLoading && (
+                    user ? (
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          handleSignOut()
+                        }}
+                        className="btn-login w-full justify-center py-2.5 flex items-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            setIsMenuOpen(false)
+                            setIsLoginModalOpen(true)
+                          }}
+                          className="btn-login w-full justify-center py-2.5"
+                        >
+                          Log In
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setIsMenuOpen(false)
+                            setIsSignupModalOpen(true)
+                          }}
+                          className="btn-signup w-full justify-center py-2.5"
+                        >
+                          <span>Get Started</span>
+                        </button>
+                      </>
+                    )
+                  )}
                 </div>
               </div>
             </motion.div>
