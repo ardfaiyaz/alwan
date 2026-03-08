@@ -24,49 +24,88 @@ export async function signupMember(data: SignupData) {
   try {
     const supabase = await createClient()
 
-    // 1. Create auth user with phone
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // 1. Send OTP first (before creating user)
+    const { error: otpError } = await supabase.auth.signInWithOtp({
       phone: `+63${data.phone}`,
-      password: data.pin, // In production, use a more secure password
       options: {
-        data: {
-          full_name: `${data.firstName} ${data.middleName || ''} ${data.lastName}`.trim(),
-        },
+        channel: 'sms',
       },
     })
 
-    if (authError) {
-      return { error: authError.message }
+    if (otpError) {
+      console.error('OTP send error:', otpError)
+      
+      // Provide user-friendly error messages
+      if (otpError.message.includes('rate limit')) {
+        return { error: 'Too many requests. Please wait a few minutes before trying again.' }
+      }
+      if (otpError.message.includes('invalid phone')) {
+        return { error: 'Invalid phone number format. Please check and try again.' }
+      }
+      
+      return { error: otpError.message }
     }
 
-    if (!authData.user) {
-      return { error: 'Failed to create user' }
-    }
-
-    // 2. Upload document to Supabase Storage
+    // 2. Upload document to Supabase Storage (do this early to fail fast)
     const fileExt = data.proofOfBillingFile.name.split('.').pop()
-    const fileName = `${authData.user.id}/proof_of_billing_${Date.now()}.${fileExt}`
+    const tempFileName = `temp/${data.phone}/proof_of_billing_${Date.now()}.${fileExt}`
     
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('member-documents')
-      .upload(fileName, data.proofOfBillingFile, {
+      .upload(tempFileName, data.proofOfBillingFile, {
         cacheControl: '3600',
         upsert: false,
       })
 
     if (uploadError) {
-      // Cleanup: delete auth user if upload fails
-      await supabase.auth.admin.deleteUser(authData.user.id)
       return { error: `Failed to upload document: ${uploadError.message}` }
     }
 
     // Get public URL
     const { data: urlData } = supabase.storage
       .from('member-documents')
-      .getPublicUrl(fileName)
+      .getPublicUrl(tempFileName)
 
-    // 3. Get a default center for new signups (or create a "Pending Assignment" center)
-    // First, try to get a default center for unassigned members
+    // Return success - user will verify OTP in next step
+    // We'll create the actual user account after OTP verification
+    return {
+      success: true,
+      message: 'OTP sent to your phone number. Please verify to continue.',
+      tempData: {
+        phone: data.phone,
+        firstName: data.firstName,
+        middleName: data.middleName,
+        lastName: data.lastName,
+        birthdate: data.birthdate,
+        address: data.address,
+        fileUrl: urlData.publicUrl,
+        fileName: data.proofOfBillingFile.name,
+        fileSize: data.proofOfBillingFile.size,
+        mimeType: data.proofOfBillingFile.type,
+      },
+    }
+  } catch (error: any) {
+    console.error('Signup error:', error)
+    Sentry.captureException(error, {
+      tags: { action: 'signupMember' },
+    })
+    return { error: error.message || 'An unexpected error occurred' }
+  }
+}
+
+// New function to complete signup after OTP verification
+export async function completeSignup(tempData: any, pin: string) {
+  try {
+    const supabase = await createClient()
+
+    // Get the authenticated user (should be authenticated after OTP verification)
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return { error: 'Please verify your phone number first' }
+    }
+
+    // 3. Get a default center for new signups
     const { data: defaultCenter } = await supabase
       .from('centers')
       .select('id')
@@ -75,7 +114,6 @@ export async function signupMember(data: SignupData) {
 
     let centerId = defaultCenter?.id
 
-    // If no default center exists, get any active center as fallback
     if (!centerId) {
       const { data: anyCenter } = await supabase
         .from('centers')
@@ -88,67 +126,82 @@ export async function signupMember(data: SignupData) {
     }
 
     if (!centerId) {
-      // Cleanup
-      await supabase.storage.from('member-documents').remove([fileName])
-      await supabase.auth.admin.deleteUser(authData.user.id)
       return { error: 'No center available for assignment. Please contact support.' }
     }
 
-    const fullAddress = `${data.address.houseStreet}, ${data.address.barangay}, ${data.address.city}, ${data.address.province} ${data.address.zipCode}`
+    const fullAddress = `${tempData.address.houseStreet}, ${tempData.address.barangay}, ${tempData.address.city}, ${tempData.address.province} ${tempData.address.zipCode}`
 
+    // 4. Create member record
     const { data: memberData, error: memberError } = await supabase
       .from('members')
       .insert({
         center_id: centerId,
-        first_name: data.firstName,
-        middle_name: data.middleName,
-        last_name: data.lastName,
-        date_of_birth: data.birthdate,
-        phone: `+63${data.phone}`,
+        first_name: tempData.firstName,
+        middle_name: tempData.middleName,
+        last_name: tempData.lastName,
+        date_of_birth: tempData.birthdate,
+        phone: `+63${tempData.phone}`,
         address: fullAddress,
       })
       .select()
       .single()
 
     if (memberError) {
-      // Cleanup
-      await supabase.storage.from('member-documents').remove([fileName])
-      await supabase.auth.admin.deleteUser(authData.user.id)
+      console.error('Member creation failed:', memberError)
       return { error: `Failed to create member: ${memberError.message}` }
     }
 
-    // 4. Create document record
+    // 5. Move file to permanent location
+    const fileExt = tempData.fileName.split('.').pop()
+    const permanentFileName = `${user.id}/proof_of_billing_${Date.now()}.${fileExt}`
+    const tempFileName = tempData.fileUrl.split('/').pop()
+
+    // Copy file to permanent location
+    const { error: moveError } = await supabase.storage
+      .from('member-documents')
+      .move(`temp/${tempData.phone}/${tempFileName}`, permanentFileName)
+
+    if (moveError) {
+      console.error('File move failed:', moveError)
+      // Don't fail the whole signup, just log it
+    }
+
+    // Get new public URL
+    const { data: newUrlData } = supabase.storage
+      .from('member-documents')
+      .getPublicUrl(permanentFileName)
+
+    // 6. Create document record
     const { error: docError } = await supabase
       .from('member_documents')
       .insert({
         member_id: memberData.id,
         document_type: 'proof_of_billing',
-        file_name: data.proofOfBillingFile.name,
-        file_url: urlData.publicUrl,
-        file_size: data.proofOfBillingFile.size,
-        mime_type: data.proofOfBillingFile.type,
+        file_name: tempData.fileName,
+        file_url: newUrlData.publicUrl,
+        file_size: tempData.fileSize,
+        mime_type: tempData.mimeType,
         status: 'pending',
-        uploaded_by: authData.user.id,
+        uploaded_by: user.id,
       })
 
     if (docError) {
       console.error('Document record creation failed:', docError)
-      // Don't fail the whole signup, just log it
       Sentry.captureException(docError, {
-        tags: { action: 'signupMember', step: 'document_record' },
+        tags: { action: 'completeSignup', step: 'document_record' },
       })
     }
 
     return {
       success: true,
-      userId: authData.user.id,
+      userId: user.id,
       memberId: memberData.id,
-      message: 'Account created successfully! Please verify your phone number.',
+      message: 'Account created successfully!',
     }
   } catch (error: any) {
-    console.error('Signup error:', error)
+    console.error('Complete signup error:', error)
     Sentry.captureException(error, {
-      tags: { action: 'signupMember' },
+      tags: { action: 'completeSignup' },
     })
     return { error: error.message || 'An unexpected error occurred' }
   }
@@ -182,11 +235,25 @@ export async function resendOTP(phone: string) {
   try {
     const supabase = await createClient()
 
+    // Send OTP via Supabase (which uses Twilio configured in dashboard)
     const { error } = await supabase.auth.signInWithOtp({
       phone: `+63${phone}`,
+      options: {
+        channel: 'sms', // Explicitly use SMS channel
+      },
     })
 
     if (error) {
+      console.error('Resend OTP error:', error)
+      
+      // Provide user-friendly error messages
+      if (error.message.includes('rate limit')) {
+        return { error: 'Too many requests. Please wait a few minutes before trying again.' }
+      }
+      if (error.message.includes('invalid phone')) {
+        return { error: 'Invalid phone number format. Please check and try again.' }
+      }
+      
       return { error: error.message }
     }
 
