@@ -148,6 +148,20 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ### Design
 - **Dark Mode First**: Signature Alwan dark theme with emerald accents
 - **Glassmorphism**: Modern glass-effect UI elements
+
+### Member Features
+- **Signup with Document Upload**: 4-step signup process with proof of billing upload
+- **Phone Verification**: OTP-based phone number verification
+- **PIN Security**: 5-digit PIN for account security
+
+### Admin Features
+- **Document Approvals**: Review and approve member documents with zoom functionality
+- **Audit Trail**: Complete logging of all approval/rejection actions
+- **Role-Based Access**: Granular permissions for admin, area managers, and branch managers
+
+For detailed documentation on the document approvals system, see:
+- `QUICK_START_APPROVALS.md` - Quick setup guide
+- `DOCUMENT_APPROVALS_IMPLEMENTATION.md` - Complete technical documentation
 - **Gradient Backgrounds**: Grainy gradient effects
 - **Responsive**: Mobile-first design approach
 - **Animations**: Smooth transitions with Framer Motion

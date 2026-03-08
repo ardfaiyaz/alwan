@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { X, Upload, Check } from 'lucide-react'
 import { toast } from 'sonner'
+import { signupMember, verifyOTP, resendOTP } from '@/app/actions/signup'
 
 interface SignupModalProps {
   isOpen: boolean
@@ -90,12 +91,42 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
     setStep('phone')
   }
 
-  const handlePhoneSubmit = () => {
+  const handlePhoneSubmit = async () => {
     if (phoneNumber.length < 10) {
       toast.error('Please enter a valid phone number')
       return
     }
+
+    setIsLoading(true)
+    
+    // Submit all data and send OTP
+    const result = await signupMember({
+      firstName,
+      middleName,
+      lastName,
+      birthdate,
+      phone: phoneNumber,
+      address: {
+        province,
+        city,
+        barangay,
+        zipCode,
+        houseStreet,
+      },
+      pin: '', // Will be set in PIN step
+      proofOfBillingFile: proofOfBilling!,
+    })
+
+    setIsLoading(false)
+
+    if (result.error) {
+      toast.error(result.error)
+      return
+    }
+
+    toast.success('OTP sent to your phone!')
     setStep('otp')
+    
     // Start timer
     const interval = setInterval(() => {
       setTimer((prev) => {
@@ -108,7 +139,7 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
     }, 1000)
   }
 
-  const handleOtpChange = (value: string, index: number) => {
+  const handleOtpChange = async (value: string, index: number) => {
     if (value.length > 1) return
     const newOtp = [...otp]
     newOtp[index] = value
@@ -120,6 +151,20 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
 
     if (newOtp.every(digit => digit !== '') && index === 5) {
       // Auto verify
+      setIsLoading(true)
+      const otpCode = newOtp.join('')
+      
+      const result = await verifyOTP(phoneNumber, otpCode)
+      setIsLoading(false)
+
+      if (result.error) {
+        toast.error(result.error)
+        setOtp(['', '', '', '', '', ''])
+        otpRefs.current[0]?.focus()
+        return
+      }
+
+      toast.success('Phone verified!')
       setTimeout(() => setStep('pin'), 500)
     }
   }
@@ -478,7 +523,19 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
                           {timer > 0 ? (
                             <p className="text-gray-400 text-sm">Resend code in {timer}s</p>
                           ) : (
-                            <button onClick={() => setTimer(60)} className="text-emerald-400 font-semibold text-sm">
+                            <button 
+                              type="button"
+                              onClick={async () => {
+                                const result = await resendOTP(phoneNumber)
+                                if (result.error) {
+                                  toast.error(result.error)
+                                } else {
+                                  toast.success('OTP resent!')
+                                  setTimer(60)
+                                }
+                              }} 
+                              className="text-emerald-400 font-semibold text-sm hover:text-emerald-300"
+                            >
                               Resend OTP
                             </button>
                           )}
