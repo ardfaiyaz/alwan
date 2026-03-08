@@ -46,11 +46,32 @@ export async function signupMember(data: SignupData) {
       return { error: otpError.message }
     }
 
-    // 2. Upload document to Supabase Storage (do this early to fail fast)
+    // 2. Upload document to Supabase Storage using service role to bypass RLS
+    // Create a service role client for file upload
+    const { createClient: createServiceClient } = await import('@supabase/supabase-js')
+    
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing Supabase credentials')
+      return { error: 'Server configuration error. Please contact support.' }
+    }
+    
+    const supabaseService = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
     const fileExt = data.proofOfBillingFile.name.split('.').pop()
     const tempFileName = `temp/${data.phone}/proof_of_billing_${Date.now()}.${fileExt}`
     
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    console.log('Attempting to upload file:', tempFileName)
+    
+    const { data: uploadData, error: uploadError } = await supabaseService.storage
       .from('member-documents')
       .upload(tempFileName, data.proofOfBillingFile, {
         cacheControl: '3600',
@@ -58,11 +79,18 @@ export async function signupMember(data: SignupData) {
       })
 
     if (uploadError) {
+      console.error('Upload error details:', {
+        message: uploadError.message,
+        name: uploadError.name,
+        cause: uploadError.cause,
+      })
       return { error: `Failed to upload document: ${uploadError.message}` }
     }
 
+    console.log('Upload successful:', uploadData)
+
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabaseService.storage
       .from('member-documents')
       .getPublicUrl(tempFileName)
 
@@ -82,6 +110,7 @@ export async function signupMember(data: SignupData) {
         fileName: data.proofOfBillingFile.name,
         fileSize: data.proofOfBillingFile.size,
         mimeType: data.proofOfBillingFile.type,
+        tempFileName: tempFileName, // Store for later cleanup
       },
     }
   } catch (error: any) {
@@ -154,16 +183,30 @@ export async function completeSignup(tempData: any, pin: string) {
     // 5. Move file to permanent location
     const fileExt = tempData.fileName.split('.').pop()
     const permanentFileName = `${user.id}/proof_of_billing_${Date.now()}.${fileExt}`
-    const tempFileName = tempData.fileUrl.split('/').pop()
 
-    // Copy file to permanent location
-    const { error: moveError } = await supabase.storage
+    // Copy file to permanent location using service role
+    const { createClient: createServiceClient } = await import('@supabase/supabase-js')
+    const supabaseService = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
+    const { error: moveError } = await supabaseService.storage
       .from('member-documents')
-      .move(`temp/${tempData.phone}/${tempFileName}`, permanentFileName)
+      .move(tempData.tempFileName, permanentFileName)
 
     if (moveError) {
       console.error('File move failed:', moveError)
       // Don't fail the whole signup, just log it
+      Sentry.captureException(moveError, {
+        tags: { action: 'completeSignup', step: 'file_move' },
+      })
     }
 
     // Get new public URL
