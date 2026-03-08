@@ -14,9 +14,10 @@ import * as Sentry from '@sentry/nextjs'
 interface LoginModalProps {
     isOpen: boolean
     onClose: () => void
+    onOpenSignup?: () => void
 }
 
-export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, onOpenSignup }: LoginModalProps) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -24,6 +25,18 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const router = useRouter()
     const supabase = createClient()
     const { setUser } = useAuthStore()
+
+    // Prevent body scroll when modal is open
+    React.useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
+        }
+        return () => {
+            document.body.style.overflow = 'unset'
+        }
+    }, [isOpen])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -218,9 +231,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                     </div>
 
                                     {/* Get Started Button */}
-                                    <a href="/register" className="btn-signup-modal w-full flex justify-center items-center">
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            onClose()
+                                            onOpenSignup?.()
+                                        }}
+                                        className="btn-signup-modal w-full flex justify-center items-center"
+                                    >
                                         Get Started
-                                    </a>
+                                    </button>
 
                                     <style jsx>{`
                     .btn-login-modal {

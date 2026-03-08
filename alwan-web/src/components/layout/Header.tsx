@@ -353,7 +353,8 @@ export default function Header() {
       {/* Login Modal */}
       <LoginModal 
         isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)} 
+        onClose={() => setIsLoginModalOpen(false)}
+        onOpenSignup={() => setIsSignupModalOpen(true)}
       />
 
       {/* Signup Modal */}

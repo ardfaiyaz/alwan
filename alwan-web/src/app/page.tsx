@@ -836,7 +836,8 @@ export default function HomePage() {
       {/* Modals */}
       <LoginModal 
         isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)} 
+        onClose={() => setIsLoginModalOpen(false)}
+        onOpenSignup={() => setIsSignupModalOpen(true)}
       />
       <SignupModal 
         isOpen={isSignupModalOpen} 

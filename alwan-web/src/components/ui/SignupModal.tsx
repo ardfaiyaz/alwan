@@ -62,6 +62,18 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [pinStep, setPinStep] = useState<'create' | 'confirm'>('create')
   const pinRefs = useRef<(HTMLInputElement | null)[]>([])
 
+  // Prevent body scroll when modal is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setProofOfBilling(e.target.files[0])
@@ -198,7 +210,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
             >
               {/* Glass Modal Content */}
               <div
-                className="relative overflow-hidden rounded-3xl border border-white/20 shadow-2xl max-h-[85vh] overflow-y-auto"
+                className="relative overflow-hidden rounded-3xl border border-white/20 shadow-2xl max-h-[85vh] overflow-y-auto custom-scrollbar"
                 style={{
                   background: 'rgba(20, 20, 20, 0.65)',
                   backdropFilter: 'blur(24px) saturate(180%)',
@@ -487,7 +499,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                     position: relative;
                     display: flex;
                     align-items: center;
-                    justify-center;
+                    justify-content: center;
                     padding: 0.8rem 1.1rem;
                     font-size: 0.95rem;
                     font-weight: 600;
@@ -505,6 +517,28 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   .btn-signup-modal:hover {
                     background: #ffffff;
                     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                  }
+
+                  /* Custom Scrollbar Styling */
+                  :global(.custom-scrollbar::-webkit-scrollbar) {
+                    width: 8px;
+                  }
+                  :global(.custom-scrollbar::-webkit-scrollbar-track) {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 10px;
+                  }
+                  :global(.custom-scrollbar::-webkit-scrollbar-thumb) {
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 10px;
+                    transition: background 0.3s ease;
+                  }
+                  :global(.custom-scrollbar::-webkit-scrollbar-thumb:hover) {
+                    background: rgba(255, 255, 255, 0.35);
+                  }
+                  /* Firefox scrollbar */
+                  :global(.custom-scrollbar) {
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
                   }
                 `}</style>
               </div>
