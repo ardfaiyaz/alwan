@@ -1,27 +1,58 @@
-"use client";
+'use client'
 
-import * as Sentry from "@sentry/nextjs";
-import NextError from "next/error";
-import { useEffect } from "react";
+import * as Sentry from '@sentry/nextjs'
+import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 
 export default function GlobalError({
   error,
+  reset,
 }: {
-  error: Error & { digest?: string };
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
+    // Log the error to Sentry
+    Sentry.captureException(error)
+  }, [error])
 
   return (
-    <html lang="en">
+    <html>
       <body>
-        {/* `NextError` is the default Next.js error page component. Its type
-        definition requires a `statusCode` prop. However, since the App Router
-        does not expose status codes for errors, we simply pass 0 to render a
-        generic error message. */}
-        <NextError statusCode={0} />
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
+          <div className="w-full max-w-md space-y-8 rounded-2xl bg-white/10 p-8 backdrop-blur-lg border border-white/20">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-white mb-2">Oops!</h1>
+              <h2 className="text-xl font-semibold text-gray-200 mb-4">
+                Something went wrong
+              </h2>
+              <p className="text-gray-300 mb-6">
+                We've been notified and are working on a fix. Please try again.
+              </p>
+              {error.digest && (
+                <p className="text-sm text-gray-400 mb-6">
+                  Error ID: {error.digest}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={reset}
+                className="w-full bg-white text-gray-900 hover:bg-gray-100"
+              >
+                Try Again
+              </Button>
+              <Button
+                onClick={() => window.location.href = '/'}
+                variant="outline"
+                className="w-full border-white/20 text-white hover:bg-white/10"
+              >
+                Go Home
+              </Button>
+            </div>
+          </div>
+        </div>
       </body>
     </html>
-  );
+  )
 }

@@ -4,10 +4,11 @@ Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   
   // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-  tracesSampleRate: 1.0,
+  // Adjust this value in production
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   
   // Set `tracePropagationTargets` to control for which URLs distributed tracing should be enabled
-  tracePropagationTargets: ["localhost", /^https:\/\/yourapp\.vercel\.app/],
+  tracePropagationTargets: ["localhost", /^https:\/\/.*\.vercel\.app/],
   
   // Capture Replay for 10% of all sessions,
   // plus 100% of sessions with an error

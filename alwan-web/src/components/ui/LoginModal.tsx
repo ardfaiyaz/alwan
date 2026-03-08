@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { logUserLogin } from '@/app/actions/auth-logging'
 import { useAuthStore } from '@/stores/useAuthStore'
+import * as Sentry from '@sentry/nextjs'
 
 interface LoginModalProps {
     isOpen: boolean
@@ -87,6 +88,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 }
             }
         } catch (error) {
+            console.error('Login error:', error)
+            Sentry.captureException(error, {
+                tags: { component: 'LoginModal' },
+                extra: { email }
+            })
             toast.error('An unexpected error occurred')
         } finally {
             setIsLoading(false)
