@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { X, Upload, Check } from 'lucide-react'
 import { toast } from 'sonner'
-import { signupMember, verifyOTP, resendOTP } from '@/app/actions/signup'
+import { signupMember, verifyOTP, resendOTP, completeSignup } from '@/app/actions/signup'
 
 interface SignupModalProps {
   isOpen: boolean
@@ -64,6 +64,9 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
   const [confirmPin, setConfirmPin] = useState(['', '', '', '', ''])
   const [pinStep, setPinStep] = useState<'create' | 'confirm'>('create')
   const pinRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  // Store temp data from signup
+  const [tempData, setTempData] = useState<any>(null)
 
   // Prevent body scroll when modal is open
   React.useEffect(() => {
@@ -124,6 +127,11 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
       return
     }
 
+    // Store temp data for later use
+    if (result.tempData) {
+      setTempData(result.tempData)
+    }
+
     toast.success('OTP sent to your phone!')
     setStep('otp')
     
@@ -169,7 +177,7 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
     }
   }
 
-  const handlePinChange = (value: string, index: number, isConfirm: boolean) => {
+  const handlePinChange = async (value: string, index: number, isConfirm: boolean) => {
     if (value.length > 1) return
 
     if (isConfirm) {
@@ -184,6 +192,18 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
       if (newPin.every(digit => digit !== '') && index === 4) {
         // Check match
         if (pin.join('') === newPin.join('')) {
+          // Complete signup by creating member record
+          setIsLoading(true)
+          
+          const result = await completeSignup(tempData, pin.join(''))
+          
+          setIsLoading(false)
+          
+          if (result.error) {
+            toast.error(result.error)
+            return
+          }
+          
           toast.success('Account created successfully!')
           setTimeout(() => {
             onClose()
