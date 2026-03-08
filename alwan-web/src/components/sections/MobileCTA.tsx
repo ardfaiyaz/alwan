@@ -7,6 +7,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { noiseTextureStyle } from '@/lib/constants/styles'
 
 const GOOGLE_PLAY_BADGE = 'https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg'
 const APP_STORE_BADGE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/330px-Download_on_the_App_Store_Badge.svg.png'
@@ -18,10 +19,7 @@ export default function MobileCTA() {
         <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06] pointer-events-none">
           <div
             className="absolute inset-0 opacity-[0.28]"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'repeat',
-            }}
+            style={noiseTextureStyle}
           />
           <div
             className="absolute right-0 top-0 h-full w-1/2 opacity-30"

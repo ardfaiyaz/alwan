@@ -15,6 +15,7 @@ import CoreValuesSection from '@/components/sections/CoreValuesSection'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import LoginModal from '@/components/ui/LoginModal'
 import SignupModal from '@/components/ui/SignupModal'
+import { noiseTextureStyle } from '@/lib/constants/styles'
 
 const howItWorksSteps = [
   {
@@ -339,10 +340,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-bl from-[#4dd88f] via-[#056633] to-[#000D06]">
           <div
             className="absolute inset-0 opacity-[0.28]"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'repeat',
-            }}
+            style={noiseTextureStyle}
           />
           <div
             className="absolute right-0 top-0 h-full w-1/2 opacity-30"
@@ -597,10 +595,7 @@ export default function HomePage() {
           {/* Grainy Noise Overlay */}
           <div
             className="absolute inset-0 opacity-[0.28]"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='3.5' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'repeat',
-            }}
+            style={noiseTextureStyle}
           />
 
           {/* Background Glows */}
