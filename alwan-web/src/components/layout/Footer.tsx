@@ -11,6 +11,9 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 import { Github } from 'lucide-react'
+import { useState } from 'react'
+import LoginModal from '@/components/ui/LoginModal'
+import SignupModal from '@/components/ui/SignupModal'
 
 const footerLinks = {
   product: [
@@ -27,11 +30,14 @@ const footerLinks = {
 
 export default function Footer() {
   const pathname = usePathname()
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
 
   if (pathname === '/login' || pathname === '/register') return null
 
   return (
-    <footer className="bg-white border-t border-slate-200 text-slate-600">
+    <>
+      <footer className="bg-white border-t border-slate-200 text-slate-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-16">
           <motion.div
@@ -115,19 +121,30 @@ export default function Footer() {
             © {new Date().getFullYear()} Alwan. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/login">
+            <button onClick={() => setIsLoginModalOpen(true)}>
               <MagneticButton className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
                 Log In
               </MagneticButton>
-            </Link>
-            <Link href="/register">
+            </button>
+            <button onClick={() => setIsSignupModalOpen(true)}>
               <MagneticButton className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd88f] via-[#009245] to-[#007a3d] hover:opacity-90 rounded-lg transition-opacity cursor-pointer">
                 Get Started
               </MagneticButton>
-            </Link>
+            </button>
           </div>
         </motion.div>
       </div>
-    </footer>
+      </footer>
+
+      {/* Modals */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
+      <SignupModal 
+        isOpen={isSignupModalOpen} 
+        onClose={() => setIsSignupModalOpen(false)} 
+      />
+    </>
   )
 }

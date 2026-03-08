@@ -13,6 +13,8 @@ import SavingsSection from '@/components/sections/SavingsSection'
 import FAQSection from '@/components/sections/FAQSection'
 import CoreValuesSection from '@/components/sections/CoreValuesSection'
 import ScrollProgress from '@/components/ui/ScrollProgress'
+import LoginModal from '@/components/ui/LoginModal'
+import SignupModal from '@/components/ui/SignupModal'
 
 const howItWorksSteps = [
   {
@@ -43,6 +45,8 @@ export default function HomePage() {
   const videoSectionRef = useRef<HTMLDivElement>(null)
   const [currentWord, setCurrentWord] = useState(0)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
 
   const demoVideos = [
     { id: 'F6b62ngcRzc', title: 'Alwan Introduction' },
@@ -429,11 +433,9 @@ export default function HomePage() {
                 transition={{ duration: 0.75, delay: 0.1 }}
                 className="flex flex-wrap gap-3 sm:gap-4 items-center justify-center lg:justify-start lg:pl-36 xl:pl-40"
               >
-                <Link href="/register">
-                  <button className="hero-btn-primary">
-                    <span>Get Started</span>
-                  </button>
-                </Link>
+                <button onClick={() => setIsSignupModalOpen(true)} className="hero-btn-primary">
+                  <span>Get Started</span>
+                </button>
                 <Link href="#how-it-works">
                   <button className="hero-btn-ghost">
                     <span className="flex items-center gap-2">
@@ -781,11 +783,9 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mt-20"
           >
-            <Link href="/register">
-              <button className="btn-ghost-dark px-10 py-5 text-lg min-w-[280px]">
-                <span>Start Your Application</span>
-              </button>
-            </Link>
+            <button onClick={() => setIsSignupModalOpen(true)} className="btn-ghost-dark px-10 py-5 text-lg min-w-[280px]">
+              <span>Start Your Application</span>
+            </button>
           </motion.div>
         </div>
       </section >
@@ -811,16 +811,14 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
-              <Link href="/register">
+              <button onClick={() => setIsSignupModalOpen(true)}>
                 <MagneticButton className="px-12 py-5 bg-[#009245] text-white font-bold rounded-2xl hover:bg-[#007a3d] transition-all duration-300 shadow-xl shadow-emerald-200/50 text-lg min-w-[240px]">
                   Create Free Account
                 </MagneticButton>
-              </Link>
-              <Link href="/login">
-                <button className="px-8 py-5 text-slate-600 font-semibold hover:text-slate-900 transition-colors">
-                  Already have an account? Log In
-                </button>
-              </Link>
+              </button>
+              <button onClick={() => setIsLoginModalOpen(true)} className="px-8 py-5 text-slate-600 font-semibold hover:text-slate-900 transition-colors">
+                Already have an account? Log In
+              </button>
             </div>
 
             {/* Subtle trust signal */}
@@ -834,6 +832,16 @@ export default function HomePage() {
 
 
       <MobileCTA />
+
+      {/* Modals */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
+      <SignupModal 
+        isOpen={isSignupModalOpen} 
+        onClose={() => setIsSignupModalOpen(false)} 
+      />
     </>
   )
 }
