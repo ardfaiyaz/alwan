@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Home, Briefcase, Info, HelpCircle, X, Menu } from 'lucide-react'
+import LoginModal from '@/components/ui/LoginModal'
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -17,6 +18,7 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrolled, setScrolled] = useState(false)
 
@@ -265,6 +267,12 @@ export default function Header() {
 
             {/* Auth buttons */}
             <div className="hidden md:flex items-center gap-2">
+              <button 
+                onClick={() => setIsLoginModalOpen(true)}
+                className="btn-login"
+              >
+                Log In
+              </button>
               <Link href="/register">
                 <button className="btn-signup">
                   <span>Get Started</span>
@@ -312,6 +320,16 @@ export default function Header() {
 
                 {/* Auth */}
                 <div className="flex flex-col gap-2 px-1 pt-1">
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsMenuOpen(false)
+                      setIsLoginModalOpen(true)
+                    }}
+                    className="btn-login w-full justify-center py-2.5"
+                  >
+                    Log In
+                  </button>
                   <Link href="/register" onClick={() => setIsMenuOpen(false)}>
                     <button type="button" className="btn-signup w-full justify-center py-2.5">
                       <span>Get Started</span>
@@ -323,6 +341,12 @@ export default function Header() {
           )}
         </AnimatePresence>
       </header>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </>
   )
 }
