@@ -144,7 +144,8 @@ export default function Footer() {
       />
       <SignupModal 
         isOpen={isSignupModalOpen} 
-        onClose={() => setIsSignupModalOpen(false)} 
+        onClose={() => setIsSignupModalOpen(false)}
+        initialMode="signup"
       />
     </>
   )

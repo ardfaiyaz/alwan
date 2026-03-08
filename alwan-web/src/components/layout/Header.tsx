@@ -360,7 +360,8 @@ export default function Header() {
       {/* Signup Modal */}
       <SignupModal 
         isOpen={isSignupModalOpen} 
-        onClose={() => setIsSignupModalOpen(false)} 
+        onClose={() => setIsSignupModalOpen(false)}
+        initialMode="signup"
       />
     </>
   )

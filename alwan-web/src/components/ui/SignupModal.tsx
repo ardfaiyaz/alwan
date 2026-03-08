@@ -3,15 +3,17 @@
 import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { X, Upload, Check } from 'lucide-react'
+import { X, Upload, Check, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface SignupModalProps {
   isOpen: boolean
   onClose: () => void
+  initialMode?: 'login' | 'signup'
 }
 
 type SignupStep = 'info' | 'phone' | 'otp' | 'pin'
+type ModalMode = 'login' | 'signup'
 
 // Philippine data
 const PROVINCES = [
@@ -29,8 +31,15 @@ const CITIES: { [key: string]: string[] } = {
 
 const BARANGAYS = ['Barangay 1', 'Barangay 2', 'Barangay 3', 'San Jose', 'Santa Maria']
 
-export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
+export default function SignupModal({ isOpen, onClose, initialMode = 'signup' }: SignupModalProps) {
+  const [mode, setMode] = useState<ModalMode>(initialMode)
   const [step, setStep] = useState<SignupStep>('info')
+
+  // Login state
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   // Step 1: Personal Info
   const [firstName, setFirstName] = useState('')
   const [middleName, setMiddleName] = useState('')
@@ -66,13 +75,34 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
   React.useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
+      setMode(initialMode)
     } else {
       document.body.style.overflow = 'unset'
     }
     return () => {
       document.body.style.overflow = 'unset'
     }
-  }, [isOpen])
+  }, [isOpen, initialMode])
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    // Add your login logic here
+    setTimeout(() => {
+      toast.success('Login successful!')
+      setIsLoading(false)
+      onClose()
+    }, 1500)
+  }
+
+  const switchToSignup = () => {
+    setMode('signup')
+    setStep('info')
+  }
+
+  const switchToLogin = () => {
+    setMode('login')
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -169,6 +199,8 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
   }
 
   const getStepTitle = () => {
+    if (mode === 'login') return 'Welcome Back'
+    
     switch (step) {
       case 'info': return 'Create Account'
       case 'phone': return 'Phone Number'
@@ -178,6 +210,8 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
   }
 
   const getStepSubtitle = () => {
+    if (mode === 'login') return 'Enter your credentials to access your account'
+    
     switch (step) {
       case 'info': return 'Step 1 of 4: Personal Information'
       case 'phone': return 'Step 2 of 4: We\'ll send you an OTP'
@@ -244,10 +278,68 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
                   {/* Step Content */}
                   <div className="space-y-4">
+                    {/* Login Form */}
+                    {mode === 'login' && (
+                      <form onSubmit={handleLogin} className="space-y-4">
+                        <div>
+                          <label className="text-xs font-medium text-gray-300 ml-1">Email</label>
+                          <input
+                            type="email"
+                            value={loginEmail}
+                            onChange={(e) => setLoginEmail(e.target.value)}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white/40 focus:bg-white/10 text-sm mt-1"
+                            placeholder="name@example.com"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-medium text-gray-300 ml-1">Password</label>
+                          <div className="relative mt-1">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              value={loginPassword}
+                              onChange={(e) => setLoginPassword(e.target.value)}
+                              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white/40 focus:bg-white/10 text-sm pr-10"
+                              placeholder="••••••••"
+                              required
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                            >
+                              {showPassword ? <X className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="btn-signup-modal w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isLoading ? 'Logging in...' : 'Log In'}
+                        </button>
+
+                        <div className="text-center mt-4">
+                          <p className="text-sm text-gray-400">
+                            Don't have an account?{' '}
+                            <button type="button" onClick={switchToSignup} className="text-emerald-400 font-semibold hover:text-emerald-300">
+                              Sign Up
+                            </button>
+                          </p>
+                        </div>
+                      </form>
+                    )}
+
                     {/* Step 1: Personal Info */}
-                    {step === 'info' && (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {mode === 'signup' && step === 'info' && (
+                      <div className="space-y-5">
+                        {/* Personal Information Section */}
+                        <div className="space-y-3">
+                          <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider">Personal Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-xs font-medium text-gray-300 ml-1">First Name *</label>
                             <input
@@ -268,10 +360,10 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                               placeholder="Optional"
                             />
                           </div>
-                        </div>
+                          </div>
 
-                        <div>
-                          <label className="text-xs font-medium text-gray-300 ml-1">Last Name *</label>
+                          <div>
+                            <label className="text-xs font-medium text-gray-300 ml-1">Last Name *</label>
                           <input
                             type="text"
                             value={lastName}
@@ -279,19 +371,23 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white/40 focus:bg-white/10 text-sm mt-1"
                             placeholder="Enter last name"
                           />
-                        </div>
+                          </div>
 
-                        <div>
-                          <label className="text-xs font-medium text-gray-300 ml-1">Birthdate *</label>
+                          <div>
+                            <label className="text-xs font-medium text-gray-300 ml-1">Birthdate *</label>
                           <input
                             type="date"
                             value={birthdate}
                             onChange={(e) => setBirthdate(e.target.value)}
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white/40 focus:bg-white/10 text-sm mt-1"
                           />
+                          </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Address Section */}
+                        <div className="space-y-3">
+                          <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider">Address</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-xs font-medium text-gray-300 ml-1">Province *</label>
                             <select
@@ -319,9 +415,9 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                               ))}
                             </select>
                           </div>
-                        </div>
+                          </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-xs font-medium text-gray-300 ml-1">Barangay *</label>
                             <select
@@ -345,10 +441,10 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                               placeholder="1234"
                             />
                           </div>
-                        </div>
+                          </div>
 
-                        <div>
-                          <label className="text-xs font-medium text-gray-300 ml-1">House Number and Street *</label>
+                          <div>
+                            <label className="text-xs font-medium text-gray-300 ml-1">House Number and Street *</label>
                           <input
                             type="text"
                             value={houseStreet}
@@ -356,10 +452,14 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-white/40 focus:bg-white/10 text-sm mt-1"
                             placeholder="e.g., 123 Main Street"
                           />
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="text-xs font-medium text-gray-300 ml-1">Proof of Billing *</label>
+                        {/* Document Section */}
+                        <div className="space-y-3">
+                          <h3 className="text-sm font-semibold text-emerald-400 uppercase tracking-wider">Document</h3>
+                          <div>
+                            <label className="text-xs font-medium text-gray-300 ml-1">Proof of Billing *</label>
                           <input
                             ref={fileInputRef}
                             type="file"
@@ -386,19 +486,22 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                               </>
                             )}
                           </button>
+                          </div>
                         </div>
 
-                        <button
-                          onClick={handleInfoSubmit}
-                          className="btn-signup-modal w-full mt-4"
-                        >
-                          Continue
-                        </button>
+                        <div className="flex justify-center mt-6">
+                          <button
+                            onClick={handleInfoSubmit}
+                            className="btn-signup-modal px-12"
+                          >
+                            Continue
+                          </button>
+                        </div>
                       </div>
                     )}
 
                     {/* Step 2: Phone */}
-                    {step === 'phone' && (
+                    {mode === 'signup' && step === 'phone' && (
                       <div className="space-y-4">
                         <div>
                           <label className="text-xs font-medium text-gray-300 ml-1">Mobile Number *</label>
@@ -427,7 +530,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                     )}
 
                     {/* Step 3: OTP */}
-                    {step === 'otp' && (
+                    {mode === 'signup' && step === 'otp' && (
                       <div className="space-y-6">
                         <div className="flex justify-between gap-2">
                           {otp.map((digit, index) => (
@@ -456,7 +559,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                     )}
 
                     {/* Step 4: PIN */}
-                    {step === 'pin' && (
+                    {mode === 'signup' && step === 'pin' && (
                       <div className="space-y-6">
                         <div className="flex justify-between gap-2">
                           {(pinStep === 'confirm' ? confirmPin : pin).map((digit, index) => (
@@ -482,11 +585,11 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   </div>
 
                   {/* Login Link */}
-                  {step === 'info' && (
+                  {mode === 'signup' && step === 'info' && (
                     <div className="text-center mt-6">
                       <p className="text-sm text-gray-400">
                         Already have an account?{' '}
-                        <button onClick={onClose} className="text-emerald-400 font-semibold hover:text-emerald-300">
+                        <button type="button" onClick={switchToLogin} className="text-emerald-400 font-semibold hover:text-emerald-300">
                           Log In
                         </button>
                       </p>
