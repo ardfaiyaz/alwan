@@ -806,11 +806,12 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
-              <button onClick={() => setIsSignupModalOpen(true)}>
-                <MagneticButton className="px-12 py-5 bg-[#009245] text-white font-bold rounded-2xl hover:bg-[#007a3d] transition-all duration-300 shadow-xl shadow-emerald-200/50 text-lg min-w-[240px]">
-                  Create Free Account
-                </MagneticButton>
-              </button>
+              <MagneticButton 
+                onClick={() => setIsSignupModalOpen(true)}
+                className="px-12 py-5 bg-[#009245] text-white font-bold rounded-2xl hover:bg-[#007a3d] transition-all duration-300 shadow-xl shadow-emerald-200/50 text-lg min-w-[240px]"
+              >
+                Create Free Account
+              </MagneticButton>
               <button onClick={() => setIsLoginModalOpen(true)} className="px-8 py-5 text-slate-600 font-semibold hover:text-slate-900 transition-colors">
                 Already have an account? Log In
               </button>
