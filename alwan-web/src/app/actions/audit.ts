@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import * as Sentry from '@sentry/nextjs'
 
 type AuditAction = 'create' | 'update' | 'delete' | 'activate' | 'deactivate' | 'bulk_deactivate'
 
@@ -62,6 +63,10 @@ export async function createAuditLog({
         return { success: true }
     } catch (error) {
         console.error('Error in createAuditLog:', error)
+        Sentry.captureException(error, {
+            tags: { action: 'createAuditLog' },
+            extra: { action, resourceType, resourceId }
+        })
         return { success: false }
     }
 }
@@ -128,6 +133,10 @@ export async function getAuditLogs({
         }
     } catch (error) {
         console.error('Error fetching audit logs:', error)
+        Sentry.captureException(error, {
+            tags: { action: 'getAuditLogs' },
+            extra: { resourceType, resourceId, userId }
+        })
         throw error
     }
 }

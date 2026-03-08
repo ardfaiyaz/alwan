@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit'
+import * as Sentry from '@sentry/nextjs'
 
 type UserRole = 'admin' | 'area_manager' | 'branch_manager' | 'field_officer'
 
@@ -149,6 +150,10 @@ export async function createStaff(data: CreateStaffData) {
     }
   } catch (error: any) {
     console.error('Error creating staff:', error)
+    Sentry.captureException(error, {
+      tags: { action: 'createStaff' },
+      extra: { data }
+    })
     return { error: error.message || 'Failed to create staff member' }
   }
 }
@@ -200,6 +205,10 @@ export async function updateStaff(data: UpdateStaffData) {
     return { success: true }
   } catch (error: any) {
     console.error('Error updating staff:', error)
+    Sentry.captureException(error, {
+      tags: { action: 'updateStaff' },
+      extra: { data }
+    })
     return { error: error.message || 'Failed to update staff member' }
   }
 }
@@ -236,6 +245,10 @@ export async function toggleStaffStatus(id: string, currentStatus: boolean) {
     return { success: true }
   } catch (error: any) {
     console.error('Error toggling status:', error)
+    Sentry.captureException(error, {
+      tags: { action: 'toggleStaffStatus' },
+      extra: { id, currentStatus }
+    })
     return { error: error.message || 'Failed to update status' }
   }
 }
@@ -261,6 +274,10 @@ export async function checkEmailAvailability(username: string) {
     return { available: !data }
   } catch (error: any) {
     console.error('Error checking email:', error)
+    Sentry.captureException(error, {
+      tags: { action: 'checkEmailAvailability' },
+      extra: { username }
+    })
     return { error: error.message }
   }
 }

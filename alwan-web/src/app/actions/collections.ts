@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { weeklyCollectionSchema, type WeeklyCollectionInput } from '@/lib/validations'
 import { createAuditLog } from './audit'
+import * as Sentry from '@sentry/nextjs'
 
 /**
  * Process weekly collection for a center
@@ -48,6 +49,10 @@ export async function processWeeklyCollection(data: WeeklyCollectionInput) {
             presentMembers: result.present_members
         }
     } catch (error: any) {
+        Sentry.captureException(error, {
+            tags: { action: 'processWeeklyCollection' },
+            extra: { data }
+        })
         throw error
     }
 }

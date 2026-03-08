@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { createAuditLog } from './audit'
 import { z } from 'zod'
+import * as Sentry from '@sentry/nextjs'
 
 const transferCenterSchema = z.object({
     centerId: z.string().uuid(),
@@ -66,6 +67,10 @@ export async function transferCenter(formData: {
 
     } catch (error) {
         console.error('Transfer center error:', error)
+        Sentry.captureException(error, {
+            tags: { action: 'transferCenter' },
+            extra: { formData }
+        })
         return {
             success: false,
             error: error instanceof Error ? error.message : String(error)
