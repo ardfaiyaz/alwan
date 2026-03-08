@@ -402,14 +402,29 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
                           </div>
                         </div>
 
-                        <div className="flex justify-center mt-6">
-                          <button
-                            onClick={handleInfoSubmit}
-                            className="btn-signup-modal px-12"
-                          >
-                            Continue
-                          </button>
+                        <button
+                          onClick={handleInfoSubmit}
+                          className="btn-login-modal w-full"
+                        >
+                          Continue
+                        </button>
+
+                        <div className="relative flex items-center gap-4 py-2 mb-4">
+                          <div className="flex-grow h-px bg-white/10"></div>
+                          <span className="text-xs text-white font-medium uppercase">or</span>
+                          <div className="flex-grow h-px bg-white/10"></div>
                         </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose()
+                            onOpenLogin?.()
+                          }}
+                          className="btn-signup-modal w-full flex justify-center items-center"
+                        >
+                          Log In
+                        </button>
                       </div>
                     )}
 
@@ -496,28 +511,54 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
                       </div>
                     )}
                   </div>
-
-                  {/* Login Link */}
-                  {step === 'info' && (
-                    <div className="text-center mt-6">
-                      <p className="text-sm text-gray-400">
-                        Already have an account?{' '}
-                        <button 
-                          type="button" 
-                          onClick={() => {
-                            onClose()
-                            onOpenLogin?.()
-                          }} 
-                          className="text-emerald-400 font-semibold hover:text-emerald-300"
-                        >
-                          Log In
-                        </button>
-                      </p>
-                    </div>
-                  )}
                 </div>
 
                 <style jsx>{`
+                  .btn-login-modal {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0.8rem 1.1rem;
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    color: #000;
+                    border-radius: 999px;
+                    cursor: pointer;
+                    background: rgba(255, 255, 255, 0.9);
+                    border: 1.5px solid rgba(255, 255, 255, 1);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    overflow: hidden;
+                    min-height: 48px;
+                  }
+                  .btn-login-modal::after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 50%;
+                    height: 100%;
+                    background: linear-gradient(
+                      to right,
+                      rgba(255, 255, 255, 0) 0%,
+                      rgba(255, 255, 255, 0.6) 50%,
+                      rgba(255, 255, 255, 0) 100%
+                    );
+                    transform: skewX(-25deg);
+                    transition: none;
+                  }
+                  .btn-login-modal:hover::after {
+                    left: 150%;
+                    transition: left 0.7s ease-in-out;
+                  }
+                  .btn-login-modal:hover {
+                    background: #ffffff;
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                  }
+
                   .btn-signup-modal {
                     position: relative;
                     display: flex;
