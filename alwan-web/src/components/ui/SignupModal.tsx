@@ -561,26 +561,22 @@ export default function SignupModal({ isOpen, onClose, onOpenLogin }: SignupModa
 
                   .btn-signup-modal {
                     position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
                     padding: 0.8rem 1.1rem;
                     font-size: 0.95rem;
                     font-weight: 600;
-                    color: #000;
+                    color: #fff;
                     border-radius: 999px;
                     cursor: pointer;
-                    background: rgba(255, 255, 255, 0.9);
-                    border: 1.5px solid rgba(255, 255, 255, 1);
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1.5px solid rgba(255, 255, 255, 0.2);
                     backdrop-filter: blur(12px);
                     -webkit-backdrop-filter: blur(12px);
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     min-height: 48px;
                   }
                   .btn-signup-modal:hover {
-                    background: #ffffff;
-                    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                    background: rgba(255, 255, 255, 0.2);
+                    border-color: rgba(255, 255, 255, 0.4);
                   }
 
                   /* Custom Scrollbar Styling */
