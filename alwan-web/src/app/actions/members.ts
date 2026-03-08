@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import * as Sentry from '@sentry/nextjs'
 
 const MemberSchema = z.object({
     centerId: z.string().uuid(),
@@ -50,6 +51,10 @@ export async function getMembers() {
 
     if (error) {
         console.error('Error fetching members:', error)
+        Sentry.captureException(error, {
+            tags: { action: 'getMembers' },
+            extra: { error }
+        })
         throw new Error('Failed to fetch members')
     }
 
@@ -93,6 +98,10 @@ export async function createMember(data: z.infer<typeof MemberSchema>) {
 
     if (error) {
         console.error('Error creating member:', error)
+        Sentry.captureException(error, {
+            tags: { action: 'createMember' },
+            extra: { data, error }
+        })
         throw new Error(error.message)
     }
 
@@ -126,6 +135,10 @@ export async function updateMember(id: string, data: Partial<z.infer<typeof Memb
 
     if (error) {
         console.error('Error updating member:', error)
+        Sentry.captureException(error, {
+            tags: { action: 'updateMember' },
+            extra: { id, data, error }
+        })
         throw new Error(error.message)
     }
 
@@ -143,6 +156,10 @@ export async function toggleMemberStatus(id: string, isActive: boolean) {
 
     if (error) {
         console.error('Error toggling member status:', error)
+        Sentry.captureException(error, {
+            tags: { action: 'toggleMemberStatus' },
+            extra: { id, isActive, error }
+        })
         throw new Error(error.message)
     }
 

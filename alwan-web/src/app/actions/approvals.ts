@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { loanApprovalSchema, type LoanApprovalInput } from '@/lib/validations'
 import { getNextLoanStatus, canApproveLoan } from '@/lib/rbac/permissions'
 import { createAuditLog } from './audit'
+import * as Sentry from '@sentry/nextjs'
 
 /**
  * Process loan approval/rejection
@@ -107,6 +108,10 @@ export async function processApproval(data: LoanApprovalInput) {
                 : 'Loan rejected'
         }
     } catch (error) {
+        Sentry.captureException(error, {
+            tags: { action: 'processApproval' },
+            extra: { data, error }
+        })
         throw error
     }
 }
