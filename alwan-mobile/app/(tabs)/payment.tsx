@@ -1,266 +1,335 @@
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useState, useEffect, useCallback } from 'react';
-import { Alert, ScrollView, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../context/AuthContext';
-import { useFocusEffect } from '@react-navigation/native';
-
-type PaymentRecord = {
-  id: string;
-  week_number: number;
-  amount_due: number;
-  due_date: string;
-  status: string;
-};
+import { useAuth } from '@/context/AuthContext';
+import { useState } from 'react';
 
 export default function PaymentScreen() {
-  const router = useRouter();
-  const { user, profile } = useAuth();
-  const [selectedMethod, setSelectedMethod] = useState('center');
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasActiveLoan, setHasActiveLoan] = useState(false);
-  const [hasPendingLoan, setHasPendingLoan] = useState(false);
+  const { userGroup, transactions, paymentSchedules, loanApplication } = useAuth();
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
-  // Real loan data
-  const [activeLoanAmount, setActiveLoanAmount] = useState(0);
-  const [totalInterest, setTotalInterest] = useState(0);
-  const [totalPaid, setTotalPaid] = useState(0);
-  const [paidAmortizations, setPaidAmortizations] = useState<PaymentRecord[]>([]);
+  // Get next pending or overdue payment
+  const nextPayment = paymentSchedules.find(s => s.status === 'pending' || s.status === 'overdue');
+  
+  // Calculate payment breakdown
+  const loanPayment = nextPayment?.amount || 0;
+  const savingsDeposit = loanApplication ? Math.round(loanApplication.amount * 0.05) : 0; // 5% of loan
+  const insurancePremium = 50; // Fixed premium
+  const totalAmountDue = loanPayment + savingsDeposit + insurancePremium;
+  
+  const dueDate = nextPayment?.dueDate.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }) || 'N/A';
+  
+  const isOverdue = nextPayment?.status === 'overdue';
 
-  const fetchPaymentData = useCallback(async () => {
-    if (!user) return;
+  // Mock payment history
+  const mockTransactions = [
+    {
+      id: '1',
+      type: 'loan_payment',
+      description: 'Weekly Loan Payment',
+      amount: 875,
+      date: new Date(2026, 1, 17), // Feb 17, 2026
+    },
+    {
+      id: '2',
+      type: 'savings_deposit',
+      description: 'Savings Deposit',
+      amount: 250,
+      date: new Date(2026, 1, 17),
+    },
+    {
+      id: '3',
+      type: 'insurance_payment',
+      description: 'Insurance Premium',
+      amount: 50,
+      date: new Date(2026, 1, 17),
+    },
+    {
+      id: '4',
+      type: 'loan_payment',
+      description: 'Weekly Loan Payment',
+      amount: 875,
+      date: new Date(2026, 1, 10), // Feb 10, 2026
+    },
+    {
+      id: '5',
+      type: 'savings_deposit',
+      description: 'Savings Deposit',
+      amount: 250,
+      date: new Date(2026, 1, 10),
+    },
+    {
+      id: '6',
+      type: 'insurance_payment',
+      description: 'Insurance Premium',
+      amount: 50,
+      date: new Date(2026, 1, 10),
+    },
+    {
+      id: '7',
+      type: 'loan_payment',
+      description: 'Weekly Loan Payment',
+      amount: 875,
+      date: new Date(2026, 1, 3), // Feb 3, 2026
+    },
+    {
+      id: '8',
+      type: 'loan_disbursement',
+      description: 'Loan Disbursement',
+      amount: 15000,
+      date: new Date(2026, 0, 15), // Jan 15, 2026
+    },
+  ];
 
-    try {
-      setIsLoading(true);
+  // Use mock transactions if no real transactions exist
+  const displayTransactions = transactions.length > 0 ? transactions : mockTransactions;
 
-      // 1. Get user's active loan
-      const { data: activeLoan } = await supabase
-        .from('loan_applications')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .limit(1)
-        .maybeSingle();
+  const paymentMethods = [
+    { id: 'gcash', name: 'GCash', icon: '💚', color: '#00D632' },
+    { id: 'maya', name: 'Maya', icon: '💙', color: '#4169E1' },
+    { id: 'cebuana', name: 'Cebuana', icon: '💵', color: '#FFA500' },
+  ];
 
-      setHasActiveLoan(!!activeLoan);
-
-      // Also check for pending loan
-      if (!activeLoan) {
-        const { data: pendingLoan } = await supabase
-          .from('loan_applications')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('status', 'pending')
-          .limit(1)
-          .maybeSingle();
-        setHasPendingLoan(!!pendingLoan);
-      } else {
-        setHasPendingLoan(false);
-      }
-
-      if (activeLoan) {
-        setActiveLoanAmount(activeLoan.amount);
-        const interest = activeLoan.weekly_payment * activeLoan.term_weeks - activeLoan.amount;
-        setTotalInterest(interest);
-
-        // 2. Get amortizations to calculate paid vs outstanding
-        const { data: amortizations } = await supabase
-          .from('amortizations')
-          .select('*')
-          .eq('loan_application_id', activeLoan.id)
-          .order('week_number', { ascending: false });
-
-        if (amortizations) {
-          const paid = amortizations.filter(a => a.status === 'paid');
-          const paidTotal = paid.reduce((sum: number, a: any) => sum + Number(a.amount_due), 0);
-          setTotalPaid(paidTotal);
-          setPaidAmortizations(paid.slice(0, 5)); // last 5 payments
-        }
-      } else {
-        setActiveLoanAmount(0);
-        setTotalInterest(0);
-        setTotalPaid(0);
-        setPaidAmortizations([]);
-      }
-    } catch (error) {
-      console.error('Error fetching payment data:', error);
-    } finally {
-      setIsLoading(false);
+  const handlePayNow = () => {
+    if (!selectedMethod) {
+      Alert.alert('Payment Method Required', 'Please choose a payment method first');
+      return;
     }
-  }, [user]);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchPaymentData();
-    }, [fetchPaymentData])
-  );
+    const method = paymentMethods.find(m => m.id === selectedMethod);
+    Alert.alert(
+      'Payment Confirmation',
+      `Process payment of ₱${totalAmountDue} via ${method?.name}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Confirm', 
+          onPress: () => Alert.alert('Success', 'Payment processed successfully!')
+        }
+      ]
+    );
+  };
 
-  const outstandingBalance = activeLoanAmount + totalInterest - totalPaid;
-  const cbuBalance = profile?.cbu_balance || 0;
+  // Only show if user has a group
+  if (!userGroup) {
+    return (
+      <SafeAreaView className="flex-1 bg-gray-50">
+        <View className="flex-1 items-center justify-center px-6">
+          <View className="w-24 h-24 bg-gray-100 rounded-full items-center justify-center mb-4">
+            <Ionicons name="wallet-outline" size={48} color="#9CA3AF" />
+          </View>
+          <Text className="text-xl font-bold text-gray-900 mb-2">No Group Yet</Text>
+          <Text className="text-gray-600 text-center">
+            Join a solidarity group to access payment features
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View className="flex-1 bg-white">
-      <StatusBar style="light" />
-
-      {/* KMBI Green Gradient Top Dashboard */}
-      <LinearGradient
-        colors={['#065F46', '#047857']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="pt-12 pb-12 px-6"
-      >
-        <View className="flex-row items-center justify-between mb-8">
-          <Text className="text-white text-2xl font-bold">Repayments</Text>
-          <TouchableOpacity onPress={() => Alert.alert('QR Scanner', 'Opening camera...')}>
-            <Ionicons name="qr-code-outline" size={26} color="white" />
-          </TouchableOpacity>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <ScrollView className="flex-1">
+        {/* Header - Total Amount Due */}
+        <View className={`px-6 pt-8 pb-12 ${isOverdue ? 'bg-red-600' : 'bg-[#009245]'}`}>
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="text-white/80 text-base">Total Amount Due</Text>
+            {isOverdue && (
+              <View className="bg-white/20 px-3 py-1 rounded-full">
+                <Text className="text-white text-xs font-bold">OVERDUE</Text>
+              </View>
+            )}
+          </View>
+          <Text className="text-white text-6xl font-bold mb-2">₱{totalAmountDue.toFixed(2)}</Text>
+          <Text className="text-white/80 text-base">Due: {dueDate}</Text>
+          {isOverdue && nextPayment?.originalAmount && (
+            <View className="bg-white/20 rounded-xl p-3 mt-3">
+              <Text className="text-white text-xs mb-1">Original Amount: ₱{nextPayment.originalAmount.toFixed(2)}</Text>
+              <Text className="text-white text-xs font-bold">
+                Penalty (5%): +₱{(nextPayment.amount - nextPayment.originalAmount).toFixed(2)}
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* Loan Balance Card - only show if active loan */}
-        {hasActiveLoan ? (
-          <View className="bg-white rounded-2xl p-6 shadow-md -mb-20 border border-emerald-50">
-            <View className="flex-row justify-between items-center mb-4">
-              <View>
-                <Text className="text-gray-400 text-xs font-bold uppercase tracking-wider">Outstanding Balance</Text>
-                <View className="flex-row items-baseline mt-1">
-                  <Text className="text-[#047857] text-xl font-bold">P</Text>
-                  <Text className="text-[#047857] text-3xl font-bold ml-1">
-                    {isLoading ? '...' : outstandingBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <View className="px-4 -mt-6">
+          {/* Payment Breakdown Card */}
+          <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            <Text className="text-gray-900 font-bold text-xl mb-4">Payment Breakdown</Text>
+
+            {/* Loan Payment */}
+            <View className="flex-row items-center justify-between py-4 border-b border-gray-100">
+              <View className="flex-row items-center flex-1">
+                <View className={`w-12 h-12 rounded-xl items-center justify-center mr-3 ${
+                  isOverdue ? 'bg-red-100' : 'bg-teal-100'
+                }`}>
+                  <Ionicons name="card" size={24} color={isOverdue ? '#EF4444' : '#14B8A6'} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-gray-900 font-semibold text-base">Loan Payment</Text>
+                  {isOverdue && nextPayment?.originalAmount && (
+                    <Text className="text-red-600 text-xs">
+                      +₱{(loanPayment - nextPayment.originalAmount).toFixed(2)} penalty
+                    </Text>
+                  )}
+                </View>
+              </View>
+              <Text className="text-gray-900 font-bold text-lg">₱{loanPayment.toFixed(2)}</Text>
+            </View>
+
+            {/* Savings Deposit */}
+            <View className="flex-row items-center justify-between py-4 border-b border-gray-100">
+              <View className="flex-row items-center flex-1">
+                <View className="w-12 h-12 bg-green-100 rounded-xl items-center justify-center mr-3">
+                  <Ionicons name="cash" size={24} color="#10B981" />
+                </View>
+                <Text className="text-gray-900 font-semibold text-base">Savings Deposit</Text>
+              </View>
+              <Text className="text-gray-900 font-bold text-lg">₱{savingsDeposit.toFixed(2)}</Text>
+            </View>
+
+            {/* Insurance Premium */}
+            <View className="flex-row items-center justify-between py-4 border-b border-gray-100">
+              <View className="flex-row items-center flex-1">
+                <View className="w-12 h-12 bg-amber-100 rounded-xl items-center justify-center mr-3">
+                  <Ionicons name="shield-checkmark" size={24} color="#F59E0B" />
+                </View>
+                <Text className="text-gray-900 font-semibold text-base">Insurance Premium</Text>
+              </View>
+              <Text className="text-gray-900 font-bold text-lg">₱{insurancePremium.toFixed(2)}</Text>
+            </View>
+
+            {/* Total */}
+            <View className={`rounded-xl p-4 mt-4 ${isOverdue ? 'bg-red-50' : 'bg-teal-50'}`}>
+              <View className="flex-row items-center justify-between">
+                <Text className={`font-bold text-xl ${isOverdue ? 'text-red-900' : 'text-teal-900'}`}>
+                  Total
+                </Text>
+                <Text className={`font-bold text-2xl ${isOverdue ? 'text-red-900' : 'text-teal-900'}`}>
+                  ₱{totalAmountDue.toFixed(2)}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Overdue Warning */}
+          {isOverdue && (
+            <View className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-4">
+              <View className="flex-row items-start">
+                <Ionicons name="warning" size={24} color="#EF4444" />
+                <View className="flex-1 ml-3">
+                  <Text className="text-red-900 font-bold text-base mb-1">Payment Overdue</Text>
+                  <Text className="text-red-800 text-sm">
+                    A 5% penalty has been added to your payment. Please settle as soon as possible to avoid additional charges.
                   </Text>
                 </View>
               </View>
-              <View className="w-12 h-12 bg-emerald-50 rounded-full items-center justify-center">
-                <Ionicons name="cash-outline" size={26} color="#047857" />
-              </View>
             </View>
+          )}
 
-            <View className="flex-row justify-between bg-gray-50 rounded-xl p-3 border border-emerald-50/50">
-              <View>
-                <Text className="text-gray-500 text-[10px] uppercase font-bold">Principal</Text>
-                <Text className="text-gray-800 font-bold text-sm">P {activeLoanAmount.toLocaleString()}</Text>
-              </View>
-              <View className="w-px h-6 bg-gray-200" />
-              <View>
-                <Text className="text-gray-500 text-[10px] uppercase font-bold">Interest</Text>
-                <Text className="text-gray-800 font-bold text-sm">P {totalInterest.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Text>
-              </View>
-              <View className="w-px h-6 bg-gray-200" />
-              <View>
-                <Text className="text-gray-500 text-[10px] uppercase font-bold">CBU Savings</Text>
-                <Text className="text-[#F97316] font-bold text-sm">P {cbuBalance.toLocaleString()}</Text>
-              </View>
-            </View>
-          </View>
-        ) : (
-          <View className="bg-white rounded-2xl p-6 shadow-md -mb-20 border border-emerald-50 items-center">
-            <Ionicons name={hasPendingLoan ? 'time' : 'card-outline'} size={40} color={hasPendingLoan ? '#F97316' : '#D1D5DB'} />
-            <Text className="text-gray-500 font-bold text-base mt-3">{hasPendingLoan ? 'Application Under Review' : 'No Active Loan'}</Text>
-            <Text className="text-gray-400 text-xs mt-1 text-center">{hasPendingLoan ? 'Your loan application is being reviewed' : 'Apply for a loan to see your repayment details here'}</Text>
-          </View>
-        )}
-      </LinearGradient>
+          {/* Choose Payment Method */}
+          <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            <Text className="text-gray-900 font-bold text-xl mb-4">Choose Payment Method</Text>
 
-      <ScrollView className="flex-1 mt-12" showsVerticalScrollIndicator={false}>
-        {hasActiveLoan ? (
-          <>
-            {/* Payment Methods */}
-            <View className="px-6 pt-10 pb-6">
-              <Text className="text-gray-800 text-lg font-bold mb-4">Payment Methods</Text>
-              {[
-                { id: 'center', name: 'Center Collection', detail: profile?.centers?.name ? `${profile.centers.name} Meeting` : 'Center Meeting', icon: 'people' },
-                { id: 'qr', name: 'Scan to Pay', detail: 'Repay via center QR', icon: 'qr-code' },
-                { id: 'online', name: 'Online / Bank', detail: 'Over-the-counter or App', icon: 'globe' }
-              ].map((method) => (
+            <View className="flex-row justify-between">
+              {paymentMethods.map((method) => (
                 <TouchableOpacity
                   key={method.id}
-                  className="flex-row items-center bg-white border border-gray-100 rounded-2xl p-4 mb-3 shadow-sm"
                   onPress={() => setSelectedMethod(method.id)}
+                  className={`flex-1 mx-1 rounded-2xl p-6 items-center ${
+                    selectedMethod === method.id ? 'bg-teal-100 border-2 border-teal-500' : 'bg-gray-100'
+                  }`}
                 >
-                  <View className={`w-12 h-12 rounded-full items-center justify-center mr-4 ${selectedMethod === method.id ? 'bg-[#047857]' : 'bg-gray-100'}`}>
-                    <Ionicons name={method.icon as any} size={24} color={selectedMethod === method.id ? 'white' : '#9CA3AF'} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-800 font-bold text-base">{method.name}</Text>
-                    <Text className="text-gray-500 text-xs">{method.detail}</Text>
-                  </View>
-                  {selectedMethod === method.id && (
-                    <Ionicons name="checkmark-circle" size={24} color="#047857" />
-                  )}
+                  <Text className="text-4xl mb-2">{method.icon}</Text>
+                  <Text className={`font-bold text-base ${
+                    selectedMethod === method.id ? 'text-teal-900' : 'text-gray-900'
+                  }`}>
+                    {method.name}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
+          </View>
 
-            {/* Submit Repayment Button */}
-            <View className="px-6 mb-8">
-              <TouchableOpacity
-                className="bg-[#047857] py-4 rounded-full items-center justify-center shadow-lg"
-                onPress={() => router.push('/payment/repayment')}
-              >
-                <Text className="text-white font-bold text-lg">Submit Repayment</Text>
-              </TouchableOpacity>
-            </View>
+          {/* Pay Now Button */}
+          <TouchableOpacity
+            onPress={handlePayNow}
+            className={`py-4 rounded-xl mb-2 ${
+              selectedMethod ? 'bg-[#009245]' : 'bg-gray-300'
+            }`}
+          >
+            <Text className="text-white text-center text-lg font-bold">Pay Now</Text>
+          </TouchableOpacity>
 
-            {/* Repayment History */}
-            <View className="px-6 pb-12">
-              <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-gray-800 text-lg font-bold">Repayment History</Text>
-                <TouchableOpacity onPress={() => router.push('/profile/ledger')}>
-                  <Text className="text-[#047857] text-sm font-bold">Full Statement</Text>
-                </TouchableOpacity>
+          {/* Helper Text */}
+          {!selectedMethod && (
+            <Text className="text-gray-500 text-sm text-center mb-6">
+              Please Choose A Payment Method First
+            </Text>
+          )}
+
+          {/* Payment History */}
+          <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            <Text className="text-gray-900 font-bold text-xl mb-4">Payment History</Text>
+
+            {displayTransactions.length === 0 ? (
+              <View className="py-8 items-center">
+                <Ionicons name="receipt-outline" size={48} color="#D1D5DB" />
+                <Text className="text-gray-500 mt-4 text-center">No transactions yet</Text>
               </View>
-
-              {isLoading ? (
-                <ActivityIndicator color="#047857" className="my-8" />
-              ) : paidAmortizations.length > 0 ? (
-                paidAmortizations.map((item) => (
-                  <TouchableOpacity
-                    key={item.id}
-                    className="flex-row items-center border-b border-gray-50 py-4"
-                    onPress={() => Alert.alert('Details', `Week ${item.week_number} Amortization`)}
+            ) : (
+              <>
+                {displayTransactions.map((transaction) => (
+                  <View
+                    key={transaction.id}
+                    className="flex-row items-center py-4 border-b border-gray-100"
                   >
-                    <View className="w-10 h-10 bg-emerald-50 rounded-full items-center justify-center mr-4">
-                      <Ionicons name="calendar" size={20} color="#047857" />
+                    <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
+                      transaction.type === 'loan_payment' ? 'bg-red-100' :
+                      transaction.type === 'savings_deposit' ? 'bg-green-100' :
+                      transaction.type === 'insurance_payment' ? 'bg-yellow-100' :
+                      'bg-blue-100'
+                    }`}>
+                      <Ionicons 
+                        name={
+                          transaction.type === 'loan_payment' ? 'arrow-up' :
+                          transaction.type === 'savings_deposit' ? 'wallet' :
+                          transaction.type === 'insurance_payment' ? 'shield-checkmark' :
+                          'arrow-down'
+                        } 
+                        size={20} 
+                        color={
+                          transaction.type === 'loan_payment' ? '#EF4444' :
+                          transaction.type === 'savings_deposit' ? '#10B981' :
+                          transaction.type === 'insurance_payment' ? '#F59E0B' :
+                          '#3B82F6'
+                        } 
+                      />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-gray-800 font-bold text-sm">Week {item.week_number} Amortization</Text>
-                      <Text className="text-gray-400 text-xs">{new Date(item.due_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</Text>
+                      <Text className="text-gray-900 font-semibold text-base">
+                        {transaction.description}
+                      </Text>
+                      <Text className="text-gray-500 text-xs">
+                        {transaction.date.toLocaleDateString()}
+                      </Text>
                     </View>
-                    <View className="items-end">
-                      <Text className="text-gray-800 font-bold text-sm">P {Number(item.amount_due).toLocaleString()}</Text>
-                      <Text className="text-[#047857] text-[10px] font-bold uppercase">Verified</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))
-              ) : (
-                <View className="bg-gray-50 p-6 rounded-xl items-center">
-                  <Text className="text-gray-400">No repayment history yet</Text>
-                </View>
-              )}
-            </View>
-          </>
-        ) : (
-          <View className="px-6 pt-10 items-center">
-            {hasPendingLoan ? (
-              <TouchableOpacity
-                className="bg-[#F97316] py-4 px-8 rounded-full items-center shadow-lg"
-                onPress={() => router.push('/loans/active-loans')}
-              >
-                <Text className="text-white font-bold text-lg">View Pending Application</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                className="bg-[#047857] py-4 px-8 rounded-full items-center shadow-lg"
-                onPress={() => router.push('/loans/apply')}
-              >
-                <Text className="text-white font-bold text-lg">Apply for a Loan</Text>
-              </TouchableOpacity>
+                    <Text className={`font-bold text-base ${
+                      transaction.type === 'loan_disbursement' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {transaction.type === 'loan_disbursement' ? '+' : '-'}₱{transaction.amount.toLocaleString()}
+                    </Text>
+                  </View>
+                ))}
+              </>
             )}
           </View>
-        )}
+        </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

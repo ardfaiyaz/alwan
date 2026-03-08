@@ -1,5 +1,2 @@
-/**
- * TypeScript type definitions - add your shared types here
- */
-
-export {};
+export * from './auth.types';
+export * from './loan.types';
