@@ -361,7 +361,7 @@ export default function Header() {
       <SignupModal 
         isOpen={isSignupModalOpen} 
         onClose={() => setIsSignupModalOpen(false)}
-        initialMode="signup"
+        onOpenLogin={() => setIsLoginModalOpen(true)}
       />
     </>
   )

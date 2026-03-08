@@ -838,7 +838,7 @@ export default function HomePage() {
       <SignupModal 
         isOpen={isSignupModalOpen} 
         onClose={() => setIsSignupModalOpen(false)}
-        initialMode="signup"
+        onOpenLogin={() => setIsLoginModalOpen(true)}
       />
     </>
   )
