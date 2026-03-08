@@ -8,10 +8,13 @@ Alwan is a modern microfinance ecosystem designed to empower Filipinos with acce
 
 ```
 alwan/
-├── alwan-web/          # Next.js 15 Public Web Portal
+├── alwan-web/          # Next.js 15 Web Portal (Public + Admin)
 │   ├── src/
 │   │   ├── app/        # App Router pages and API routes
+│   │   │   ├── admin/  # Admin dashboard (protected)
+│   │   │   └── ...     # Public pages
 │   │   ├── components/ # Reusable React components
+│   │   ├── stores/     # Zustand state management
 │   │   └── lib/        # Utilities, hooks, and configurations
 │   ├── public/         # Static assets (images, icons)
 │   └── package.json
@@ -19,13 +22,6 @@ alwan/
 │   ├── app/            # Expo Router screens
 │   ├── components/     # Mobile UI components
 │   ├── assets/         # Mobile assets (fonts, images)
-│   └── package.json
-├── alwan-admin/        # Next.js 15 Admin Dashboard
-│   ├── src/
-│   │   ├── app/        # Admin pages and routes
-│   │   ├── components/ # Admin-specific components
-│   │   └── lib/        # Admin utilities and helpers
-│   ├── public/         # Admin static assets
 │   └── package.json
 ├── package.json        # Root monorepo configuration
 ├── .editorconfig       # Code style configuration
@@ -75,11 +71,9 @@ The root `package.json` provides convenient shortcuts to run all projects:
 | `npm run web` | Start web portal in development mode | 3000 |
 | `npm run mobile` | Start mobile app with Expo | - |
 | `npm run mobile:web` | Start mobile app in web browser | 19006 |
-| `npm run admin` | Start admin dashboard in development mode | 3001 |
-| `npm run dev:all` | Run all three projects concurrently | 3000, 19006, 3001 |
+| `npm run dev:all` | Run both web and mobile concurrently | 3000, 19006 |
 | `npm run dev:web` | Start web portal (alternative) | Default |
 | `npm run dev:mobile` | Start mobile app (alternative) | - |
-| `npm run dev:admin` | Start admin dashboard (alternative) | Default |
 
 ### Build Scripts
 
@@ -87,7 +81,6 @@ The root `package.json` provides convenient shortcuts to run all projects:
 |---------|-------------|
 | `npm run build:web` | Build web portal for production |
 | `npm run build:mobile` | Build mobile app for production |
-| `npm run build:admin` | Build admin dashboard for production |
 
 ### Example Usage
 
@@ -95,11 +88,8 @@ The root `package.json` provides convenient shortcuts to run all projects:
 # Run all projects at once (recommended for full-stack development)
 npm run dev:all
 
-# Run only the web portal
+# Run only the web portal (includes admin at /admin)
 npm run web
-
-# Run only the admin dashboard
-npm run admin
 
 # Run mobile app
 npm run mobile
@@ -109,9 +99,9 @@ npm run mobile
 
 ## 🏗️ Component Overview
 
-### 1. **alwan-web** – Public Web Portal
+### 1. **alwan-web** – Web Portal + Admin Dashboard
 
-The customer-facing website showcasing Alwan's services and features.
+The unified web application serving both public and administrative needs.
 
 **Technology Stack:**
 - **Framework**: Next.js 15 (App Router)
@@ -132,6 +122,20 @@ The customer-facing website showcasing Alwan's services and features.
 - Responsive design with mobile-first approach
 - Dark mode with signature Alwan theme
 - Glassmorphism and gradient effects
+- **Admin Dashboard** (protected routes at `/admin`)
+  - Member management and registration
+  - Loan approval and tracking
+  - Collection monitoring (daily/weekly)
+  - Center management
+  - Staff and user administration
+  - Audit logs and activity tracking
+  - Reports and analytics
+  - Settings and configuration
+- **Authentication System**
+  - Login modal with glassmorphism
+  - Role-based access control (RBAC)
+  - Zustand state management
+  - Session persistence
 
 **Development:**
 ```bash
@@ -144,8 +148,6 @@ npm run lint   # Run ESLint
 ---
 
 ### 2. **alwan-mobile** – Mobile Application
-
-The core user experience for everyday financial transactions and loan applications.
 
 **Technology Stack:**
 - **Framework**: React Native 0.81 + Expo 54
@@ -175,43 +177,6 @@ npm run android     # Run on Android
 npm run ios         # Run on iOS
 npm run web         # Run in web browser
 npm run lint        # Run ESLint
-```
-
----
-
-### 3. **alwan-admin** – Admin Dashboard
-
-Internal dashboard for managing members, loans, collections, and system operations.
-
-**Technology Stack:**
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript 5.9
-- **Styling**: Tailwind CSS 3.4
-- **Animations**: Framer Motion 12.34
-- **UI Components**: Radix UI primitives
-- **Forms**: React Hook Form + Zod validation
-- **State Management**: Zustand 5.0
-- **Data Fetching**: TanStack Query 5.90
-- **Auth/Database**: Supabase (SSR + Client)
-- **Charts**: Recharts 3.7
-- **Date Handling**: date-fns 4.1
-
-**Key Features:**
-- Member management and registration
-- Loan approval and tracking
-- Collection monitoring (daily/weekly)
-- Center management
-- Staff and user administration
-- Audit logs and activity tracking
-- Reports and analytics
-- Settings and configuration
-
-**Development:**
-```bash
-cd alwan-admin
-npm run dev    # Start dev server (port 3001)
-npm run build  # Build for production
-npm run lint   # Run ESLint
 ```
 
 ---
@@ -308,12 +273,14 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## 📱 Platform Support
 
-| Platform | Web Portal | Mobile App | Admin Dashboard |
-|----------|------------|------------|-----------------|
-| Desktop Web | ✅ | ❌ | ✅ |
-| Mobile Web | ✅ | ✅ | ⚠️ Limited |
-| iOS | ❌ | ✅ | ❌ |
-| Android | ❌ | ✅ | ❌ |
+| Platform | Web Portal | Mobile App |
+|----------|------------|------------|
+| Desktop Web | ✅ | ❌ |
+| Mobile Web | ✅ | ✅ |
+| iOS | ❌ | ✅ |
+| Android | ❌ | ✅ |
+
+**Note:** Admin dashboard is accessible at `/admin` on the web portal after authentication.
 
 ---
 
