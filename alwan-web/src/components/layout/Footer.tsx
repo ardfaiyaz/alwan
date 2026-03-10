@@ -22,9 +22,10 @@ const footerLinks = {
     { href: '#', label: 'Contact' },
   ],
   legal: [
-    { href: '/privacy-policy', label: 'Privacy Policy' },
-    { href: '/terms-of-service', label: 'Terms of Service' },
-    { href: '/data-protection', label: 'Data Protection' },
+    { href: '/legal/privacy-policy', label: 'Privacy Policy' },
+    { href: '/legal/terms-and-conditions', label: 'Terms & Conditions' },
+    { href: '/legal/data-privacy-consent', label: 'Data Privacy' },
+    { href: '/legal/credit-investigation-authorization', label: 'Credit Investigation' },
   ],
 }
 
