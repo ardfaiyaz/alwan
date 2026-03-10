@@ -5,6 +5,7 @@ export interface KYCFormData {
   // Step 1: Mobile & OTP
   mobileNumber: string
   otpVerified: boolean
+  userId: string
   
   // Step 2: PIN
   pin: string
@@ -94,6 +95,7 @@ interface KYCStore {
 const initialFormData: KYCFormData = {
   mobileNumber: '',
   otpVerified: false,
+  userId: '',
   pin: '',
   firstName: '',
   middleName: '',
