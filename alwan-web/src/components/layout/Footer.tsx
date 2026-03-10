@@ -13,7 +13,6 @@ import { MagneticButton } from '@/components/ui/MagneticButton'
 import { Github } from 'lucide-react'
 import { useState } from 'react'
 import LoginModal from '@/components/ui/LoginModal'
-import SignupModal from '@/components/ui/SignupModal'
 
 const footerLinks = {
   product: [
@@ -32,7 +31,6 @@ const footerLinks = {
 export default function Footer() {
   const pathname = usePathname()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
 
   if (pathname === '/login' || pathname === '/register') return null
 
@@ -128,12 +126,13 @@ export default function Footer() {
             >
               Log In
             </MagneticButton>
-            <MagneticButton 
-              onClick={() => setIsSignupModalOpen(true)}
-              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd88f] via-[#009245] to-[#007a3d] hover:opacity-90 rounded-lg transition-opacity cursor-pointer"
-            >
-              Get Started
-            </MagneticButton>
+            <Link href="/signup">
+              <MagneticButton 
+                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#4dd88f] via-[#009245] to-[#007a3d] hover:opacity-90 rounded-lg transition-opacity cursor-pointer"
+              >
+                Get Started
+              </MagneticButton>
+            </Link>
           </div>
         </motion.div>
       </div>
@@ -143,12 +142,6 @@ export default function Footer() {
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={() => setIsLoginModalOpen(false)}
-        onOpenSignup={() => setIsSignupModalOpen(true)}
-      />
-      <SignupModal 
-        isOpen={isSignupModalOpen} 
-        onClose={() => setIsSignupModalOpen(false)}
-        onOpenLogin={() => setIsLoginModalOpen(true)}
       />
     </>
   )
