@@ -36,18 +36,44 @@ export default function RootLayout({
             {children}
           </ConditionalLayout>
           <Toaster 
-            position="top-right" 
+            position="top-center" 
             richColors 
             closeButton 
-            expand={true}
+            expand={false}
             toastOptions={{
-              duration: 4000,
+              duration: 3000,
               style: {
                 background: 'white',
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                border: '1px solid #d1d5db',
+                borderRadius: '12px',
+                padding: '16px',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                fontSize: '14px',
+                fontWeight: '500',
               },
               className: 'font-sans',
+              success: {
+                style: {
+                  background: 'white',
+                  border: '1px solid #10b981',
+                  color: '#065f46',
+                },
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: 'white',
+                },
+              },
+              error: {
+                style: {
+                  background: 'white',
+                  border: '1px solid #ef4444',
+                  color: '#991b1b',
+                },
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: 'white',
+                },
+              },
             }}
           />
         </Providers>
