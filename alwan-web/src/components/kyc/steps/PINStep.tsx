@@ -81,15 +81,21 @@ export default function PINStep() {
 
   return (
     <div className="space-y-6">
+      {/* Logo */}
+      <div className="flex justify-center mb-6">
+        <img
+          src="/icons/alwan-footer-logo.png"
+          alt="Alwan"
+          className="h-10 w-auto"
+        />
+      </div>
+
       {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/20 rounded-full mb-4">
-          <Lock className="w-8 h-8 text-emerald-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
           {pinStep === 'create' ? 'Create Your PIN' : 'Confirm Your PIN'}
         </h3>
-        <p className="text-white/70">
+        <p className="text-gray-600">
           {pinStep === 'create'
             ? 'Create a 5-digit PIN to secure your account'
             : 'Re-enter your PIN to confirm'}
@@ -111,7 +117,7 @@ export default function PINStep() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: index * 0.05 }}
-            className="w-12 h-14 sm:w-14 sm:h-16 bg-white/5 border-2 border-white/20 rounded-xl text-center text-2xl font-bold text-white focus:outline-none focus:border-emerald-400 focus:bg-white/10 transition-all"
+            className="w-12 h-14 sm:w-14 sm:h-16 bg-white border-2 border-gray-200 rounded-xl text-center text-2xl font-bold text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
           />
         ))}
       </div>
@@ -121,7 +127,7 @@ export default function PINStep() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-center gap-2 text-emerald-400"
+          className="flex items-center justify-center gap-2 text-emerald-600"
         >
           <Check className="w-5 h-5" />
           <span className="text-sm font-medium">PIN created</span>
@@ -129,26 +135,26 @@ export default function PINStep() {
       )}
 
       {/* Info Box */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-        <p className="text-sm text-blue-200">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <p className="text-sm text-blue-800">
           <strong>Security tip:</strong> Your PIN will be used to authorize transactions and access sensitive features. Choose a PIN that's easy to remember but hard to guess.
         </p>
       </div>
 
       {/* PIN Requirements */}
-      <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-        <p className="text-sm font-semibold text-white mb-2">PIN Requirements:</p>
-        <ul className="space-y-1 text-sm text-white/70">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+        <p className="text-sm font-semibold text-gray-900 mb-2">PIN Requirements:</p>
+        <ul className="space-y-1 text-sm text-gray-700">
           <li className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
             Must be exactly 5 digits
           </li>
           <li className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
             Avoid obvious patterns (12345, 11111)
           </li>
           <li className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
             Don't use your birthdate
           </li>
         </ul>
@@ -158,7 +164,7 @@ export default function PINStep() {
       <div className="flex gap-3">
         <button
           onClick={handleBack}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-700 font-semibold rounded-full transition-all duration-300 ease-in-out hover:shadow-md"
         >
           <ArrowLeft className="w-5 h-5" />
           Back
@@ -174,7 +180,7 @@ export default function PINStep() {
             }
           }}
           disabled={!currentPin.every(d => d)}
-          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-[#4dd88f] to-[#009245] hover:from-[#009245] hover:to-[#056633] text-white font-bold rounded-full transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
         >
           {pinStep === 'create' ? 'Continue' : 'Confirm PIN'}
           <ArrowRight className="w-5 h-5" />
