@@ -72,8 +72,11 @@ export default function OTPStep() {
         return
       }
 
-      // Update form data
-      updateFormData({ otpVerified: true })
+      // Update form data with user info
+      updateFormData({ 
+        otpVerified: true,
+        userId: result.user?.id 
+      })
       markStepComplete(2)
 
       toast.success('Phone number verified!')
@@ -120,18 +123,24 @@ export default function OTPStep() {
 
   return (
     <div className="space-y-6">
+      {/* Logo */}
+      <div className="flex justify-center mb-6">
+        <img
+          src="/icons/alwan-footer-logo.png"
+          alt="Alwan"
+          className="h-10 w-auto"
+        />
+      </div>
+
       {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/20 rounded-full mb-4">
-          <Shield className="w-8 h-8 text-emerald-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">
+      <div className="text-center mb-8">
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
           Verify Your Number
         </h3>
-        <p className="text-white/70">
+        <p className="text-gray-600">
           Enter the 6-digit code sent to
         </p>
-        <p className="text-emerald-400 font-semibold mt-1">
+        <p className="text-emerald-600 font-semibold mt-1">
           +63 {formData.mobileNumber}
         </p>
       </div>
@@ -149,7 +158,7 @@ export default function OTPStep() {
             onChange={(e) => handleOtpChange(e.target.value, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
             disabled={isLoading}
-            className="w-12 h-14 sm:w-14 sm:h-16 bg-white/5 border-2 border-white/20 rounded-xl text-center text-2xl font-bold text-white focus:outline-none focus:border-emerald-400 focus:bg-white/10 transition-all disabled:opacity-50"
+            className="w-12 h-14 sm:w-14 sm:h-16 bg-white border-2 border-gray-200 rounded-xl text-center text-2xl font-bold text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all disabled:opacity-50"
           />
         ))}
       </div>
@@ -160,20 +169,20 @@ export default function OTPStep() {
           <button
             onClick={handleResend}
             disabled={isLoading}
-            className="text-emerald-400 hover:text-emerald-300 font-semibold text-sm transition-colors disabled:opacity-50"
+            className="text-emerald-600 hover:text-emerald-700 font-semibold text-sm transition-colors disabled:opacity-50"
           >
             Resend OTP
           </button>
         ) : (
-          <p className="text-white/60 text-sm">
-            Resend code in <span className="text-white font-semibold">{timer}s</span>
+          <p className="text-gray-600 text-sm">
+            Resend code in <span className="text-gray-900 font-semibold">{timer}s</span>
           </p>
         )}
       </div>
 
       {/* Info Box */}
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-        <p className="text-sm text-blue-200">
+      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <p className="text-sm text-blue-800">
           <strong>Didn't receive the code?</strong> Check your messages or wait for the timer to resend.
         </p>
       </div>
@@ -183,7 +192,7 @@ export default function OTPStep() {
         <button
           onClick={() => setCurrentStep(1)}
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-700 font-semibold rounded-full transition-all duration-300 ease-in-out disabled:opacity-50 hover:shadow-md"
         >
           <ArrowLeft className="w-5 h-5" />
           Back
@@ -191,7 +200,7 @@ export default function OTPStep() {
         <button
           onClick={() => handleVerify(otp.join(''))}
           disabled={isLoading || otp.some(digit => !digit)}
-          className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-[#4dd88f] to-[#009245] hover:from-[#009245] hover:to-[#056633] text-white font-bold rounded-full transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40"
         >
           {isLoading ? (
             <>
