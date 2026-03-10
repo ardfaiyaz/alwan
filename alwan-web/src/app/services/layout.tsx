@@ -1,14 +1,14 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'Services | Alwan',
-    description: 'Explore Alwan financial solutions: Micro Loans, Savings, Bill Payments, and Insurance designed for growth.',
+  title: 'Services | Alwan',
+  description: 'Explore our microfinance services including loans, savings, and insurance',
 }
 
 export default function ServicesLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) {
-    return <>{children}</>
+  return children
 }
