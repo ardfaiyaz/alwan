@@ -1,14 +1,14 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'FAQs | Alwan',
-    description: 'Find answers to common questions about Alwan loans, savings, security, and account management.',
+  title: 'FAQ | Alwan',
+  description: 'Frequently asked questions about Alwan microfinance services',
 }
 
 export default function FAQLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) {
-    return <>{children}</>
+  return children
 }
