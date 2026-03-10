@@ -27,10 +27,10 @@ export const personalInfoSchema = z.object({
   lastName: z.string().min(2, 'Last name is required'),
   dateOfBirth: z.string().min(1, 'Date of birth is required'),
   gender: z.enum(['male', 'female', 'other'], {
-    required_error: 'Gender is required',
+    message: 'Gender is required',
   }),
   civilStatus: z.enum(['single', 'married', 'widowed', 'separated', 'divorced'], {
-    required_error: 'Civil status is required',
+    message: 'Civil status is required',
   }),
   nationality: z.string().min(2, 'Nationality is required'),
   mothersMaidenName: z.string().optional(),
@@ -58,14 +58,14 @@ export const addressSchema = z.object({
     .regex(/^\d+$/, 'Zip code must contain only numbers'),
   yearsLiving: z.number().min(0).max(100),
   housingType: z.enum(['owned', 'renting', 'living_with_family'], {
-    required_error: 'Housing type is required',
+    message: 'Housing type is required',
   }),
 })
 
 // Step 6: Identity Verification
 export const identitySchema = z.object({
   idType: z.enum(['national_id', 'drivers_license', 'passport', 'umid', 'philhealth'], {
-    required_error: 'ID type is required',
+    message: 'ID type is required',
   }),
   idNumber: z.string().min(5, 'ID number is required'),
 })
@@ -77,7 +77,7 @@ export const businessSchema = z.object({
   businessAddress: z.string().min(5, 'Business address is required'),
   yearsOperating: z.number().min(0).max(100),
   registrationType: z.enum(['dti', 'barangay_permit', 'sec', 'none'], {
-    required_error: 'Registration type is required',
+    message: 'Registration type is required',
   }),
   registrationNumber: z.string().optional(),
   dailySales: z.number().min(0),
