@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { X } from 'lucide-react'
 import { useKYCStore } from '@/lib/store/kyc-store'
-import StepIndicator from '@/components/kyc/StepIndicator'
 import MobileStep from '@/components/kyc/steps/MobileStep'
 import OTPStep from '@/components/kyc/steps/OTPStep'
 import PINStep from '@/components/kyc/steps/PINStep'
@@ -146,13 +145,20 @@ export default function KYCSignupModal({ isOpen, onClose, onOpenLogin }: KYCSign
                     </div>
                   </div>
 
-                  {/* Step Indicator */}
+                  {/* Progress Bar */}
                   <div className="mb-6">
-                    <StepIndicator
-                      currentStep={currentStep}
-                      totalSteps={12}
-                      stepTitles={STEP_TITLES}
-                    />
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-white/60">Step {currentStep} of 12</span>
+                      <span className="text-xs text-white/60">{Math.round((currentStep / 12) * 100)}%</span>
+                    </div>
+                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(currentStep / 12) * 100}%` }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
+                        className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600"
+                      />
+                    </div>
                   </div>
 
                   {/* Step Content */}
