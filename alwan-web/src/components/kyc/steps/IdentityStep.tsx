@@ -4,12 +4,19 @@ import { useState, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Camera, Upload, ArrowRight, ArrowLeft, Check, X, Loader2, AlertCircle } from 'lucide-react'
+import { Camera, Upload, ArrowRight, ArrowLeft, Check, Loader2, AlertCircle } from 'lucide-react'
 import { useKYCStore } from '@/lib/store/kyc-store'
 import { identitySchema, type IdentityFormData } from '@/lib/validations/kyc-schemas'
 import { ID_TYPES } from '@/lib/constants/philippines'
 import { toast } from 'sonner'
-import { loadFaceModels, compareFaces, createImageElement, captureImageFromVideo, canvasToBlob } from '@/lib/utils/faceRecognition'
+import { 
+  loadFaceModels, 
+  compareFaces, 
+  createImageFromFile, 
+  captureImageFromVideo, 
+  canvasToBlob,
+  validateImageQuality 
+} from '@/lib/utils/face-verification'
 
 export default function IdentityStep() {
   const { formData, updateFormData, setCurrentStep, markStepComplete } = useKYCStore()
@@ -40,11 +47,9 @@ export default function IdentityStep() {
   })
 
   useEffect(() => {
-    // Load face recognition models on mount
     loadFaceModels().catch(console.error)
 
     return () => {
-      // Cleanup camera stream
       if (stream) {
         stream.getTracks().forEach(track => track.stop())
       }
@@ -54,15 +59,27 @@ export default function IdentityStep() {
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: 1280, height: 720 },
+        video: { 
+          facingMode: 'user', 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 } 
+        },
         audio: false,
       })
       
       setStream(mediaStream)
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream
-      }
       setShowCamera(true)
+      
+      // Wait for next tick to ensure video element is rendered
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream
+          // Explicitly play the video
+          videoRef.current.play().catch(err => {
+            console.error('Error playing video:', err)
+          })
+        }
+      }, 100)
     } catch (error) {
       console.error('Error accessing camera:', error)
       toast.error('Failed to access camera. Please check permissions.')
@@ -94,21 +111,20 @@ export default function IdentityStep() {
     }
   }
 
-  const handleFileChange = (file: File | null, type: 'idFront' | 'idBack' | 'selfie') => {
+  const handleFileChange = async (file: File | null, type: 'idFront' | 'idBack' | 'selfie') => {
     if (!file) return
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('File size must be less than 5MB')
       return
     }
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please upload an image file')
       return
     }
 
+    // Set the file first
     switch (type) {
       case 'idFront':
         setIdFrontFile(file)
@@ -119,6 +135,22 @@ export default function IdentityStep() {
       case 'selfie':
         setSelfieFile(file)
         break
+    }
+
+    // Validate image quality in background (non-blocking)
+    if (type === 'idFront' || type === 'selfie') {
+      try {
+        await loadFaceModels()
+        const img = await createImageFromFile(file)
+        const validation = await validateImageQuality(img)
+        
+        if (!validation.valid) {
+          toast.warning(validation.issues[0] || 'Image quality could be better, but you can continue')
+        }
+      } catch (error) {
+        console.error('Image validation error:', error)
+        // Don't block upload on validation errors
+      }
     }
   }
 
@@ -131,9 +163,12 @@ export default function IdentityStep() {
     setIsVerifying(true)
 
     try {
-      // Create image elements
-      const idImage = await createImageElement(idFrontFile)
-      const selfieImage = await createImageElement(selfieFile)
+      // Load models if not already loaded
+      await loadFaceModels()
+
+      // Create image elements from files
+      const idImage = await createImageFromFile(idFrontFile)
+      const selfieImage = await createImageFromFile(selfieFile)
 
       // Compare faces
       const result = await compareFaces(idImage, selfieImage)
@@ -144,11 +179,19 @@ export default function IdentityStep() {
       if (result.match) {
         toast.success(`Face match verified! Similarity: ${result.similarity}%`)
       } else {
-        toast.error(`Face match failed. Similarity: ${result.similarity}%. Please try again.`)
+        toast.error(`Face match failed. Similarity: ${result.similarity}%. Please try again with clearer photos.`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error verifying face match:', error)
-      toast.error('Failed to verify face match. Please ensure faces are clearly visible.')
+      
+      // Provide specific error messages
+      if (error.message?.includes('No face detected')) {
+        toast.error('No face detected. Please ensure your face is clearly visible in both photos.')
+      } else if (error.message?.includes('Failed to load')) {
+        toast.error('Failed to load face recognition models. Please check your internet connection.')
+      } else {
+        toast.error('Failed to verify face match. Please try again with clearer photos.')
+      }
     } finally {
       setIsVerifying(false)
     }
@@ -184,33 +227,20 @@ export default function IdentityStep() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/20 rounded-full mb-4">
-          <Camera className="w-8 h-8 text-emerald-400" />
-        </div>
-        <h3 className="text-2xl font-bold text-white mb-2">
-          Identity Verification
-        </h3>
-        <p className="text-white/70">
-          Upload your ID and take a selfie for KYC compliance
-        </p>
-      </div>
-
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* ID Type */}
         <div>
-          <label className="block text-sm font-medium text-white/90 mb-2">
-            ID Type <span className="text-red-400">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            ID Type <span className="text-red-500">*</span>
           </label>
           <select
             {...register('idType')}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:bg-white/10 transition-all"
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
           >
-            <option value="" className="bg-gray-800">Select ID type</option>
+            <option value="">Select ID type</option>
             {ID_TYPES.map((option) => (
-              <option key={option.value} value={option.value} className="bg-gray-800">
+              <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
@@ -219,7 +249,7 @@ export default function IdentityStep() {
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-1 text-sm text-red-400"
+              className="mt-1 text-sm text-red-500"
             >
               {errors.idType.message}
             </motion.p>
@@ -228,20 +258,20 @@ export default function IdentityStep() {
 
         {/* ID Number */}
         <div>
-          <label className="block text-sm font-medium text-white/90 mb-2">
-            ID Number <span className="text-red-400">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            ID Number <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             {...register('idNumber')}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:border-emerald-400 focus:bg-white/10 transition-all"
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
             placeholder="Enter ID number"
           />
           {errors.idNumber && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-1 text-sm text-red-400"
+              className="mt-1 text-sm text-red-500"
             >
               {errors.idNumber.message}
             </motion.p>
@@ -250,32 +280,35 @@ export default function IdentityStep() {
 
         {/* ID Front Upload */}
         <div>
-          <label className="block text-sm font-medium text-white/90 mb-2">
-            ID Front Image <span className="text-red-400">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            ID Front Image <span className="text-red-500">*</span>
           </label>
           <input
             ref={idFrontInputRef}
             type="file"
             accept="image/*"
-            onChange={(e) => handleFileChange(e.target.files?.[0] || null, 'idFront')}
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null
+              handleFileChange(file, 'idFront')
+            }}
             className="hidden"
           />
           <button
             type="button"
             onClick={() => idFrontInputRef.current?.click()}
-            className="w-full px-4 py-6 bg-white/5 border-2 border-dashed border-white/20 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
+            className="w-full px-4 py-6 bg-white border-2 border-dashed border-gray-300 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/50 transition-all duration-300 ease-in-out flex flex-col items-center gap-2"
           >
             {idFrontFile ? (
               <>
-                <Check className="w-6 h-6 text-emerald-400" />
-                <span className="text-sm text-white">{idFrontFile.name}</span>
-                <span className="text-xs text-white/50">Click to change</span>
+                <Check className="w-6 h-6 text-emerald-500" />
+                <span className="text-sm text-gray-900">{idFrontFile.name}</span>
+                <span className="text-xs text-gray-500">Click to change</span>
               </>
             ) : (
               <>
-                <Upload className="w-6 h-6 text-white/60" />
-                <span className="text-sm text-white">Upload ID Front</span>
-                <span className="text-xs text-white/50">Clear photo of the front side</span>
+                <Upload className="w-6 h-6 text-gray-400" />
+                <span className="text-sm text-gray-900">Upload ID Front</span>
+                <span className="text-xs text-gray-500">Clear photo of the front side</span>
               </>
             )}
           </button>
@@ -283,32 +316,35 @@ export default function IdentityStep() {
 
         {/* ID Back Upload */}
         <div>
-          <label className="block text-sm font-medium text-white/90 mb-2">
-            ID Back Image <span className="text-white/50">(Optional)</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            ID Back Image <span className="text-gray-500">(Optional)</span>
           </label>
           <input
             ref={idBackInputRef}
             type="file"
             accept="image/*"
-            onChange={(e) => handleFileChange(e.target.files?.[0] || null, 'idBack')}
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null
+              handleFileChange(file, 'idBack')
+            }}
             className="hidden"
           />
           <button
             type="button"
             onClick={() => idBackInputRef.current?.click()}
-            className="w-full px-4 py-6 bg-white/5 border-2 border-dashed border-white/20 rounded-xl hover:bg-white/10 transition-all flex flex-col items-center gap-2"
+            className="w-full px-4 py-6 bg-white border-2 border-dashed border-gray-300 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/50 transition-all duration-300 ease-in-out flex flex-col items-center gap-2"
           >
             {idBackFile ? (
               <>
-                <Check className="w-6 h-6 text-emerald-400" />
-                <span className="text-sm text-white">{idBackFile.name}</span>
-                <span className="text-xs text-white/50">Click to change</span>
+                <Check className="w-6 h-6 text-emerald-500" />
+                <span className="text-sm text-gray-900">{idBackFile.name}</span>
+                <span className="text-xs text-gray-500">Click to change</span>
               </>
             ) : (
               <>
-                <Upload className="w-6 h-6 text-white/60" />
-                <span className="text-sm text-white">Upload ID Back</span>
-                <span className="text-xs text-white/50">Clear photo of the back side</span>
+                <Upload className="w-6 h-6 text-gray-400" />
+                <span className="text-sm text-gray-900">Upload ID Back</span>
+                <span className="text-xs text-gray-500">Clear photo of the back side</span>
               </>
             )}
           </button>
@@ -316,8 +352,8 @@ export default function IdentityStep() {
 
         {/* Selfie Capture */}
         <div>
-          <label className="block text-sm font-medium text-white/90 mb-2">
-            Selfie <span className="text-red-400">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Selfie <span className="text-red-500">*</span>
           </label>
           
           <AnimatePresence mode="wait">
@@ -334,6 +370,10 @@ export default function IdentityStep() {
                     autoPlay
                     playsInline
                     muted
+                    onLoadedMetadata={(e) => {
+                      const video = e.target as HTMLVideoElement
+                      video.play().catch(err => console.error('Video play error:', err))
+                    }}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -341,14 +381,14 @@ export default function IdentityStep() {
                   <button
                     type="button"
                     onClick={stopCamera}
-                    className="flex-1 px-4 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all"
+                    className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 ease-in-out"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={captureSelfie}
-                    className="flex-1 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-[#4dd88f] to-[#009245] hover:from-[#009245] hover:to-[#056633] text-white font-semibold rounded-xl transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
                   >
                     <Camera className="w-5 h-5" />
                     Capture
@@ -363,9 +403,9 @@ export default function IdentityStep() {
                 className="space-y-3"
               >
                 {selfieFile ? (
-                  <div className="w-full px-4 py-6 bg-white/5 border-2 border-dashed border-emerald-400/50 rounded-xl flex flex-col items-center gap-2">
-                    <Check className="w-6 h-6 text-emerald-400" />
-                    <span className="text-sm text-white">{selfieFile.name}</span>
+                  <div className="w-full px-4 py-6 bg-white border-2 border-dashed border-emerald-500 rounded-xl flex flex-col items-center gap-2">
+                    <Check className="w-6 h-6 text-emerald-500" />
+                    <span className="text-sm text-gray-900">{selfieFile.name}</span>
                   </div>
                 ) : null}
                 
@@ -373,7 +413,7 @@ export default function IdentityStep() {
                   <button
                     type="button"
                     onClick={startCamera}
-                    className="px-4 py-3 bg-white/5 border border-white/20 rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-white font-medium"
+                    className="px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/50 transition-all duration-300 ease-in-out flex items-center justify-center gap-2 text-gray-700 font-medium"
                   >
                     <Camera className="w-5 h-5" />
                     Take Selfie
@@ -381,7 +421,7 @@ export default function IdentityStep() {
                   <button
                     type="button"
                     onClick={() => selfieInputRef.current?.click()}
-                    className="px-4 py-3 bg-white/5 border border-white/20 rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-white font-medium"
+                    className="px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/50 transition-all duration-300 ease-in-out flex items-center justify-center gap-2 text-gray-700 font-medium"
                   >
                     <Upload className="w-5 h-5" />
                     Upload
@@ -391,7 +431,10 @@ export default function IdentityStep() {
                   ref={selfieInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e.target.files?.[0] || null, 'selfie')}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null
+                    handleFileChange(file, 'selfie')
+                  }}
                   className="hidden"
                 />
               </motion.div>
@@ -410,7 +453,7 @@ export default function IdentityStep() {
               type="button"
               onClick={verifyFaceMatch}
               disabled={isVerifying || faceMatchVerified}
-              className="w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl transition-all duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isVerifying ? (
                 <>
@@ -431,18 +474,18 @@ export default function IdentityStep() {
             </button>
 
             {faceMatchScore > 0 && (
-              <div className={`p-4 rounded-xl border ${faceMatchVerified ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
+              <div className={`p-4 rounded-xl border ${faceMatchVerified ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
                 <div className="flex items-start gap-3">
                   {faceMatchVerified ? (
-                    <Check className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                    <Check className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                   ) : (
-                    <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
                   )}
                   <div>
-                    <p className={`text-sm font-semibold ${faceMatchVerified ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <p className={`text-sm font-semibold ${faceMatchVerified ? 'text-emerald-800' : 'text-red-800'}`}>
                       {faceMatchVerified ? 'Face Match Successful' : 'Face Match Failed'}
                     </p>
-                    <p className={`text-xs mt-1 ${faceMatchVerified ? 'text-emerald-200' : 'text-red-200'}`}>
+                    <p className={`text-xs mt-1 ${faceMatchVerified ? 'text-emerald-700' : 'text-red-700'}`}>
                       Similarity score: {faceMatchScore}%
                       {!faceMatchVerified && ' (Minimum 60% required)'}
                     </p>
@@ -454,8 +497,8 @@ export default function IdentityStep() {
         )}
 
         {/* Info Box */}
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-          <p className="text-sm text-blue-200">
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <p className="text-sm text-blue-800">
             <strong>KYC Requirement:</strong> Face matching prevents fraud and ensures compliance with BSP and AML regulations. Your biometric data is encrypted and securely stored.
           </p>
         </div>
@@ -465,7 +508,7 @@ export default function IdentityStep() {
           <button
             type="button"
             onClick={() => setCurrentStep(6)}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-all"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-300 ease-in-out"
           >
             <ArrowLeft className="w-5 h-5" />
             Back
@@ -473,7 +516,7 @@ export default function IdentityStep() {
           <button
             type="submit"
             disabled={!faceMatchVerified}
-            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#4dd88f] to-[#009245] hover:from-[#009245] hover:to-[#056633] text-white font-semibold rounded-xl transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Continue
             <ArrowRight className="w-5 h-5" />
