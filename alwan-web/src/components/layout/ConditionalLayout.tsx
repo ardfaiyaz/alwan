@@ -7,18 +7,19 @@ import Footer from './Footer'
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const isAdminRoute = pathname?.startsWith('/admin')
+    const isSignupRoute = pathname?.startsWith('/signup')
 
     return (
         <>
-            {!isAdminRoute && <Header />}
-            {isAdminRoute ? (
+            {!isAdminRoute && !isSignupRoute && <Header />}
+            {isAdminRoute || isSignupRoute ? (
                 children
             ) : (
                 <main className="min-h-screen">
                     {children}
                 </main>
             )}
-            {!isAdminRoute && <Footer />}
+            {!isAdminRoute && !isSignupRoute && <Footer />}
         </>
     )
 }
