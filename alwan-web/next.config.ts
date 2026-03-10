@@ -8,7 +8,19 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-};
+  webpack: (config, { isServer }) => {
+    // Fix for face-api.js in browser
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+      }
+    }
+    return config
+  },
+}
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:
