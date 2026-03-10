@@ -49,6 +49,16 @@ export default function HomePage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
 
+  // Check for login query parameter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('login') === 'true') {
+      setIsLoginModalOpen(true)
+      // Clean up URL
+      window.history.replaceState({}, '', '/')
+    }
+  }, [])
+
   const demoVideos = [
     { id: 'F6b62ngcRzc', title: 'Alwan Introduction' },
     { id: '3JJmMVhuuc0', title: 'Mobile App Features' },

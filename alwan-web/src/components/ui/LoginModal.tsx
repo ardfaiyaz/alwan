@@ -230,12 +230,12 @@ export default function LoginModal({ isOpen, onClose, onOpenSignup }: LoginModal
                                         <div className="flex-grow h-px bg-white/10"></div>
                                     </div>
 
-                                    {/* Get Started Button */}
+                                    {/* Get Started Button - Navigate to /signup */}
                                     <button 
                                         type="button"
                                         onClick={() => {
                                             onClose()
-                                            onOpenSignup?.()
+                                            window.location.href = '/signup'
                                         }}
                                         className="btn-signup-modal w-full flex justify-center items-center"
                                     >

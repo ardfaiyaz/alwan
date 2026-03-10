@@ -68,7 +68,7 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  if (pathname === '/login' || pathname === '/register') return null
+  if (pathname === '/signup' || pathname?.startsWith('/signup/')) return null
 
   return (
     <>
