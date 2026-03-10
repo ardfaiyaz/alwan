@@ -15,6 +15,31 @@ export async function sendOTP(phoneNumber: string) {
 
     if (error) {
       console.error('Send OTP error:', error)
+      
+      // Customize Twilio error messages
+      const errorMessage = error.message.toLowerCase()
+      
+      // Twilio error 60410: Phone number blocked due to fraud
+      if (errorMessage.includes('60410') || errorMessage.includes('blocked') || errorMessage.includes('fraudulent')) {
+        return { error: 'This phone number prefix is temporarily blocked. Please try a different number or contact support.' }
+      }
+      
+      // Twilio error 21608: Unverified number in trial account
+      if (errorMessage.includes('unverified') || errorMessage.includes('21608')) {
+        return { error: 'Verified Numbers Only!' }
+      }
+      
+      // Twilio error 21211: Invalid phone number
+      if (errorMessage.includes('invalid') || errorMessage.includes('21211')) {
+        return { error: 'Invalid phone number format' }
+      }
+      
+      // Twilio error 60200: Rate limit exceeded
+      if (errorMessage.includes('rate limit') || errorMessage.includes('60200')) {
+        return { error: 'Too many attempts. Please try again later' }
+      }
+      
+      // Default error message
       return { error: error.message }
     }
 
@@ -167,8 +192,13 @@ export async function submitKYCApplication(formData: any) {
 
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    console.log('Current user:', user)
+    console.log('User error:', userError)
+    
     if (userError || !user) {
-      return { error: 'User not authenticated' }
+      console.error('Authentication error:', userError)
+      return { error: 'User not authenticated. Please verify your phone number again.' }
     }
 
     // Create member record
