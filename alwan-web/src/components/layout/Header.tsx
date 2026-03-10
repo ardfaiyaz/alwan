@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Home, Briefcase, Info, HelpCircle, X, Menu, LogOut } from 'lucide-react'
 import LoginModal from '@/components/ui/LoginModal'
-import KYCSignupModal from '@/components/ui/KYCSignupModal'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
@@ -22,7 +21,6 @@ export default function Header() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isKYCSignupModalOpen, setIsKYCSignupModalOpen] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrolled, setScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -318,12 +316,12 @@ export default function Header() {
                     >
                       Log In
                     </button>
-                    <button 
-                      onClick={() => setIsKYCSignupModalOpen(true)}
+                    <Link 
+                      href="/signup"
                       className="btn-signup"
                     >
                       <span>Get Started</span>
-                    </button>
+                    </Link>
                   </>
                 )
               )}
@@ -394,16 +392,13 @@ export default function Header() {
                         >
                           Log In
                         </button>
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            setIsMenuOpen(false)
-                            setIsKYCSignupModalOpen(true)
-                          }}
+                        <Link 
+                          href="/signup"
+                          onClick={() => setIsMenuOpen(false)}
                           className="btn-signup w-full justify-center py-2.5"
                         >
                           <span>Get Started</span>
-                        </button>
+                        </Link>
                       </>
                     )
                   )}
@@ -420,17 +415,7 @@ export default function Header() {
         onClose={() => setIsLoginModalOpen(false)}
         onOpenSignup={() => {
           setIsLoginModalOpen(false)
-          setIsKYCSignupModalOpen(true)
-        }}
-      />
-
-      {/* KYC Signup Modal */}
-      <KYCSignupModal 
-        isOpen={isKYCSignupModalOpen} 
-        onClose={() => setIsKYCSignupModalOpen(false)}
-        onOpenLogin={() => {
-          setIsKYCSignupModalOpen(false)
-          setIsLoginModalOpen(true)
+          window.location.href = '/signup'
         }}
       />
     </>
