@@ -22,14 +22,15 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
-  const [scrolled, setScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Check authentication status
   useEffect(() => {
+    const supabase = createClient()
+    if (!supabase) return
+    
     const checkAuth = async () => {
-      const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
       setIsLoading(false)
@@ -38,7 +39,6 @@ export default function Header() {
     checkAuth()
 
     // Listen for auth changes
-    const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
@@ -48,6 +48,8 @@ export default function Header() {
 
   const handleSignOut = async () => {
     const supabase = createClient()
+    if (!supabase) return
+    
     await supabase.auth.signOut()
     setUser(null)
     toast.success('Signed out successfully')
@@ -59,7 +61,6 @@ export default function Header() {
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight
       const progress = totalHeight > 0 ? (window.scrollY / totalHeight) * 100 : 0
       setScrollProgress(progress)
-      setScrolled(window.scrollY > 12)
     }
     handleScroll()
     window.addEventListener('scroll', handleScroll)
