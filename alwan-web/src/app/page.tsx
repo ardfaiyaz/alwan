@@ -14,7 +14,6 @@ import FAQSection from '@/components/sections/FAQSection'
 import CoreValuesSection from '@/components/sections/CoreValuesSection'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import LoginModal from '@/components/ui/LoginModal'
-import KYCSignupModal from '@/components/ui/KYCSignupModal'
 import { noiseTextureStyle } from '@/lib/constants/styles'
 
 const howItWorksSteps = [
@@ -47,7 +46,6 @@ export default function HomePage() {
   const [currentWord, setCurrentWord] = useState(0)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isKYCSignupModalOpen, setIsKYCSignupModalOpen] = useState(false)
 
   // Check for login query parameter
   useEffect(() => {
@@ -441,12 +439,11 @@ export default function HomePage() {
                 transition={{ duration: 0.75, delay: 0.1 }}
                 className="flex flex-wrap gap-3 sm:gap-4 items-center justify-center lg:justify-start lg:pl-36 xl:pl-40"
               >
-                <button 
-                  onClick={() => setIsKYCSignupModalOpen(true)}
-                  className="hero-btn-primary"
-                >
-                  <span>Get Started</span>
-                </button>
+                <Link href="/signup">
+                  <button className="hero-btn-primary">
+                    <span>Get Started</span>
+                  </button>
+                </Link>
                 <Link href="#how-it-works">
                   <button className="hero-btn-ghost">
                     <span className="flex items-center gap-2">
@@ -791,9 +788,11 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mt-20"
           >
-            <button onClick={() => setIsKYCSignupModalOpen(true)} className="btn-ghost-dark px-10 py-5 text-lg min-w-[280px]">
-              <span>Start Your Application</span>
-            </button>
+            <Link href="/signup">
+              <button className="btn-ghost-dark px-10 py-5 text-lg min-w-[280px]">
+                <span>Start Your Application</span>
+              </button>
+            </Link>
           </motion.div>
         </div>
       </section >
@@ -819,12 +818,13 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
-              <MagneticButton 
-                onClick={() => setIsKYCSignupModalOpen(true)}
-                className="px-12 py-5 bg-[#009245] text-white font-bold rounded-2xl hover:bg-[#007a3d] transition-all duration-300 shadow-xl shadow-emerald-200/50 text-lg min-w-[240px]"
-              >
-                Create Free Account
-              </MagneticButton>
+              <Link href="/signup">
+                <MagneticButton 
+                  className="px-12 py-5 bg-[#009245] text-white font-bold rounded-2xl hover:bg-[#007a3d] transition-all duration-300 shadow-xl shadow-emerald-200/50 text-lg min-w-[240px]"
+                >
+                  Create Free Account
+                </MagneticButton>
+              </Link>
               <button onClick={() => setIsLoginModalOpen(true)} className="px-8 py-5 text-slate-600 font-semibold hover:text-slate-900 transition-colors">
                 Already have an account? Log In
               </button>
@@ -846,18 +846,6 @@ export default function HomePage() {
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={() => setIsLoginModalOpen(false)}
-        onOpenSignup={() => {
-          setIsLoginModalOpen(false)
-          setIsKYCSignupModalOpen(true)
-        }}
-      />
-      <KYCSignupModal 
-        isOpen={isKYCSignupModalOpen} 
-        onClose={() => setIsKYCSignupModalOpen(false)}
-        onOpenLogin={() => {
-          setIsKYCSignupModalOpen(false)
-          setIsLoginModalOpen(true)
-        }}
       />
     </>
   )
