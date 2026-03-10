@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Home, Briefcase, Info, HelpCircle, X, Menu, LogOut } from 'lucide-react'
 import LoginModal from '@/components/ui/LoginModal'
-import SignupModal from '@/components/ui/SignupModal'
+import KYCSignupModal from '@/components/ui/KYCSignupModal'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
@@ -22,7 +22,7 @@ export default function Header() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false)
+  const [isKYCSignupModalOpen, setIsKYCSignupModalOpen] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [scrolled, setScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -318,11 +318,12 @@ export default function Header() {
                     >
                       Log In
                     </button>
-                    <Link href="/signup">
-                      <button className="btn-signup">
-                        <span>Get Started</span>
-                      </button>
-                    </Link>
+                    <button 
+                      onClick={() => setIsKYCSignupModalOpen(true)}
+                      className="btn-signup"
+                    >
+                      <span>Get Started</span>
+                    </button>
                   </>
                 )
               )}
@@ -393,15 +394,16 @@ export default function Header() {
                         >
                           Log In
                         </button>
-                        <Link href="/signup">
-                          <button 
-                            type="button"
-                            onClick={() => setIsMenuOpen(false)}
-                            className="btn-signup w-full justify-center py-2.5"
-                          >
-                            <span>Get Started</span>
-                          </button>
-                        </Link>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setIsMenuOpen(false)
+                            setIsKYCSignupModalOpen(true)
+                          }}
+                          className="btn-signup w-full justify-center py-2.5"
+                        >
+                          <span>Get Started</span>
+                        </button>
                       </>
                     )
                   )}
@@ -416,14 +418,20 @@ export default function Header() {
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={() => setIsLoginModalOpen(false)}
-        onOpenSignup={() => setIsSignupModalOpen(true)}
+        onOpenSignup={() => {
+          setIsLoginModalOpen(false)
+          setIsKYCSignupModalOpen(true)
+        }}
       />
 
-      {/* Signup Modal */}
-      <SignupModal 
-        isOpen={isSignupModalOpen} 
-        onClose={() => setIsSignupModalOpen(false)}
-        onOpenLogin={() => setIsLoginModalOpen(true)}
+      {/* KYC Signup Modal */}
+      <KYCSignupModal 
+        isOpen={isKYCSignupModalOpen} 
+        onClose={() => setIsKYCSignupModalOpen(false)}
+        onOpenLogin={() => {
+          setIsKYCSignupModalOpen(false)
+          setIsLoginModalOpen(true)
+        }}
       />
     </>
   )

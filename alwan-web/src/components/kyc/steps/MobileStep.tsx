@@ -29,7 +29,21 @@ export default function MobileStep() {
     setIsLoading(true)
 
     try {
-      // Send OTP via Twilio Verify
+      // Check if in development mode
+      const isDevelopment = process.env.NODE_ENV === 'development'
+      
+      if (isDevelopment) {
+        // Development mode: Skip OTP sending
+        console.log('Development mode: Skipping OTP send for', `+63${data.mobileNumber}`)
+        updateFormData({ mobileNumber: data.mobileNumber })
+        markStepComplete(1)
+        toast.success('Development mode: OTP step skipped!')
+        setCurrentStep(2)
+        setIsLoading(false)
+        return
+      }
+
+      // Production: Send OTP via Twilio Verify
       const result = await sendOTP(`+63${data.mobileNumber}`)
 
       if (result.error) {
@@ -124,16 +138,6 @@ export default function MobileStep() {
           )}
         </button>
       </form>
-
-      {/* Footer */}
-      <div className="text-center pt-4">
-        <p className="text-sm text-white/60">
-          Already have an account?{' '}
-          <a href="/" className="text-emerald-400 hover:text-emerald-300 font-medium">
-            Log In
-          </a>
-        </p>
-      </div>
     </div>
   )
 }
