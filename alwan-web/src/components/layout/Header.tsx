@@ -318,12 +318,11 @@ export default function Header() {
                     >
                       Log In
                     </button>
-                    <button 
-                      onClick={() => setIsSignupModalOpen(true)}
-                      className="btn-signup"
-                    >
-                      <span>Get Started</span>
-                    </button>
+                    <Link href="/signup">
+                      <button className="btn-signup">
+                        <span>Get Started</span>
+                      </button>
+                    </Link>
                   </>
                 )
               )}
@@ -394,16 +393,15 @@ export default function Header() {
                         >
                           Log In
                         </button>
-                        <button 
-                          type="button"
-                          onClick={() => {
-                            setIsMenuOpen(false)
-                            setIsSignupModalOpen(true)
-                          }}
-                          className="btn-signup w-full justify-center py-2.5"
-                        >
-                          <span>Get Started</span>
-                        </button>
+                        <Link href="/signup">
+                          <button 
+                            type="button"
+                            onClick={() => setIsMenuOpen(false)}
+                            className="btn-signup w-full justify-center py-2.5"
+                          >
+                            <span>Get Started</span>
+                          </button>
+                        </Link>
                       </>
                     )
                   )}
