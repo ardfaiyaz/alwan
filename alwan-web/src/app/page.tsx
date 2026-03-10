@@ -431,9 +431,11 @@ export default function HomePage() {
                 transition={{ duration: 0.75, delay: 0.1 }}
                 className="flex flex-wrap gap-3 sm:gap-4 items-center justify-center lg:justify-start lg:pl-36 xl:pl-40"
               >
-                <button onClick={() => setIsSignupModalOpen(true)} className="hero-btn-primary">
-                  <span>Get Started</span>
-                </button>
+                <Link href="/signup">
+                  <button className="hero-btn-primary">
+                    <span>Get Started</span>
+                  </button>
+                </Link>
                 <Link href="#how-it-works">
                   <button className="hero-btn-ghost">
                     <span className="flex items-center gap-2">
