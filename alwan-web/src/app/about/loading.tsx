@@ -1,22 +1,34 @@
-/**
- * About loading - Hero (mission), core values grid, team grid skeleton.
- */
-
 import { Skeleton } from '@/components/ui/Skeleton'
 
 export default function AboutLoading() {
   return (
-    <div className="min-h-screen space-y-8 pb-20">
-      {/* Hero Block */}
-      <section className="h-[60vh] w-full bg-[#F0FDF4] animate-pulse" />
+    <div className="min-h-screen bg-white">
+      {/* Hero Section Skeleton */}
+      <div className="bg-gradient-to-br from-emerald-50 to-white py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4">
+            <Skeleton className="h-12 w-64 mx-auto" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+        </div>
+      </div>
 
-      {/* Content Blocks */}
-      <div className="max-w-7xl mx-auto px-4 w-full space-y-12">
-        <Skeleton className="h-64 w-full rounded-3xl" />
-        <div className="grid md:grid-cols-3 gap-6">
-          <Skeleton className="h-48 w-full rounded-2xl" />
-          <Skeleton className="h-48 w-full rounded-2xl" />
-          <Skeleton className="h-48 w-full rounded-2xl" />
+      {/* Content Sections */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+        {/* Mission/Vision Cards */}
+        <div className="grid md:grid-cols-2 gap-8">
+          <Skeleton className="h-64 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
+        </div>
+
+        {/* Team Section */}
+        <div className="space-y-8">
+          <Skeleton className="h-10 w-48 mx-auto" />
+          <div className="grid md:grid-cols-3 gap-8">
+            <Skeleton className="h-80 w-full rounded-2xl" />
+            <Skeleton className="h-80 w-full rounded-2xl" />
+            <Skeleton className="h-80 w-full rounded-2xl" />
+          </div>
         </div>
       </div>
     </div>

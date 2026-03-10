@@ -1,14 +1,14 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-    title: 'About Us | Alwan',
-    description: 'Learn about Alwan, our mission to empower Filipino entrepreneurs, and the team behind the platform.',
+  title: 'About Us | Alwan',
+  description: 'Learn about Alwan and our mission to empower Filipinos through accessible microfinance',
 }
 
 export default function AboutLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) {
-    return <>{children}</>
+  return children
 }
