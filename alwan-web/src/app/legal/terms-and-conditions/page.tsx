@@ -14,7 +14,7 @@ export default function TermsAndConditionsPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors duration-300 ease-in-out"
         >
           <ArrowLeft className="w-5 h-5" />
           Back
@@ -23,7 +23,6 @@ export default function TermsAndConditionsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-lg p-8 sm:p-12"
         >
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             Terms and Conditions
