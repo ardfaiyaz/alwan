@@ -52,6 +52,8 @@ export async function sendOTP(phoneNumber: string) {
 
 /**
  * Verify OTP code
+ * Note: This creates a user account but immediately signs them out.
+ * User will only be logged in after completing all KYC forms.
  */
 export async function verifyOTP(phoneNumber: string, token: string) {
   try {
@@ -68,10 +70,70 @@ export async function verifyOTP(phoneNumber: string, token: string) {
       return { error: error.message }
     }
 
-    return { success: true, user: data.user }
+    // Store user ID before signing out
+    const userId = data.user?.id
+
+    // Sign out immediately - user should not have session until KYC is complete
+    await supabase.auth.signOut()
+
+    return { success: true, userId }
   } catch (error) {
     console.error('Verify OTP exception:', error)
     return { error: 'Failed to verify OTP' }
+  }
+}
+
+/**
+ * Sign in user after KYC completion
+ * Sends OTP to user's phone for login after completing all forms
+ */
+export async function signInAfterKYC(phoneNumber: string) {
+  try {
+    const supabase = await createClient()
+
+    // Send OTP for login (user already exists from initial verification)
+    const { error } = await supabase.auth.signInWithOtp({
+      phone: phoneNumber,
+      options: {
+        shouldCreateUser: false, // User already exists
+      }
+    })
+
+    if (error) {
+      console.error('Sign in OTP error:', error)
+      return { error: error.message }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Sign in after KYC exception:', error)
+    return { error: 'Failed to send login OTP' }
+  }
+}
+
+/**
+ * Verify login OTP after KYC completion
+ */
+export async function verifyLoginOTP(phoneNumber: string, token: string) {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: phoneNumber,
+      token,
+      type: 'sms',
+    })
+
+    if (error) {
+      console.error('Verify login OTP error:', error)
+      return { error: error.message }
+    }
+
+    // This time we keep the session
+    return { success: true, user: data.user }
+  } catch (error) {
+    console.error('Verify login OTP exception:', error)
+    return { error: 'Failed to verify login OTP' }
   }
 }
 
@@ -190,15 +252,12 @@ export async function submitKYCApplication(formData: any) {
   try {
     const supabase = await createClient()
 
-    // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    // Use userId from formData (stored during OTP verification)
+    const userId = formData.userId
     
-    console.log('Current user:', user)
-    console.log('User error:', userError)
-    
-    if (userError || !user) {
-      console.error('Authentication error:', userError)
-      return { error: 'User not authenticated. Please verify your phone number again.' }
+    if (!userId) {
+      console.error('No user ID provided')
+      return { error: 'User ID not found. Please verify your phone number again.' }
     }
 
     // Upload documents first
@@ -211,7 +270,7 @@ export async function submitKYCApplication(formData: any) {
 
     // Upload ID documents
     if (formData.idFrontFile) {
-      const result = await uploadDocument(formData.idFrontFile, `kyc/${user.id}/identity`)
+      const result = await uploadDocument(formData.idFrontFile, `kyc/${userId}/identity`)
       if (result.error) {
         return { error: `Failed to upload ID front: ${result.error}` }
       }
@@ -219,7 +278,7 @@ export async function submitKYCApplication(formData: any) {
     }
 
     if (formData.idBackFile) {
-      const result = await uploadDocument(formData.idBackFile, `kyc/${user.id}/identity`)
+      const result = await uploadDocument(formData.idBackFile, `kyc/${userId}/identity`)
       if (result.error) {
         return { error: `Failed to upload ID back: ${result.error}` }
       }
@@ -227,7 +286,7 @@ export async function submitKYCApplication(formData: any) {
     }
 
     if (formData.selfieFile) {
-      const result = await uploadDocument(formData.selfieFile, `kyc/${user.id}/identity`)
+      const result = await uploadDocument(formData.selfieFile, `kyc/${userId}/identity`)
       if (result.error) {
         return { error: `Failed to upload selfie: ${result.error}` }
       }
@@ -236,7 +295,7 @@ export async function submitKYCApplication(formData: any) {
 
     // Upload guarantor ID if provided
     if (formData.guarantorIdFile) {
-      const result = await uploadDocument(formData.guarantorIdFile, `kyc/${user.id}/guarantor`)
+      const result = await uploadDocument(formData.guarantorIdFile, `kyc/${userId}/guarantor`)
       if (result.error) {
         console.warn('Failed to upload guarantor ID:', result.error)
       } else {
@@ -246,7 +305,7 @@ export async function submitKYCApplication(formData: any) {
 
     // Upload utility bill if provided
     if (formData.utilityBillFile) {
-      const result = await uploadDocument(formData.utilityBillFile, `kyc/${user.id}/documents`)
+      const result = await uploadDocument(formData.utilityBillFile, `kyc/${userId}/documents`)
       if (result.error) {
         console.warn('Failed to upload utility bill:', result.error)
       } else {
@@ -256,7 +315,7 @@ export async function submitKYCApplication(formData: any) {
 
     // Upload business permit if provided
     if (formData.businessPermitFile) {
-      const result = await uploadDocument(formData.businessPermitFile, `kyc/${user.id}/documents`)
+      const result = await uploadDocument(formData.businessPermitFile, `kyc/${userId}/documents`)
       if (result.error) {
         console.warn('Failed to upload business permit:', result.error)
       } else {
@@ -268,7 +327,7 @@ export async function submitKYCApplication(formData: any) {
     const { data: kycApp, error: kycError } = await supabase
       .from('kyc_applications')
       .upsert({
-        user_id: user.id,
+        user_id: userId,
         mobile_number: formData.mobileNumber,
         status: 'in_review',
         current_step: 12,
@@ -373,8 +432,8 @@ export async function submitKYCApplication(formData: any) {
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
-        id: user.id,
-        email: formData.email || user.email || '',
+        id: userId,
+        email: formData.email || '',
         full_name: `${formData.firstName} ${formData.middleName || ''} ${formData.lastName}`.trim(),
         role: 'member',
         phone: formData.mobileNumber,

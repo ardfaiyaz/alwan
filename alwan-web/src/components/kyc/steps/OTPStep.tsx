@@ -75,7 +75,7 @@ export default function OTPStep() {
       // Update form data with user info
       updateFormData({ 
         otpVerified: true,
-        userId: result.user?.id 
+        userId: result.userId 
       })
       markStepComplete(2)
 
