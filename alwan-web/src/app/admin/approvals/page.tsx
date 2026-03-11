@@ -1,5 +1,48 @@
 'use client'
 
+import { useState, useEffect, useCallback } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Search, FileText, CheckCircle, XCircle, Eye, User, Building2, MapPin, Phone, Mail, Calendar, X, RefreshCw, Download, Filter, Printer, Keyboard } from 'lucide-react'
+import { toast } from 'sonner'
+import {
+  getKYCApplications,
+  getActiveCenters,
+  approveKYCWithCenter,
+  rejectKYC,
+  type KYCApplication
+} from '@/app/actions/kyc-approvals'
+import { getApprovalStatistics } from '@/app/actions/approval-statistics'
+import { logAuditTrail, getAuditTrail } from '@/app/actions/audit-trail'
+import { addApplicationNote, getApplicationNotes } from '@/app/actions/approval-notes'
+import Image from 'next/image'
+import { ApprovalsSkeleton } from '@/components/admin/ApprovalsSkeleton'
+import { StatisticsDashboard } from '@/components/admin/approvals/StatisticsDashboard'
+import { AdvancedFilters } from '@/components/admin/approvals/AdvancedFilters'
+import { BulkActionsBar } from '@/components/admin/approvals/BulkActionsBar'
+import { ApplicationCard } from '@/components/admin/approvals/ApplicationCard'
+import { RiskScoreDisplay } from '@/components/admin/approvals/RiskScoreDisplay'
+import { KeyboardShortcutsHelp } from '@/components/admin/approvals/KeyboardShortcutsHelp'
+import { useKeyboardShortcuts, type KeyboardShortcut } from '@/hooks/useKeyboardShortcuts'
+import { exportToCSV, exportToExcel } from '@/lib/utils/export'
+import { printApplication } from '@/lib/utils/print'
+import { calculateRiskScore } from '@/lib/utils/risk-scoring'
+import { ApprovalStatistics, AdvancedFilters as AdvancedFiltersType, ApplicationNote, AuditTrailEntry } from '@/types/approvals'
+
+interface Center {
+  id: string
+  name: string
+  code: string
+  meeting_location: string
+  meeting_day: string
+  meeting_time: string
+  branch: { name: string } | null
+}
+
+
+
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
