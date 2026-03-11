@@ -126,10 +126,10 @@ export function ApplicationCard({
             <button
               onClick={() => setShowImageModal(true)}
               className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200 text-sm"
-              title="View ID Images"
+              title="View Documents"
             >
               <ImageIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Images</span>
+              <span className="hidden sm:inline">Documents</span>
             </button>
 
             {(application.status === 'pending' || application.status === 'in_review') && (
