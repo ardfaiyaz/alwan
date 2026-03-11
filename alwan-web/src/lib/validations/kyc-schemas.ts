@@ -11,10 +11,10 @@ export const mobileSchema = z.object({
 // Step 2: PIN
 export const pinSchema = z.object({
   pin: z.string()
-    .length(5, 'PIN must be exactly 5 digits')
+    .length(4, 'PIN must be exactly 4 digits')
     .regex(/^\d+$/, 'PIN must contain only numbers'),
   confirmPin: z.string()
-    .length(5, 'PIN must be exactly 5 digits'),
+    .length(4, 'PIN must be exactly 4 digits'),
 }).refine((data) => data.pin === data.confirmPin, {
   message: "PINs don't match",
   path: ["confirmPin"],

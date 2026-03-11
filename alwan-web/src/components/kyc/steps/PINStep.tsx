@@ -9,8 +9,8 @@ import { toast } from 'sonner'
 export default function PINStep() {
   const { updateFormData, setCurrentStep, markStepComplete } = useKYCStore()
   const [pinStep, setPinStep] = useState<'create' | 'confirm'>('create')
-  const [pin, setPin] = useState(['', '', '', '', ''])
-  const [confirmPin, setConfirmPin] = useState(['', '', '', '', ''])
+  const [pin, setPin] = useState(['', '', '', ''])
+  const [confirmPin, setConfirmPin] = useState(['', '', '', ''])
   const pinRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const currentPin = pinStep === 'create' ? pin : confirmPin
@@ -24,17 +24,17 @@ export default function PINStep() {
     setCurrentPin(newPin)
 
     // Auto-focus next input
-    if (value && index < 4) {
+    if (value && index < 3) {
       pinRefs.current[index + 1]?.focus()
     }
 
     // Auto-proceed when all digits are entered
-    if (newPin.every(digit => digit !== '') && index === 4) {
+    if (newPin.every(digit => digit !== '') && index === 3) {
       if (pinStep === 'create') {
         // Move to confirm step
         setTimeout(() => {
           setPinStep('confirm')
-          setConfirmPin(['', '', '', '', ''])
+          setConfirmPin(['', '', '', ''])
           setTimeout(() => pinRefs.current[0]?.focus(), 100)
         }, 300)
       } else {
@@ -63,8 +63,8 @@ export default function PINStep() {
       // PINs don't match
       toast.error("PINs don't match. Please try again.")
       setPinStep('create')
-      setPin(['', '', '', '', ''])
-      setConfirmPin(['', '', '', '', ''])
+      setPin(['', '', '', ''])
+      setConfirmPin(['', '', '', ''])
       setTimeout(() => pinRefs.current[0]?.focus(), 100)
     }
   }
@@ -72,7 +72,7 @@ export default function PINStep() {
   const handleBack = () => {
     if (pinStep === 'confirm') {
       setPinStep('create')
-      setConfirmPin(['', '', '', '', ''])
+      setConfirmPin(['', '', '', ''])
       setTimeout(() => pinRefs.current[0]?.focus(), 100)
     } else {
       setCurrentStep(2)
@@ -81,15 +81,6 @@ export default function PINStep() {
 
   return (
     <div className="space-y-6">
-      {/* Logo */}
-      <div className="flex justify-center mb-6">
-        <img
-          src="/icons/alwan-footer-logo.png"
-          alt="Alwan"
-          className="h-10 w-auto"
-        />
-      </div>
-
       {/* Header */}
       <div className="text-center mb-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -97,7 +88,7 @@ export default function PINStep() {
         </h3>
         <p className="text-gray-600">
           {pinStep === 'create'
-            ? 'Create a 5-digit PIN to secure your account'
+            ? 'Create a 4-digit PIN to secure your account'
             : 'Re-enter your PIN to confirm'}
         </p>
       </div>
@@ -147,7 +138,7 @@ export default function PINStep() {
         <ul className="space-y-1 text-sm text-gray-700">
           <li className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-            Must be exactly 5 digits
+            Must be exactly 4 digits
           </li>
           <li className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
@@ -173,7 +164,7 @@ export default function PINStep() {
           onClick={() => {
             if (pinStep === 'create' && pin.every(d => d)) {
               setPinStep('confirm')
-              setConfirmPin(['', '', '', '', ''])
+              setConfirmPin(['', '', '', ''])
               setTimeout(() => pinRefs.current[0]?.focus(), 100)
             } else if (pinStep === 'confirm' && confirmPin.every(d => d)) {
               handleVerifyMatch(confirmPin.join(''))
