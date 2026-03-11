@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, FileText, CheckCircle, XCircle, Eye, User, Building2, MapPin, Phone, Mail, Calendar, X } from 'lucide-react'
+import { Search, FileText, CheckCircle, XCircle, Eye, User, Building2, MapPin, Phone, Mail, Calendar, X, Download, Filter, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
   getKYCApplications, 
@@ -15,6 +15,7 @@ import {
   type KYCApplication 
 } from '@/app/actions/kyc-approvals'
 import Image from 'next/image'
+import { ApprovalsSkeleton } from '@/components/admin/ApprovalsSkeleton'
 
 interface Center {
   id: string
@@ -201,11 +202,24 @@ export default function ApprovalsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <div className="min-h-screen bg-gray-50">
+      {isLoading ? (
+        <ApprovalsSkeleton />
+      ) : (
+        <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Approvals</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Approvals</h1>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">Review and approve member applications</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={loadData}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
         </div>
       </div>
 
@@ -241,24 +255,39 @@ export default function ApprovalsPage() {
         </CardContent>
       </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full sm:w-auto">
-          <TabsTrigger value="pending" className="text-xs sm:text-sm">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="relative">
+        <div className="relative">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full sm:w-auto bg-white border border-gray-200 p-1 rounded-lg relative">
+            <div 
+              className="absolute top-1 bottom-1 bg-green-600 rounded-md transition-all duration-300 ease-in-out"
+              style={{
+                left: `${
+                  activeTab === 'pending' ? '0.25rem' :
+                  activeTab === 'in_review' ? 'calc(20% + 0.25rem)' :
+                  activeTab === 'approved' ? 'calc(40% + 0.25rem)' :
+                  activeTab === 'rejected' ? 'calc(60% + 0.25rem)' :
+                  'calc(80% + 0.25rem)'
+                }`,
+                width: activeTab === 'all' ? 'calc(20% - 0.5rem)' : 'calc(20% - 0.5rem)'
+              }}
+            />
+          <TabsTrigger value="pending" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
             Pending ({applications.filter(a => a.status === 'pending').length})
           </TabsTrigger>
-          <TabsTrigger value="in_review" className="text-xs sm:text-sm">
+          <TabsTrigger value="in_review" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
             In Review ({applications.filter(a => a.status === 'in_review').length})
           </TabsTrigger>
-          <TabsTrigger value="approved" className="text-xs sm:text-sm">
+          <TabsTrigger value="approved" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
             Approved ({applications.filter(a => a.status === 'approved').length})
           </TabsTrigger>
-          <TabsTrigger value="rejected" className="text-xs sm:text-sm">
+          <TabsTrigger value="rejected" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
             Rejected ({applications.filter(a => a.status === 'rejected').length})
           </TabsTrigger>
-          <TabsTrigger value="all" className="text-xs sm:text-sm col-span-2 sm:col-span-1">
+          <TabsTrigger value="all" className="text-xs sm:text-sm col-span-2 sm:col-span-1 relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
             All ({applications.length})
           </TabsTrigger>
-        </TabsList>
+          </TabsList>
+        </div>
 
         <TabsContent value={activeTab} className="mt-4 sm:mt-6 animate-in fade-in-50 duration-300">
           {isLoading ? (
@@ -548,44 +577,74 @@ export default function ApprovalsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {selectedApplication.metadata.identity.idFrontUrl && (
-                    <div>
-                      <p className="text-gray-600 text-xs mb-2">ID Front</p>
-                      <Image
-                        src={selectedApplication.metadata.identity.idFrontUrl}
-                        alt="ID Front"
-                        width={200}
-                        height={150}
-                        className="w-full h-auto rounded-lg border"
-                        unoptimized
-                      />
+                    <div className="group relative">
+                      <p className="text-gray-600 text-xs font-medium mb-2">ID Front</p>
+                      <div className="relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-green-500 transition-colors duration-200">
+                        <Image
+                          src={selectedApplication.metadata.identity.idFrontUrl}
+                          alt="ID Front"
+                          width={400}
+                          height={300}
+                          className="w-full h-auto object-cover"
+                          unoptimized
+                        />
+                        <a
+                          href={selectedApplication.metadata.identity.idFrontUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+                        >
+                          <span className="text-white font-medium">View Full Size</span>
+                        </a>
+                      </div>
                     </div>
                   )}
                   {selectedApplication.metadata.identity.idBackUrl && (
-                    <div>
-                      <p className="text-gray-600 text-xs mb-2">ID Back</p>
-                      <Image
-                        src={selectedApplication.metadata.identity.idBackUrl}
-                        alt="ID Back"
-                        width={200}
-                        height={150}
-                        className="w-full h-auto rounded-lg border"
-                        unoptimized
-                      />
+                    <div className="group relative">
+                      <p className="text-gray-600 text-xs font-medium mb-2">ID Back</p>
+                      <div className="relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-green-500 transition-colors duration-200">
+                        <Image
+                          src={selectedApplication.metadata.identity.idBackUrl}
+                          alt="ID Back"
+                          width={400}
+                          height={300}
+                          className="w-full h-auto object-cover"
+                          unoptimized
+                        />
+                        <a
+                          href={selectedApplication.metadata.identity.idBackUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+                        >
+                          <span className="text-white font-medium">View Full Size</span>
+                        </a>
+                      </div>
                     </div>
                   )}
                   {selectedApplication.metadata.identity.selfieUrl && (
-                    <div>
-                      <p className="text-gray-600 text-xs mb-2">Selfie</p>
-                      <Image
-                        src={selectedApplication.metadata.identity.selfieUrl}
-                        alt="Selfie"
-                        width={200}
-                        height={150}
-                        className="w-full h-auto rounded-lg border"
-                        unoptimized
-                      />
+                    <div className="group relative">
+                      <p className="text-gray-600 text-xs font-medium mb-2">Selfie</p>
+                      <div className="relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-green-500 transition-colors duration-200">
+                        <Image
+                          src={selectedApplication.metadata.identity.selfieUrl}
+                          alt="Selfie"
+                          width={400}
+                          height={300}
+                          className="w-full h-auto object-cover"
+                          unoptimized
+                        />
+                        <a
+                          href={selectedApplication.metadata.identity.selfieUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+                        >
+                          <span className="text-white font-medium">View Full Size</span>
+                        </a>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -701,6 +760,8 @@ export default function ApprovalsPage() {
               </div>
             </CardContent>
           </Card>
+        </div>
+      )}
         </div>
       )}
     </div>
