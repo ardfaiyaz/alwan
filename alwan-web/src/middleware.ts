@@ -38,9 +38,47 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
-  // Public routes
-  const publicRoutes = ['/', '/about', '/services', '/contact', '/login']
-  if (publicRoutes.includes(pathname) || pathname.startsWith('/api/')) {
+  // Public routes that anyone can access
+  const publicRoutes = ['/', '/about', '/services', '/contact', '/login', '/signup', '/faq']
+  const isPublicRoute = publicRoutes.includes(pathname) || 
+                        pathname.startsWith('/api/') || 
+                        pathname.startsWith('/legal/')
+  
+  // Client-only routes (not for admins)
+  const clientOnlyRoutes = ['/services', '/contact', '/faq']
+  
+  // Check if user is admin and trying to access client-only pages
+  if (user && clientOnlyRoutes.some(route => pathname.startsWith(route))) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile && ['admin', 'area_manager', 'branch_manager', 'field_officer'].includes(profile.role)) {
+      // Redirect admin users to dashboard
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/admin/dashboard'
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  // Redirect authenticated admins from homepage to dashboard
+  if (user && pathname === '/') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile && ['admin', 'area_manager', 'branch_manager', 'field_officer'].includes(profile.role)) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/admin/dashboard'
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  if (isPublicRoute) {
     return response
   }
 
