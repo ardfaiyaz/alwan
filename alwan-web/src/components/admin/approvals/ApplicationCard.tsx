@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, CheckCircle, XCircle, Phone, Mail, Building2, MapPin, Calendar, User } from 'lucide-react'
+import { Eye, CheckCircle, XCircle, Phone, Mail, Building2, MapPin, Calendar, User, Image as ImageIcon } from 'lucide-react'
 import { KYCApplication } from '@/app/actions/kyc-approvals'
+import { ImageViewerModal } from './ImageViewerModal'
 
 interface ApplicationCardProps {
   application: KYCApplication
@@ -23,6 +24,7 @@ export function ApplicationCard({
   onReject,
   showCheckbox = true
 }: ApplicationCardProps) {
+  const [showImageModal, setShowImageModal] = useState(false)
   const metadata = application.metadata
   const fullName = `${metadata.firstName} ${metadata.middleName} ${metadata.lastName}`.trim()
 
@@ -121,6 +123,15 @@ export function ApplicationCard({
               <span className="hidden sm:inline">View</span>
             </button>
 
+            <button
+              onClick={() => setShowImageModal(true)}
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200 text-sm"
+              title="View ID Images"
+            >
+              <ImageIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Images</span>
+            </button>
+
             {(application.status === 'pending' || application.status === 'in_review') && (
               <>
                 <button
@@ -144,6 +155,17 @@ export function ApplicationCard({
           </div>
         </div>
       </div>
+
+      <ImageViewerModal
+        isOpen={showImageModal}
+        onClose={() => setShowImageModal(false)}
+        images={{
+          idFrontUrl: metadata.identity?.idFrontUrl,
+          idBackUrl: metadata.identity?.idBackUrl,
+          selfieUrl: metadata.identity?.selfieUrl
+        }}
+        applicantName={fullName}
+      />
     </div>
   )
 }
