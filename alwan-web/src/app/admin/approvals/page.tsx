@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { GlassyButton } from '@/components/ui/glassy-button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -261,7 +260,7 @@ export default function ApprovalsPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="mt-4 sm:mt-6">
+        <TabsContent value={activeTab} className="mt-4 sm:mt-6 animate-in fade-in-50 duration-300">
           {isLoading ? (
             <Card>
               <CardContent className="p-8 text-center text-gray-600">
@@ -348,30 +347,30 @@ export default function ApprovalsPage() {
                         </div>
 
                         <div className="flex flex-row lg:flex-col gap-2">
-                          <GlassyButton
+                          <button
                             onClick={() => setSelectedApplication(app)}
-                            className="flex items-center justify-center gap-2 flex-1 lg:flex-none lg:w-full"
+                            className="flex items-center justify-center gap-2 flex-1 lg:flex-none lg:w-full px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
                           >
                             <Eye className="w-4 h-4" />
                             <span className="hidden sm:inline">View</span>
-                          </GlassyButton>
+                          </button>
 
                           {(app.status === 'pending' || app.status === 'in_review') && (
                             <>
-                              <GlassyButton
+                              <button
                                 onClick={() => setShowApproveModal(app.id)}
-                                className="flex items-center justify-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 flex-1 lg:flex-none lg:w-full"
+                                className="flex items-center justify-center gap-2 flex-1 lg:flex-none lg:w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
                               >
                                 <CheckCircle className="w-4 h-4" />
                                 <span className="hidden sm:inline">Approve</span>
-                              </GlassyButton>
-                              <GlassyButton
+                              </button>
+                              <button
                                 onClick={() => setShowRejectModal(app.id)}
-                                className="flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 flex-1 lg:flex-none lg:w-full"
+                                className="flex items-center justify-center gap-2 flex-1 lg:flex-none lg:w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
                               >
                                 <XCircle className="w-4 h-4" />
                                 <span className="hidden sm:inline">Reject</span>
-                              </GlassyButton>
+                              </button>
                             </>
                           )}
                         </div>
@@ -432,7 +431,9 @@ export default function ApprovalsPage() {
                   {selectedApplication.metadata.address.houseNumber} {selectedApplication.metadata.address.street}, {selectedApplication.metadata.address.barangay}, {selectedApplication.metadata.address.city}, {selectedApplication.metadata.address.province} {selectedApplication.metadata.address.zipCode}
                 </p>
                 <p className="text-gray-600 text-sm mt-2">
-                  Housing: <span className="text-gray-900 capitalize">{selectedApplication.metadata.address.housingType}</span>
+                  Housing: <span className="text-gray-900 capitalize">
+                    {selectedApplication.metadata.address.housingType.split('_').join(' ')}
+                  </span>
                 </p>
               </div>
 
@@ -449,11 +450,17 @@ export default function ApprovalsPage() {
                   </div>
                   <div>
                     <span className="text-gray-600">Years Operating:</span>
-                    <span className="text-gray-900 ml-2">{selectedApplication.metadata.business.yearsOperating}</span>
+                    <span className="text-gray-900 ml-2">
+                      {selectedApplication.metadata.business.yearsOperating.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-600">Monthly Revenue:</span>
-                    <span className="text-gray-900 ml-2">₱{selectedApplication.metadata.business.monthlyRevenue}</span>
+                    <span className="text-gray-900 ml-2">
+                      ₱{selectedApplication.metadata.business.monthlyRevenue.split('_').join(' - ₱')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -463,11 +470,15 @@ export default function ApprovalsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
                     <span className="text-gray-600">Monthly Income:</span>
-                    <span className="text-gray-900 ml-2">₱{selectedApplication.metadata.financial.monthlyIncome}</span>
+                    <span className="text-gray-900 ml-2">
+                      ₱{selectedApplication.metadata.financial.monthlyIncome.split('_').join(' - ₱')}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-600">Monthly Expenses:</span>
-                    <span className="text-gray-900 ml-2">₱{selectedApplication.metadata.financial.monthlyExpenses}</span>
+                    <span className="text-gray-900 ml-2">
+                      ₱{selectedApplication.metadata.financial.monthlyExpenses.split('_').join(' - ₱')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -477,7 +488,11 @@ export default function ApprovalsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4">
                   <div>
                     <span className="text-gray-600">ID Type:</span>
-                    <span className="text-gray-900 ml-2 capitalize">{selectedApplication.metadata.identity.idType.replace('_', ' ')}</span>
+                    <span className="text-gray-900 ml-2 capitalize">
+                      {selectedApplication.metadata.identity.idType.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </span>
                   </div>
                   <div>
                     <span className="text-gray-600">ID Number:</span>
@@ -485,7 +500,51 @@ export default function ApprovalsPage() {
                   </div>
                   <div>
                     <span className="text-gray-600">Face Match Score:</span>
-                    <span className="text-gray-900 ml-2">{(selectedApplication.metadata.identity.faceMatchScore * 100).toFixed(1)}%</span>
+                    <span className={`ml-2 font-semibold ${
+                      selectedApplication.metadata.identity.faceMatchScore >= 0.7 
+                        ? 'text-green-600' 
+                        : 'text-red-600'
+                    }`}>
+                      {(selectedApplication.metadata.identity.faceMatchScore * 100).toFixed(1)}%
+                      {selectedApplication.metadata.identity.faceMatchScore >= 0.7 ? ' ✓' : ' ✗'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Verification Checklist */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <h5 className="font-semibold text-blue-900 mb-3">Verification Checklist</h5>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <input type="checkbox" id="check-id-match" className="mt-1" />
+                      <label htmlFor="check-id-match" className="text-gray-700">
+                        ID number matches the ID document shown in images
+                      </label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <input type="checkbox" id="check-face-match" className="mt-1" />
+                      <label htmlFor="check-face-match" className="text-gray-700">
+                        Face in selfie matches face in ID document
+                      </label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <input type="checkbox" id="check-id-valid" className="mt-1" />
+                      <label htmlFor="check-id-valid" className="text-gray-700">
+                        ID document appears valid and not expired
+                      </label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <input type="checkbox" id="check-clear" className="mt-1" />
+                      <label htmlFor="check-clear" className="text-gray-700">
+                        All images are clear and readable
+                      </label>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <input type="checkbox" id="check-name" className="mt-1" />
+                      <label htmlFor="check-name" className="text-gray-700">
+                        Name on ID matches application name
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -535,26 +594,26 @@ export default function ApprovalsPage() {
 
             {(selectedApplication.status === 'pending' || selectedApplication.status === 'in_review') && (
               <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:p-6 border-t sticky bottom-0 bg-white">
-                <GlassyButton
+                <button
                   onClick={() => {
                     setShowApproveModal(selectedApplication.id)
                     setSelectedApplication(null)
                   }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-50 hover:bg-green-100 text-green-700"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
                 >
                   <CheckCircle className="w-4 h-4" />
                   Approve Application
-                </GlassyButton>
-                <GlassyButton
+                </button>
+                <button
                   onClick={() => {
                     setShowRejectModal(selectedApplication.id)
                     setSelectedApplication(null)
                   }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-700"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
                 >
                   <XCircle className="w-4 h-4" />
                   Reject Application
-                </GlassyButton>
+                </button>
               </div>
             )}
           </div>
@@ -585,21 +644,21 @@ export default function ApprovalsPage() {
                 </select>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
-                <GlassyButton
+                <button
                   onClick={() => {
                     setShowApproveModal(null)
                     setSelectedCenter('')
                   }}
-                  className="flex-1"
+                  className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
                 >
                   Cancel
-                </GlassyButton>
-                <GlassyButton
+                </button>
+                <button
                   onClick={() => handleApprove(showApproveModal)}
-                  className="flex-1 bg-green-50 hover:bg-green-100 text-green-700"
+                  className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
                 >
                   Confirm Approve
-                </GlassyButton>
+                </button>
               </div>
             </CardContent>
           </Card>
@@ -624,21 +683,21 @@ export default function ApprovalsPage() {
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
-                <GlassyButton
+                <button
                   onClick={() => {
                     setShowRejectModal(null)
                     setRejectionReason('')
                   }}
-                  className="flex-1"
+                  className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
                 >
                   Cancel
-                </GlassyButton>
-                <GlassyButton
+                </button>
+                <button
                   onClick={() => handleReject(showRejectModal)}
-                  className="flex-1 bg-red-50 hover:bg-red-100 text-red-700"
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
                 >
                   Confirm Reject
-                </GlassyButton>
+                </button>
               </div>
             </CardContent>
           </Card>
