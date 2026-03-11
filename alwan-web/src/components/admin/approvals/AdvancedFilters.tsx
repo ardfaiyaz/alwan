@@ -3,7 +3,10 @@
 import { useState } from 'react'
 import { X, Filter } from 'lucide-react'
 import { AdvancedFilters as AdvancedFiltersType } from '@/types/approvals'
-import { CITIES, PROVINCES, BUSINESS_TYPES } from '@/lib/constants/philippines'
+import { CITIES_BY_PROVINCE, PROVINCES, BUSINESS_TYPES } from '@/lib/constants/philippines'
+
+// Get all unique cities from all provinces
+const ALL_CITIES = Object.values(CITIES_BY_PROVINCE).flat().sort()
 
 interface AdvancedFiltersProps {
   filters: AdvancedFiltersType
@@ -117,7 +120,7 @@ export function AdvancedFilters({ filters, onFiltersChange, onClose }: AdvancedF
                   }}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 h-32"
                 >
-                  {CITIES.map((city) => (
+                  {ALL_CITIES.map((city) => (
                     <option key={city} value={city}>{city}</option>
                   ))}
                 </select>
@@ -141,7 +144,7 @@ export function AdvancedFilters({ filters, onFiltersChange, onClose }: AdvancedF
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 h-32"
             >
               {BUSINESS_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>{type.label}</option>
+                <option key={type} value={type}>{type}</option>
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
