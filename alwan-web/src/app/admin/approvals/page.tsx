@@ -294,7 +294,7 @@ export default function ApprovalsPage() {
         <ApprovalsSkeleton />
       ) : (
         <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Approvals</h1>
               <p className="text-gray-600 mt-1 text-sm sm:text-base">Review and approve member applications</p>
@@ -383,27 +383,27 @@ export default function ApprovalsPage() {
                     width: 'calc(20% - 0.5rem)'
                   }}
                 />
-                <TabsTrigger value="pending" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                <TabsTrigger value="pending" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-3 sm:px-4">
                   <span className="hidden sm:inline">Pending</span>
                   <span className="sm:hidden">Pend</span>
                   <span className="ml-1">({applications.filter(a => a.status === 'pending').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="in_review" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
-                  <span className="hidden sm:inline">In Review</span>
-                  <span className="sm:hidden">Review</span>
+                <TabsTrigger value="in_review" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-3 sm:px-4">
+                  <span className="hidden lg:inline">In Review</span>
+                  <span className="lg:hidden">Review</span>
                   <span className="ml-1">({applications.filter(a => a.status === 'in_review').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="approved" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                <TabsTrigger value="approved" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-3 sm:px-4">
                   <span className="hidden sm:inline">Approved</span>
                   <span className="sm:hidden">Appr</span>
                   <span className="ml-1">({applications.filter(a => a.status === 'approved').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="rejected" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                <TabsTrigger value="rejected" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-3 sm:px-4">
                   <span className="hidden sm:inline">Rejected</span>
                   <span className="sm:hidden">Rej</span>
                   <span className="ml-1">({applications.filter(a => a.status === 'rejected').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="all" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                <TabsTrigger value="all" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-3 sm:px-4">
                   All ({applications.length})
                 </TabsTrigger>
               </TabsList>
