@@ -5,12 +5,24 @@
 import { KYCApplication } from '@/app/actions/kyc-approvals'
 
 /**
+ * Generate filename with current date and time
+ */
+function generateFilename(extension: string): string {
+  const now = new Date()
+  const dateStr = now.toISOString().split('T')[0] // YYYY-MM-DD
+  const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-') // HH-MM-SS
+  return `${dateStr}_${timeStr}_alwan-applications.${extension}`
+}
+
+/**
  * Convert applications to CSV format
  */
-export function exportToCSV(applications: KYCApplication[], filename: string = 'kyc-applications.csv') {
+export function exportToCSV(applications: KYCApplication[]) {
   if (applications.length === 0) {
     throw new Error('No applications to export')
   }
+
+  const filename = generateFilename('csv')
 
   // Define CSV headers
   const headers = [
@@ -89,12 +101,10 @@ export function exportToCSV(applications: KYCApplication[], filename: string = '
 }
 
 /**
- * Export applications to Excel format (using CSV with .xlsx extension)
+ * Export applications to Excel format (using CSV)
  */
-export function exportToExcel(applications: KYCApplication[], filename: string = 'kyc-applications.xlsx') {
-  // For now, we'll use CSV format with .xlsx extension
-  // In production, you might want to use a library like xlsx or exceljs
-  exportToCSV(applications, filename.replace('.xlsx', '.csv'))
+export function exportToExcel(applications: KYCApplication[]) {
+  exportToCSV(applications)
 }
 
 /**
