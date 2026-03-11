@@ -17,7 +17,8 @@ import {
     Menu,
     X,
     Building2,
-    CheckSquare
+    CheckSquare,
+    UserCheck
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -63,6 +64,12 @@ const navigationItems = [
         href: '/admin/reports', 
         icon: BarChart3,
         roles: ['admin', 'area_manager', 'branch_manager', 'field_officer'] as UserRole[]
+    },
+    { 
+        name: 'KYC Approvals', 
+        href: '/admin/kyc-approvals', 
+        icon: UserCheck,
+        roles: ['admin', 'area_manager', 'branch_manager'] as UserRole[]
     },
     { 
         name: 'Approvals', 
