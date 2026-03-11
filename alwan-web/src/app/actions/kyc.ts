@@ -436,23 +436,9 @@ export async function submitKYCApplication(formData: any) {
       console.error('Create/update KYC application error:', kycError)
       return { error: `Failed to create KYC application: ${kycError.message}` }
     }
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: userId,
-        email: formData.email || '',
-        full_name: `${formData.firstName} ${formData.middleName || ''} ${formData.lastName}`.trim(),
-        role: 'member',
-        phone: formData.mobileNumber,
-        is_active: true,
-      }, {
-        onConflict: 'id'
-      })
 
-    if (profileError) {
-      console.error('Create/update profile error:', profileError)
-      // Don't fail the whole process if profile creation fails
-    }
+    // Note: Profile will be created after KYC approval when center is assigned
+    // For now, we only store the KYC application data
 
     // Store complete KYC data as metadata (we'll create member record after center assignment)
     const kycMetadata = {
@@ -554,7 +540,7 @@ export async function submitKYCApplication(formData: any) {
     for (const consent of consentTypes) {
       if (consent.accepted) {
         await supabase.from('legal_consents').insert({
-          user_id: user.id,
+          user_id: userId,
           consent_type: consent.type,
           version: '1.0',
         })
