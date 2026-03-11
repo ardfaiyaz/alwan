@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useKYCStore } from '@/lib/store/kyc-store'
 import { personalInfoSchema, type PersonalInfoFormData } from '@/lib/validations/kyc-schemas'
-import { CIVIL_STATUS_OPTIONS, GENDER_OPTIONS } from '@/lib/constants/philippines'
+import { CIVIL_STATUS_OPTIONS, GENDER_OPTIONS, DEPENDENTS_OPTIONS } from '@/lib/constants/philippines'
 import { toast } from 'sonner'
 
 export default function PersonalInfoStep() {
@@ -217,14 +217,17 @@ export default function PersonalInfoStep() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Number of Dependents <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              {...register('numberOfDependents', { valueAsNumber: true })}
-              min="0"
-              max="20"
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
-              placeholder="0"
-            />
+            <select
+              {...register('numberOfDependents')}
+              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
+            >
+              <option value="">Select number of dependents</option>
+              {DEPENDENTS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             {errors.numberOfDependents && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
