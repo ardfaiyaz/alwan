@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceRoleClient } from '@/lib/supabase/server'
 
 /**
  * Send OTP to phone number using Supabase Auth (Twilio Verify)
@@ -251,7 +251,6 @@ export async function uploadDocument(file: File, path: string) {
  */
 export async function submitKYCApplication(formData: any) {
   try {
-    const { createServiceRoleClient } = await import('@/lib/supabase/server')
     const supabase = createServiceRoleClient()
 
     // Use userId from formData (stored during OTP verification)
@@ -566,7 +565,8 @@ export async function submitKYCApplication(formData: any) {
     }
   } catch (error) {
     console.error('Submit KYC application exception:', error)
-    return { error: 'Failed to submit KYC application. Please try again.' }
+    console.error('Error details:', JSON.stringify(error, null, 2))
+    return { error: `Failed to submit KYC application: ${error instanceof Error ? error.message : 'Unknown error'}` }
   }
 }
 
