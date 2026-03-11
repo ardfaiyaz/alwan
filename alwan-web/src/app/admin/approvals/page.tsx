@@ -294,70 +294,71 @@ export default function ApprovalsPage() {
         <ApprovalsSkeleton />
       ) : (
         <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Approvals</h1>
               <p className="text-gray-600 mt-1 text-sm sm:text-base">Review and approve member applications</p>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setShowAdvancedFilters(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
-                title="Advanced Filters (Ctrl+F)"
+                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200 text-sm"
+                title="Advanced Filters"
               >
                 <Filter className="w-4 h-4" />
-                <span className="hidden sm:inline">Filters</span>
+                <span>Filters</span>
               </button>
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
-                title="Export CSV (Ctrl+E)"
+                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200 text-sm"
+                title="Export CSV"
               >
                 <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">CSV</span>
+                <span>CSV</span>
               </button>
               <button
                 onClick={handleExportExcel}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
+                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200 text-sm"
                 title="Export Excel"
               >
                 <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Excel</span>
+                <span>Excel</span>
               </button>
               <button
                 onClick={loadData}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
+                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200 text-sm"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span className="hidden sm:inline">Refresh</span>
+                <span>Refresh</span>
               </button>
             </div>
           </div>
 
           <Card>
-            <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     placeholder="Search by name, phone, or business..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
                 <div className="flex gap-2">
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as 'submitted_at' | 'created_at')}
-                    className="px-3 py-2 border rounded-lg text-sm"
+                    className="flex-1 px-3 py-2 border rounded-lg text-sm bg-white"
                   >
                     <option value="submitted_at">Sort by Submitted</option>
                     <option value="created_at">Sort by Created</option>
                   </select>
                   <button
                     onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                    className="px-3 py-2 border rounded-lg text-sm hover:bg-gray-50 transition-colors duration-300 ease-in-out"
+                    className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50 transition-colors duration-200 bg-white font-medium"
+                    title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
                   >
                     {sortOrder === 'asc' ? '↑' : '↓'}
                   </button>
@@ -367,8 +368,8 @@ export default function ApprovalsPage() {
           </Card>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="relative">
-            <div className="relative">
-              <TabsList className="grid grid-cols-2 sm:grid-cols-5 w-full sm:w-auto bg-white border border-gray-200 p-1 rounded-lg relative">
+            <div className="relative overflow-x-auto">
+              <TabsList className="inline-flex w-full sm:w-auto bg-white border border-gray-200 p-1 rounded-lg relative min-w-full">
                 <div 
                   className="absolute top-1 bottom-1 bg-green-600 rounded-md transition-all duration-300 ease-in-out"
                   style={{
@@ -382,19 +383,27 @@ export default function ApprovalsPage() {
                     width: 'calc(20% - 0.5rem)'
                   }}
                 />
-                <TabsTrigger value="pending" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
-                  Pending ({applications.filter(a => a.status === 'pending').length})
+                <TabsTrigger value="pending" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                  <span className="hidden sm:inline">Pending</span>
+                  <span className="sm:hidden">Pend</span>
+                  <span className="ml-1">({applications.filter(a => a.status === 'pending').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="in_review" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
-                  In Review ({applications.filter(a => a.status === 'in_review').length})
+                <TabsTrigger value="in_review" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                  <span className="hidden sm:inline">In Review</span>
+                  <span className="sm:hidden">Review</span>
+                  <span className="ml-1">({applications.filter(a => a.status === 'in_review').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="approved" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
-                  Approved ({applications.filter(a => a.status === 'approved').length})
+                <TabsTrigger value="approved" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                  <span className="hidden sm:inline">Approved</span>
+                  <span className="sm:hidden">Appr</span>
+                  <span className="ml-1">({applications.filter(a => a.status === 'approved').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="rejected" className="text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
-                  Rejected ({applications.filter(a => a.status === 'rejected').length})
+                <TabsTrigger value="rejected" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
+                  <span className="hidden sm:inline">Rejected</span>
+                  <span className="sm:hidden">Rej</span>
+                  <span className="ml-1">({applications.filter(a => a.status === 'rejected').length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="all" className="text-xs sm:text-sm col-span-2 sm:col-span-1 relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent">
+                <TabsTrigger value="all" className="flex-1 text-xs sm:text-sm relative z-10 data-[state=active]:text-white data-[state=active]:bg-transparent whitespace-nowrap px-2 sm:px-4">
                   All ({applications.length})
                 </TabsTrigger>
               </TabsList>
