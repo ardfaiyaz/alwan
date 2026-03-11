@@ -247,10 +247,12 @@ export async function uploadDocument(file: File, path: string) {
 
 /**
  * Submit complete KYC application
+ * Uses service role client to bypass RLS since user doesn't have active session
  */
 export async function submitKYCApplication(formData: any) {
   try {
-    const supabase = await createClient()
+    const { createServiceRoleClient } = await import('@/lib/supabase/server')
+    const supabase = createServiceRoleClient()
 
     // Use userId from formData (stored during OTP verification)
     const userId = formData.userId
