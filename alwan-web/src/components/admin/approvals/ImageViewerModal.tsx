@@ -22,7 +22,7 @@ export function ImageViewerModal({ isOpen, onClose, images, applicantName }: Ima
       <div className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-lg overflow-hidden my-8">
         <div className="flex items-center justify-between p-4 sm:p-6 border-b sticky top-0 bg-white z-10">
           <div>
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900">ID Verification Images</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Document Verification</h3>
             <p className="text-sm text-gray-600">{applicantName}</p>
           </div>
           <button
