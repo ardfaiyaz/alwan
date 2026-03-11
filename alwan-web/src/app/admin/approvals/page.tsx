@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, FileText, CheckCircle, XCircle, Eye, User, Building2, MapPin, Phone, Mail, Calendar, X, Download, Filter, RefreshCw } from 'lucide-react'
+import { Search, FileText, CheckCircle, XCircle, Eye, User, Building2, MapPin, Phone, Mail, Calendar, X, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { 
   getKYCApplications, 
@@ -82,7 +82,7 @@ export default function ApprovalsPage() {
         console.error('Centers error:', centersResult.error)
       } else {
         console.log('Loaded centers:', centersResult.centers.length)
-        setCenters(centersResult.centers)
+        setCenters(centersResult.centers as Center[])
       }
     } catch (error) {
       console.error('Error loading data:', error)
