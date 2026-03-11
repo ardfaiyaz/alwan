@@ -235,10 +235,10 @@ export default function ApprovalsPage() {
         details: `Approved and assigned to center ${selectedCenter}`
       })
       toast.success('Application approved and member created!')
-      loadData()
       setShowApproveModal(null)
       setSelectedCenter('')
       setSelectedApplication(null)
+      await loadData() // Reload data after approval
     } catch (error) {
       console.error('Error approving application:', error)
       toast.error('Failed to approve application')
@@ -268,10 +268,10 @@ export default function ApprovalsPage() {
         details: `Rejected: ${rejectionReason}`
       })
       toast.success('Application rejected')
-      loadData()
       setShowRejectModal(null)
       setRejectionReason('')
       setSelectedApplication(null)
+      await loadData() // Reload data after rejection
     } catch (error) {
       console.error('Error rejecting application:', error)
       toast.error('Failed to reject application')
@@ -333,8 +333,6 @@ export default function ApprovalsPage() {
               </button>
             </div>
           </div>
-
-          <StatisticsDashboard statistics={statistics} isLoading={isLoading} />
 
           <Card>
             <CardContent className="p-4">
@@ -782,44 +780,122 @@ export default function ApprovalsPage() {
 
           {showApproveModal && (
             <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-              <Card className="w-full max-w-md">
+              <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <CardHeader>
                   <CardTitle>Approve Application</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm text-gray-600 mb-2 block">Assign to Center</label>
-                    <select
-                      value={selectedCenter}
-                      onChange={(e) => setSelectedCenter(e.target.value)}
-                      className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                      required
-                    >
-                      <option value="">Select a center...</option>
-                      {centers.map((center) => (
-                        <option key={center.id} value={center.id}>
-                          {center.name} ({center.code}){center.branch ? ` - ${center.branch.name}` : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button
-                      onClick={() => {
-                        setShowApproveModal(null)
-                        setSelectedCenter('')
-                      }}
-                      className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => handleApprove(showApproveModal)}
-                      className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200"
-                    >
-                      Confirm Approve
-                    </button>
-                  </div>
+                  {(() => {
+                    const app = applications.find(a => a.id === showApproveModal)
+                    if (!app) return null
+                    const metadata = app.metadata
+                    return (
+                      <>
+                        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                          <h4 className="font-semibold text-gray-900">Applicant Information</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-gray-600">Name:</span>
+                              <span className="text-gray-900 ml-2 font-medium">
+                                {metadata.firstName} {metadata.middleName} {metadata.lastName}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Mobile:</span>
+                              <span className="text-gray-900 ml-2">{app.mobile_number}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Email:</span>
+                              <span className="text-gray-900 ml-2">{metadata.email || 'N/A'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Date of Birth:</span>
+                              <span className="text-gray-900 ml-2">{metadata.dateOfBirth}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Gender:</span>
+                              <span className="text-gray-900 ml-2 capitalize">{metadata.gender}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Civil Status:</span>
+                              <span className="text-gray-900 ml-2 capitalize">{metadata.civilStatus}</span>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <span className="text-gray-600">Address:</span>
+                              <span className="text-gray-900 ml-2">
+                                {metadata.address.barangay}, {metadata.address.city}, {metadata.address.province}
+                              </span>
+                            </div>
+                            <div className="sm:col-span-2">
+                              <span className="text-gray-600">Business:</span>
+                              <span className="text-gray-900 ml-2">{metadata.business.businessName}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Business Type:</span>
+                              <span className="text-gray-900 ml-2">{metadata.business.businessType}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Monthly Revenue:</span>
+                              <span className="text-gray-900 ml-2">₱{metadata.business.monthlyRevenue}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">ID Type:</span>
+                              <span className="text-gray-900 ml-2 capitalize">
+                                {metadata.identity.idType.replace(/_/g, ' ')}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Face Match:</span>
+                              <span className={`ml-2 font-semibold ${
+                                metadata.identity.faceMatchScore >= 0.7 ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {(metadata.identity.faceMatchScore * 100).toFixed(1)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-gray-900 mb-2 block">Assign to Center</label>
+                          <select
+                            value={selectedCenter}
+                            onChange={(e) => setSelectedCenter(e.target.value)}
+                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            required
+                          >
+                            <option value="">Select a center...</option>
+                            {centers.map((center) => (
+                              <option key={center.id} value={center.id}>
+                                {center.name} ({center.code}){center.branch ? ` - ${center.branch.name}` : ''}
+                              </option>
+                            ))}
+                          </select>
+                          <p className="text-xs text-gray-500 mt-1">
+                            The applicant will be assigned to this center as an active member
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                          <button
+                            onClick={() => {
+                              setShowApproveModal(null)
+                              setSelectedCenter('')
+                            }}
+                            className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleApprove(showApproveModal)}
+                            disabled={!selectedCenter}
+                            className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Confirm Approve
+                          </button>
+                        </div>
+                      </>
+                    )
+                  })()}
                 </CardContent>
               </Card>
             </div>
@@ -827,38 +903,76 @@ export default function ApprovalsPage() {
 
           {showRejectModal && (
             <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-              <Card className="w-full max-w-md">
+              <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <CardHeader>
                   <CardTitle>Reject Application</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm text-gray-600 mb-2 block">Rejection Reason</label>
-                    <textarea
-                      value={rejectionReason}
-                      onChange={(e) => setRejectionReason(e.target.value)}
-                      placeholder="Please provide a reason for rejection..."
-                      className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[100px]"
-                      required
-                    />
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button
-                      onClick={() => {
-                        setShowRejectModal(null)
-                        setRejectionReason('')
-                      }}
-                      className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => handleReject(showRejectModal)}
-                      className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
-                    >
-                      Confirm Reject
-                    </button>
-                  </div>
+                  {(() => {
+                    const app = applications.find(a => a.id === showRejectModal)
+                    if (!app) return null
+                    const metadata = app.metadata
+                    return (
+                      <>
+                        <div className="bg-red-50 rounded-lg p-4 space-y-3">
+                          <h4 className="font-semibold text-gray-900">Applicant Information</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-gray-600">Name:</span>
+                              <span className="text-gray-900 ml-2 font-medium">
+                                {metadata.firstName} {metadata.middleName} {metadata.lastName}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Mobile:</span>
+                              <span className="text-gray-900 ml-2">{app.mobile_number}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Email:</span>
+                              <span className="text-gray-900 ml-2">{metadata.email || 'N/A'}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Business:</span>
+                              <span className="text-gray-900 ml-2">{metadata.business.businessName}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-gray-900 mb-2 block">Rejection Reason</label>
+                          <textarea
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                            placeholder="Please provide a detailed reason for rejection..."
+                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[100px]"
+                            required
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            This reason will be visible to the applicant
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                          <button
+                            onClick={() => {
+                              setShowRejectModal(null)
+                              setRejectionReason('')
+                            }}
+                            className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleReject(showRejectModal)}
+                            disabled={!rejectionReason.trim()}
+                            className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Confirm Reject
+                          </button>
+                        </div>
+                      </>
+                    )
+                  })()}
                 </CardContent>
               </Card>
             </div>
