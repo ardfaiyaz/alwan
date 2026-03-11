@@ -1,11 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Badge } from '@/components/ui/card'
 import { Eye, CheckCircle, XCircle, Phone, Mail, Building2, MapPin, Calendar, User } from 'lucide-react'
 import { KYCApplication } from '@/app/actions/kyc-approvals'
-import { calculateRiskScore } from '@/lib/utils/risk-scoring'
-import { RiskScoreDisplay } from './RiskScoreDisplay'
 
 interface ApplicationCardProps {
   application: KYCApplication
@@ -28,7 +25,6 @@ export function ApplicationCard({
 }: ApplicationCardProps) {
   const metadata = application.metadata
   const fullName = `${metadata.firstName} ${metadata.middleName} ${metadata.lastName}`.trim()
-  const riskScore = calculateRiskScore(application)
 
   const getStatusBadge = (status: string) => {
     const styles = {
@@ -70,12 +66,9 @@ export function ApplicationCard({
           )}
 
           <div className="flex-1 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-gray-900">{fullName}</h3>
-                {getStatusBadge(application.status)}
-              </div>
-              <RiskScoreDisplay riskScore={riskScore} compact />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-900">{fullName}</h3>
+              {getStatusBadge(application.status)}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">

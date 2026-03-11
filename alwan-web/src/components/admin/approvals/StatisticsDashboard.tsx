@@ -70,55 +70,21 @@ export function StatisticsDashboard({ statistics, isLoading }: StatisticsDashboa
   ]
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className={`${stat.bgColor} rounded-lg border border-gray-200 p-3 sm:p-4 transition-all duration-200 hover:shadow-md`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-gray-600 font-medium">{stat.label}</span>
-              <stat.icon className={`w-4 h-4 ${stat.color}`} />
-            </div>
-            <div className={`text-xl sm:text-2xl font-bold ${stat.color}`}>
-              {stat.value}
-            </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      {stats.map((stat, index) => (
+        <div
+          key={index}
+          className={`${stat.bgColor} rounded-lg border border-gray-200 p-3 sm:p-4 transition-all duration-200 hover:shadow-md`}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs sm:text-sm text-gray-600 font-medium">{stat.label}</span>
+            <stat.icon className={`w-4 h-4 ${stat.color}`} />
           </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <div className="bg-white rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Avg Processing Time</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {statistics.avg_processing_time.toFixed(1)}h
-              </p>
-            </div>
-            <Clock className="w-8 h-8 text-blue-600" />
+          <div className={`text-xl sm:text-2xl font-bold ${stat.color}`}>
+            {stat.value}
           </div>
         </div>
-
-        <div className="bg-white rounded-lg border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Today's Activity</p>
-              <div className="flex items-center gap-4 mt-1">
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                  <span className="text-lg font-bold text-green-600">{statistics.today_approved}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <XCircle className="w-4 h-4 text-red-600" />
-                  <span className="text-lg font-bold text-red-600">{statistics.today_rejected}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   )
 }

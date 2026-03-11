@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Search, FileText, CheckCircle, XCircle, Eye, User, Building2, MapPin, Phone, Mail, Calendar, X, RefreshCw, Download, Filter, Printer, Keyboard } from 'lucide-react'
+import { Search, FileText, CheckCircle, XCircle, Eye, User, Building2, MapPin, Phone, Mail, Calendar, X, RefreshCw, Download, Filter, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { getKYCApplications, getActiveCenters, approveKYCWithCenter, rejectKYC, type KYCApplication } from '@/app/actions/kyc-approvals'
 import { getApprovalStatistics } from '@/app/actions/approval-statistics'
@@ -17,12 +17,8 @@ import { StatisticsDashboard } from '@/components/admin/approvals/StatisticsDash
 import { AdvancedFilters } from '@/components/admin/approvals/AdvancedFilters'
 import { BulkActionsBar } from '@/components/admin/approvals/BulkActionsBar'
 import { ApplicationCard } from '@/components/admin/approvals/ApplicationCard'
-import { RiskScoreDisplay } from '@/components/admin/approvals/RiskScoreDisplay'
-import { KeyboardShortcutsHelp } from '@/components/admin/approvals/KeyboardShortcutsHelp'
-import { useKeyboardShortcuts, type KeyboardShortcut } from '@/hooks/useKeyboardShortcuts'
 import { exportToCSV, exportToExcel } from '@/lib/utils/export'
 import { printApplication } from '@/lib/utils/print'
-import { calculateRiskScore } from '@/lib/utils/risk-scoring'
 import { ApprovalStatistics, AdvancedFilters as AdvancedFiltersType, ApplicationNote, AuditTrailEntry } from '@/types/approvals'
 
 interface Center {
@@ -56,7 +52,6 @@ export default function ApprovalsPage() {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersType>({})
   const [statistics, setStatistics] = useState<ApprovalStatistics | null>(null)
-  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
   const [applicationNotes, setApplicationNotes] = useState<ApplicationNote[]>([])
   const [auditTrail, setAuditTrail] = useState<AuditTrailEntry[]>([])
   const [newNote, setNewNote] = useState('')
@@ -150,13 +145,6 @@ export default function ApprovalsPage() {
 
     if (advancedFilters.businessTypes && advancedFilters.businessTypes.length > 0) {
       filtered = filtered.filter(app => advancedFilters.businessTypes?.includes(app.metadata?.business?.businessType))
-    }
-
-    if (advancedFilters.riskLevel && advancedFilters.riskLevel.length > 0) {
-      filtered = filtered.filter(app => {
-        const riskScore = calculateRiskScore(app)
-        return advancedFilters.riskLevel?.includes(riskScore.level)
-      })
     }
 
     setFilteredApplications(filtered)
@@ -290,25 +278,6 @@ export default function ApprovalsPage() {
     }
   }
 
-  // Keyboard shortcuts
-  const shortcuts: KeyboardShortcut[] = [
-    { key: 'a', action: () => handleBulkApprove(), description: 'Approve selected applications' },
-    { key: 'r', action: () => handleBulkReject(), description: 'Reject selected applications' },
-    { key: 'f', ctrl: true, action: () => setShowAdvancedFilters(true), description: 'Open advanced filters' },
-    { key: 'e', ctrl: true, action: () => handleExportCSV(), description: 'Export to CSV' },
-    { key: 'p', ctrl: true, action: () => selectedApplication && handlePrint(selectedApplication), description: 'Print current application' },
-    { key: '?', action: () => setShowKeyboardHelp(true), description: 'Show keyboard shortcuts' },
-    { key: 'Escape', action: () => {
-      setSelectedApplication(null)
-      setShowApproveModal(null)
-      setShowRejectModal(null)
-      setShowAdvancedFilters(false)
-      setShowKeyboardHelp(false)
-    }, description: 'Close modals' },
-  ]
-
-  useKeyboardShortcuts(shortcuts, true)
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -354,13 +323,6 @@ export default function ApprovalsPage() {
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Excel</span>
-              </button>
-              <button
-                onClick={() => setShowKeyboardHelp(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors duration-200"
-                title="Keyboard Shortcuts (?)"
-              >
-                <Keyboard className="w-4 h-4" />
               </button>
               <button
                 onClick={loadData}
@@ -494,13 +456,6 @@ export default function ApprovalsPage() {
             />
           )}
 
-          {showKeyboardHelp && (
-            <KeyboardShortcutsHelp
-              shortcuts={shortcuts}
-              onClose={() => setShowKeyboardHelp(false)}
-            />
-          )}
-
           {selectedApplication && selectedApplication.metadata && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 overflow-y-auto">
               <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden my-8">
@@ -530,29 +485,26 @@ export default function ApprovalsPage() {
                 </div>
 
                 <div className="p-4 sm:p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-3">Personal Information</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="text-gray-600">Date of Birth:</span>
-                          <span className="text-gray-900 ml-2">{selectedApplication.metadata.dateOfBirth}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Gender:</span>
-                          <span className="text-gray-900 ml-2 capitalize">{selectedApplication.metadata.gender}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Civil Status:</span>
-                          <span className="text-gray-900 ml-2 capitalize">{selectedApplication.metadata.civilStatus}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Nationality:</span>
-                          <span className="text-gray-900 ml-2">{selectedApplication.metadata.nationality}</span>
-                        </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">Personal Information</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-600">Date of Birth:</span>
+                        <span className="text-gray-900 ml-2">{selectedApplication.metadata.dateOfBirth}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Gender:</span>
+                        <span className="text-gray-900 ml-2 capitalize">{selectedApplication.metadata.gender}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Civil Status:</span>
+                        <span className="text-gray-900 ml-2 capitalize">{selectedApplication.metadata.civilStatus}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Nationality:</span>
+                        <span className="text-gray-900 ml-2">{selectedApplication.metadata.nationality}</span>
                       </div>
                     </div>
-                    <RiskScoreDisplay riskScore={calculateRiskScore(selectedApplication)} />
                   </div>
 
                   <div>
