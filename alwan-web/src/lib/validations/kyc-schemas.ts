@@ -34,7 +34,7 @@ export const personalInfoSchema = z.object({
   }),
   nationality: z.string().min(2, 'Nationality is required'),
   mothersMaidenName: z.string().optional(),
-  numberOfDependents: z.number().min(0).max(20),
+  numberOfDependents: z.string().min(1, 'Number of dependents is required'),
 })
 
 // Step 4: Contact Information
@@ -56,7 +56,7 @@ export const addressSchema = z.object({
   zipCode: z.string()
     .length(4, 'Zip code must be 4 digits')
     .regex(/^\d+$/, 'Zip code must contain only numbers'),
-  yearsLiving: z.number().min(0).max(100),
+  yearsLiving: z.string().min(1, 'Years living is required'),
   housingType: z.enum(['owned', 'renting', 'living_with_family'], {
     message: 'Housing type is required',
   }),
@@ -75,21 +75,21 @@ export const businessSchema = z.object({
   businessName: z.string().min(2, 'Business name is required'),
   businessType: z.string().min(2, 'Business type is required'),
   businessAddress: z.string().min(5, 'Business address is required'),
-  yearsOperating: z.number().min(0).max(100),
+  yearsOperating: z.string().min(1, 'Years operating is required'),
   registrationType: z.enum(['dti', 'barangay_permit', 'sec', 'none'], {
     message: 'Registration type is required',
   }),
   registrationNumber: z.string().optional(),
-  dailySales: z.number().min(0),
-  monthlyRevenue: z.number().min(0),
-  numberOfEmployees: z.number().min(0).max(1000),
+  dailySales: z.string().min(1, 'Daily sales is required'),
+  monthlyRevenue: z.string().min(1, 'Monthly revenue is required'),
+  numberOfEmployees: z.string().min(1, 'Number of employees is required'),
 })
 
 // Step 8: Financial Information
 export const financialSchema = z.object({
-  monthlyIncome: z.number().min(0, 'Monthly income is required'),
+  monthlyIncome: z.string().min(1, 'Monthly income is required'),
   otherIncomeSources: z.string().optional(),
-  monthlyExpenses: z.number().min(0, 'Monthly expenses is required'),
+  monthlyExpenses: z.string().min(1, 'Monthly expenses is required'),
 })
 
 // Step 9: Guarantor (Optional - all fields optional)
