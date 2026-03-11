@@ -251,6 +251,12 @@ export async function uploadDocument(file: File, path: string) {
  */
 export async function submitKYCApplication(formData: any) {
   try {
+    // Check if service role key is available
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY is not set')
+      return { error: 'Server configuration error. Please contact support.' }
+    }
+
     const supabase = createServiceRoleClient()
 
     // Use userId from formData (stored during OTP verification)
