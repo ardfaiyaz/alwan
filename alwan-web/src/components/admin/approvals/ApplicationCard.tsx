@@ -36,7 +36,7 @@ export function ApplicationCard({
       rejected: 'bg-red-500/20 text-red-700 border-red-500/30'
     }
     return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status as keyof typeof styles] || ''}`}>
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status as keyof typeof styles] || ''} w-fit`}>
         {status.replace('_', ' ').toUpperCase()}
       </span>
     )
@@ -71,9 +71,11 @@ export function ApplicationCard({
 
             <div className="flex-1 min-w-0 space-y-3">
               {/* Header with name and status */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">{fullName}</h3>
-                {getStatusBadge(application.status)}
+                <div className="flex">
+                  {getStatusBadge(application.status)}
+                </div>
               </div>
 
               {/* Information Grid */}
