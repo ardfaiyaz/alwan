@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Increase body size limit for Server Actions (for file uploads in KYC)
+  serverActions: {
+    bodySizeLimit: '10mb', // Increased from default 1mb to handle multiple file uploads
+  },
   webpack: (config, { isServer }) => {
     // Fix for face-api.js and TensorFlow.js in browser
     if (!isServer) {
