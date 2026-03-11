@@ -201,95 +201,282 @@ export async function submitKYCApplication(formData: any) {
       return { error: 'User not authenticated. Please verify your phone number again.' }
     }
 
-    // Create member record
-    const { data: member, error: memberError } = await supabase
-      .from('members')
-      .insert({
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        middle_name: formData.middleName,
-        date_of_birth: formData.dateOfBirth,
-        gender: formData.gender,
-        phone: `+63${formData.mobileNumber}`,
-        address: `${formData.houseNumber} ${formData.street}, ${formData.barangay}, ${formData.city}, ${formData.province} ${formData.zipCode}`,
-        business_name: formData.businessName,
-        business_type: formData.businessType,
-        business_address: formData.businessAddress,
-        kyc_status: 'pending',
+    // Upload documents first
+    let idFrontUrl = ''
+    let idBackUrl = ''
+    let selfieUrl = ''
+    let guarantorIdUrl = ''
+    let utilityBillUrl = ''
+    let businessPermitUrl = ''
+
+    // Upload ID documents
+    if (formData.idFrontFile) {
+      const result = await uploadDocument(formData.idFrontFile, `kyc/${user.id}/identity`)
+      if (result.error) {
+        return { error: `Failed to upload ID front: ${result.error}` }
+      }
+      idFrontUrl = result.url || ''
+    }
+
+    if (formData.idBackFile) {
+      const result = await uploadDocument(formData.idBackFile, `kyc/${user.id}/identity`)
+      if (result.error) {
+        return { error: `Failed to upload ID back: ${result.error}` }
+      }
+      idBackUrl = result.url || ''
+    }
+
+    if (formData.selfieFile) {
+      const result = await uploadDocument(formData.selfieFile, `kyc/${user.id}/identity`)
+      if (result.error) {
+        return { error: `Failed to upload selfie: ${result.error}` }
+      }
+      selfieUrl = result.url || ''
+    }
+
+    // Upload guarantor ID if provided
+    if (formData.guarantorIdFile) {
+      const result = await uploadDocument(formData.guarantorIdFile, `kyc/${user.id}/guarantor`)
+      if (result.error) {
+        console.warn('Failed to upload guarantor ID:', result.error)
+      } else {
+        guarantorIdUrl = result.url || ''
+      }
+    }
+
+    // Upload utility bill if provided
+    if (formData.utilityBillFile) {
+      const result = await uploadDocument(formData.utilityBillFile, `kyc/${user.id}/documents`)
+      if (result.error) {
+        console.warn('Failed to upload utility bill:', result.error)
+      } else {
+        utilityBillUrl = result.url || ''
+      }
+    }
+
+    // Upload business permit if provided
+    if (formData.businessPermitFile) {
+      const result = await uploadDocument(formData.businessPermitFile, `kyc/${user.id}/documents`)
+      if (result.error) {
+        console.warn('Failed to upload business permit:', result.error)
+      } else {
+        businessPermitUrl = result.url || ''
+      }
+    }
+
+    // Create or update KYC application with all data
+    const { data: kycApp, error: kycError } = await supabase
+      .from('kyc_applications')
+      .upsert({
+        user_id: user.id,
+        mobile_number: formData.mobileNumber,
+        status: 'in_review',
+        current_step: 12,
+        completed_steps: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         kyc_level: 'full',
-        email: formData.email,
-        civil_status: formData.civilStatus,
-        nationality: formData.nationality,
+        submitted_at: new Date().toISOString(),
+        metadata: {
+          // Personal Information
+          firstName: formData.firstName,
+          middleName: formData.middleName,
+          lastName: formData.lastName,
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          civilStatus: formData.civilStatus,
+          nationality: formData.nationality,
+          mothersMaidenName: formData.mothersMaidenName,
+          numberOfDependents: formData.numberOfDependents,
+          
+          // Contact Information
+          email: formData.email,
+          mobileNumber: formData.mobileNumber,
+          alternatePhone: formData.alternatePhone,
+          
+          // Address Information
+          address: {
+            houseNumber: formData.houseNumber,
+            street: formData.street,
+            barangay: formData.barangay,
+            city: formData.city,
+            province: formData.province,
+            zipCode: formData.zipCode,
+            yearsLiving: formData.yearsLiving,
+            housingType: formData.housingType,
+          },
+          
+          // Identity Verification
+          identity: {
+            idType: formData.idType,
+            idNumber: formData.idNumber,
+            idFrontUrl,
+            idBackUrl,
+            selfieUrl,
+            faceMatchScore: formData.faceMatchScore,
+          },
+          
+          // Business Information
+          business: {
+            businessName: formData.businessName,
+            businessType: formData.businessType,
+            businessAddress: formData.businessAddress,
+            yearsOperating: formData.yearsOperating,
+            registrationType: formData.registrationType,
+            registrationNumber: formData.registrationNumber,
+            dailySales: formData.dailySales,
+            monthlyRevenue: formData.monthlyRevenue,
+            numberOfEmployees: formData.numberOfEmployees,
+          },
+          
+          // Financial Information
+          financial: {
+            monthlyIncome: formData.monthlyIncome,
+            otherIncomeSources: formData.otherIncomeSources,
+            monthlyExpenses: formData.monthlyExpenses,
+            existingLoans: formData.existingLoans || [],
+            assets: formData.assets || [],
+          },
+          
+          // Guarantor Information (optional)
+          guarantor: formData.guarantorFullName ? {
+            fullName: formData.guarantorFullName,
+            relationship: formData.guarantorRelationship,
+            address: formData.guarantorAddress,
+            phone: formData.guarantorPhone,
+            occupation: formData.guarantorOccupation,
+            idUrl: guarantorIdUrl,
+          } : null,
+          
+          // Documents
+          documents: {
+            utilityBillUrl,
+            businessPermitUrl,
+          },
+          
+          // Legal Consents
+          consents: {
+            termsAccepted: formData.termsAccepted,
+            privacyAccepted: formData.privacyAccepted,
+            dataPrivacyAccepted: formData.dataPrivacyAccepted,
+            creditInvestigationAccepted: formData.creditInvestigationAccepted,
+          },
+        },
+      }, {
+        onConflict: 'user_id'
       })
       .select()
       .single()
 
-    if (memberError) {
-      console.error('Create member error:', memberError)
-      return { error: memberError.message }
+    if (kycError) {
+      console.error('Create/update KYC application error:', kycError)
+      return { error: `Failed to create KYC application: ${kycError.message}` }
+    }
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        email: formData.email || user.email || '',
+        full_name: `${formData.firstName} ${formData.middleName || ''} ${formData.lastName}`.trim(),
+        role: 'member',
+        phone: formData.mobileNumber,
+        is_active: true,
+      }, {
+        onConflict: 'id'
+      })
+
+    if (profileError) {
+      console.error('Create/update profile error:', profileError)
+      // Don't fail the whole process if profile creation fails
     }
 
-    // Create member profile
-    await supabase.from('member_profiles').insert({
-      member_id: member.id,
-      civil_status: formData.civilStatus,
+    // Store complete KYC data as metadata (we'll create member record after center assignment)
+    const kycMetadata = {
+      // Personal Information
+      firstName: formData.firstName,
+      middleName: formData.middleName,
+      lastName: formData.lastName,
+      dateOfBirth: formData.dateOfBirth,
+      gender: formData.gender,
+      civilStatus: formData.civilStatus,
       nationality: formData.nationality,
-      mothers_maiden_name: formData.mothersMaidenName,
-      number_of_dependents: formData.numberOfDependents,
+      mothersMaidenName: formData.mothersMaidenName,
+      numberOfDependents: formData.numberOfDependents,
+      
+      // Contact Information
       email: formData.email,
-      alternate_phone: formData.alternatePhone,
-    })
-
-    // Create member address
-    await supabase.from('member_addresses').insert({
-      member_id: member.id,
-      house_number: formData.houseNumber,
-      street: formData.street,
-      barangay: formData.barangay,
-      city: formData.city,
-      province: formData.province,
-      zip_code: formData.zipCode,
-      years_living: formData.yearsLiving,
-      housing_type: formData.housingType,
-      is_primary: true,
-    })
-
-    // Create business info
-    await supabase.from('member_businesses').insert({
-      member_id: member.id,
-      business_name: formData.businessName,
-      business_type: formData.businessType,
-      business_address: formData.businessAddress,
-      years_operating: formData.yearsOperating,
-      registration_type: formData.registrationType,
-      registration_number: formData.registrationNumber,
-      daily_sales: formData.dailySales,
-      monthly_revenue: formData.monthlyRevenue,
-      number_of_employees: formData.numberOfEmployees,
-    })
-
-    // Create financial info
-    await supabase.from('member_financial_info').insert({
-      member_id: member.id,
-      monthly_income: formData.monthlyIncome,
-      other_income_sources: formData.otherIncomeSources,
-      monthly_expenses: formData.monthlyExpenses,
-      existing_loans: formData.existingLoans,
-      assets: formData.assets,
-    })
-
-    // Create guarantor if provided
-    if (formData.guarantorFullName) {
-      await supabase.from('member_guarantors').insert({
-        member_id: member.id,
-        full_name: formData.guarantorFullName,
+      mobileNumber: formData.mobileNumber,
+      alternatePhone: formData.alternatePhone,
+      
+      // Address Information
+      address: {
+        houseNumber: formData.houseNumber,
+        street: formData.street,
+        barangay: formData.barangay,
+        city: formData.city,
+        province: formData.province,
+        zipCode: formData.zipCode,
+        yearsLiving: formData.yearsLiving,
+        housingType: formData.housingType,
+      },
+      
+      // Identity Verification
+      identity: {
+        idType: formData.idType,
+        idNumber: formData.idNumber,
+        idFrontUrl,
+        idBackUrl,
+        selfieUrl,
+        faceMatchScore: formData.faceMatchScore,
+      },
+      
+      // Business Information
+      business: {
+        businessName: formData.businessName,
+        businessType: formData.businessType,
+        businessAddress: formData.businessAddress,
+        yearsOperating: formData.yearsOperating,
+        registrationType: formData.registrationType,
+        registrationNumber: formData.registrationNumber,
+        dailySales: formData.dailySales,
+        monthlyRevenue: formData.monthlyRevenue,
+        numberOfEmployees: formData.numberOfEmployees,
+      },
+      
+      // Financial Information
+      financial: {
+        monthlyIncome: formData.monthlyIncome,
+        otherIncomeSources: formData.otherIncomeSources,
+        monthlyExpenses: formData.monthlyExpenses,
+        existingLoans: formData.existingLoans || [],
+        assets: formData.assets || [],
+      },
+      
+      // Guarantor Information (optional)
+      guarantor: formData.guarantorFullName ? {
+        fullName: formData.guarantorFullName,
         relationship: formData.guarantorRelationship,
         address: formData.guarantorAddress,
         phone: formData.guarantorPhone,
         occupation: formData.guarantorOccupation,
-      })
+        idUrl: guarantorIdUrl,
+      } : null,
+      
+      // Documents
+      documents: {
+        utilityBillUrl,
+        businessPermitUrl,
+      },
+      
+      // Legal Consents
+      consents: {
+        termsAccepted: formData.termsAccepted,
+        privacyAccepted: formData.privacyAccepted,
+        dataPrivacyAccepted: formData.dataPrivacyAccepted,
+        creditInvestigationAccepted: formData.creditInvestigationAccepted,
+      },
     }
 
+    // Store complete KYC data as metadata (we'll create member record after center assignment)
+    
     // Record legal consents
     const consentTypes = [
       { type: 'terms_and_conditions', accepted: formData.termsAccepted },
@@ -308,19 +495,17 @@ export async function submitKYCApplication(formData: any) {
       }
     }
 
-    // Update KYC application status
-    await supabase
-      .from('kyc_applications')
-      .update({
-        status: 'in_review',
-        submitted_at: new Date().toISOString(),
-      })
-      .eq('user_id', user.id)
+    // TODO: After admin assigns center, create member record with all this data
+    // The metadata is now stored in kyc_applications.metadata column
 
-    return { success: true, member }
+    return { 
+      success: true, 
+      kycApplication: kycApp,
+      message: 'KYC application submitted successfully. You will be notified once a center is assigned to you.',
+    }
   } catch (error) {
     console.error('Submit KYC application exception:', error)
-    return { error: 'Failed to submit KYC application' }
+    return { error: 'Failed to submit KYC application. Please try again.' }
   }
 }
 
