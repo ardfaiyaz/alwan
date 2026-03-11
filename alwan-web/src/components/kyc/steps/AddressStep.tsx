@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { useKYCStore } from '@/lib/store/kyc-store'
 import { addressSchema, type AddressFormData } from '@/lib/validations/kyc-schemas'
-import { PROVINCES, CITIES_BY_PROVINCE, HOUSING_TYPE_OPTIONS } from '@/lib/constants/philippines'
+import { PROVINCES, CITIES_BY_PROVINCE, HOUSING_TYPE_OPTIONS, YEARS_LIVING_OPTIONS } from '@/lib/constants/philippines'
 import { toast } from 'sonner'
 import { useState } from 'react'
 
@@ -213,14 +213,17 @@ export default function AddressStep() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Years Living Here <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              {...register('yearsLiving', { valueAsNumber: true })}
-              min="0"
-              max="100"
-              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
-              placeholder="5"
-            />
+            <select
+              {...register('yearsLiving')}
+              className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
+            >
+              <option value="">Select duration</option>
+              {YEARS_LIVING_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             {errors.yearsLiving && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
