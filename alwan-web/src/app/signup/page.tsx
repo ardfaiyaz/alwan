@@ -4,9 +4,10 @@ import { useEffect } from 'react'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Shield, FileText, Lock, FileSearch } from 'lucide-react'
 import { useKYCStore } from '@/lib/store/kyc-store'
+import VerticalCarousel from '@/components/ui/VerticalCarousel'
 import MobileStep from '@/components/kyc/steps/MobileStep'
 import OTPStep from '@/components/kyc/steps/OTPStep'
 import PINStep from '@/components/kyc/steps/PINStep'
@@ -41,8 +42,6 @@ const STEP_TITLES = [
 export default function SignupPage() {
   const router = useRouter()
   const { currentStep } = useKYCStore()
-
-  // Check if user is already logged in
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -59,12 +58,6 @@ export default function SignupPage() {
     }
     checkAuth()
   }, [router])
-
-  const [previousStep, setPreviousStep] = React.useState(currentStep)
-
-  React.useEffect(() => {
-    setPreviousStep(currentStep)
-  }, [currentStep])
 
   const renderStep = () => {
     switch (currentStep) {
@@ -95,73 +88,6 @@ export default function SignupPage() {
       default:
         return <MobileStep />
     }
-  }
-
-  const progressPercentage = (currentStep / 12) * 100
-
-  // Get carousel items with better spacing
-  const getCarouselItems = () => {
-    const items = []
-    const isMovingForward = currentStep > previousStep
-    
-    // Show 2 previous steps (more blurred as they go up)
-    if (currentStep > 2) {
-      items.push({
-        title: STEP_TITLES[currentStep - 3],
-        position: 'far-prev',
-        opacity: 0.15,
-        blur: 'blur-md',
-        scale: 0.85,
-        y: -120
-      })
-    }
-    
-    if (currentStep > 1) {
-      items.push({
-        title: STEP_TITLES[currentStep - 2],
-        position: 'prev',
-        opacity: 0.3,
-        blur: 'blur-sm',
-        scale: 0.9,
-        y: -60
-      })
-    }
-    
-    // Current step (main focus)
-    items.push({
-      title: STEP_TITLES[currentStep - 1],
-      position: 'current',
-      opacity: 1,
-      blur: '',
-      scale: 1,
-      y: 0,
-      isMovingForward
-    })
-    
-    // Show 2 next steps (more blurred as they go down)
-    if (currentStep < 12) {
-      items.push({
-        title: STEP_TITLES[currentStep],
-        position: 'next',
-        opacity: 0.3,
-        blur: 'blur-sm',
-        scale: 0.9,
-        y: 60
-      })
-    }
-    
-    if (currentStep < 11) {
-      items.push({
-        title: STEP_TITLES[currentStep + 1],
-        position: 'far-next',
-        opacity: 0.15,
-        blur: 'blur-md',
-        scale: 0.85,
-        y: 120
-      })
-    }
-    
-    return items
   }
 
   return (
@@ -214,46 +140,13 @@ export default function SignupPage() {
                   />
                 </div>
                 
-                <div className="relative w-full h-[600px] flex items-center justify-center overflow-hidden">
-                  {getCarouselItems().map((item, index) => {
-                    const isMovingForward = currentStep > previousStep
-                    
-                    return (
-                      <motion.div
-                        key={`${item.position}-${currentStep}-${index}`}
-                        initial={{ 
-                          opacity: 0, 
-                          y: isMovingForward ? item.y + 60 : item.y - 60,
-                          scale: 0.8 
-                        }}
-                        animate={{ 
-                          opacity: item.opacity, 
-                          y: item.y, 
-                          scale: item.scale 
-                        }}
-                        exit={{ 
-                          opacity: 0, 
-                          y: isMovingForward ? item.y - 60 : item.y + 60,
-                          scale: 0.8 
-                        }}
-                        transition={{ 
-                          duration: 0.4, 
-                          ease: [0.4, 0, 0.2, 1],
-                          delay: index * 0.08
-                        }}
-                        className={`absolute text-center px-8 ${item.blur} ${
-                          item.position === 'current' ? 'z-10' : 'z-0'
-                        }`}
-                      >
-                        <h2 className={`font-bold bg-gradient-to-r from-[#009245] via-[#4dd88f] to-[#056633] bg-clip-text text-transparent leading-tight ${
-                          item.position === 'current' ? 'text-5xl' : 'text-3xl'
-                        }`}>
-                          {item.title}
-                        </h2>
-                      </motion.div>
-                    )
-                  })}
-                </div>
+                {/* Vertical Carousel */}
+                <VerticalCarousel 
+                  items={STEP_TITLES}
+                  currentIndex={currentStep - 1}
+                  staggerDelay={0.08}
+                  animationDuration={0.4}
+                />
 
                 {/* Legal Links - Desktop */}
                 <div className="flex items-center justify-center gap-8 mt-16">
