@@ -7,14 +7,15 @@ import { motion } from 'framer-motion'
 import { ArrowRight, ArrowLeft, Plus, X } from 'lucide-react'
 import { useKYCStore } from '@/lib/store/kyc-store'
 import { financialSchema, type FinancialFormData } from '@/lib/validations/kyc-schemas'
+import { MONTHLY_INCOME_OPTIONS, MONTHLY_EXPENSES_OPTIONS, LOAN_AMOUNT_OPTIONS, ASSET_VALUE_OPTIONS } from '@/lib/constants/philippines'
 import { toast } from 'sonner'
 
 export default function FinancialStep() {
   const { formData, updateFormData, setCurrentStep, markStepComplete } = useKYCStore()
-  const [existingLoans, setExistingLoans] = useState<Array<{ institution: string; amount: number }>>(
+  const [existingLoans, setExistingLoans] = useState<Array<{ institution: string; amount: string }>>(
     formData.existingLoans || []
   )
-  const [assets, setAssets] = useState<Array<{ type: string; value: number }>>(
+  const [assets, setAssets] = useState<Array<{ type: string; value: string }>>(
     formData.assets || []
   )
 
@@ -32,28 +33,28 @@ export default function FinancialStep() {
   })
 
   const addLoan = () => {
-    setExistingLoans([...existingLoans, { institution: '', amount: 0 }])
+    setExistingLoans([...existingLoans, { institution: '', amount: '' }])
   }
 
   const removeLoan = (index: number) => {
     setExistingLoans(existingLoans.filter((_, i) => i !== index))
   }
 
-  const updateLoan = (index: number, field: 'institution' | 'amount', value: string | number) => {
+  const updateLoan = (index: number, field: 'institution' | 'amount', value: string) => {
     const updated = [...existingLoans]
     updated[index] = { ...updated[index], [field]: value }
     setExistingLoans(updated)
   }
 
   const addAsset = () => {
-    setAssets([...assets, { type: '', value: 0 }])
+    setAssets([...assets, { type: '', value: '' }])
   }
 
   const removeAsset = (index: number) => {
     setAssets(assets.filter((_, i) => i !== index))
   }
 
-  const updateAsset = (index: number, field: 'type' | 'value', value: string | number) => {
+  const updateAsset = (index: number, field: 'type' | 'value', value: string) => {
     const updated = [...assets]
     updated[index] = { ...updated[index], [field]: value }
     setAssets(updated)
@@ -79,14 +80,17 @@ export default function FinancialStep() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Average Monthly Income (₱) <span className="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            {...register('monthlyIncome', { valueAsNumber: true })}
-            min="0"
-            step="0.01"
-            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
-            placeholder="25000"
-          />
+          <select
+            {...register('monthlyIncome')}
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
+          >
+            <option value="">Select income range</option>
+            {MONTHLY_INCOME_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
           {errors.monthlyIncome && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
@@ -119,14 +123,17 @@ export default function FinancialStep() {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Monthly Household Expenses (₱) <span className="text-red-500">*</span>
           </label>
-          <input
-            type="number"
-            {...register('monthlyExpenses', { valueAsNumber: true })}
-            min="0"
-            step="0.01"
-            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
-            placeholder="15000"
-          />
+          <select
+            {...register('monthlyExpenses')}
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
+          >
+            <option value="">Select expense range</option>
+            {MONTHLY_EXPENSES_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
           {errors.monthlyExpenses && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
@@ -173,14 +180,18 @@ export default function FinancialStep() {
                     placeholder="Lending institution"
                     className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
                   />
-                  <input
-                    type="number"
-                    value={loan.amount || ''}
-                    onChange={(e) => updateLoan(index, 'amount', parseFloat(e.target.value) || 0)}
-                    placeholder="Amount"
-                    min="0"
-                    className="w-32 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
-                  />
+                  <select
+                    value={loan.amount}
+                    onChange={(e) => updateLoan(index, 'amount', e.target.value)}
+                    className="w-48 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
+                  >
+                    <option value="">Select amount</option>
+                    {LOAN_AMOUNT_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     onClick={() => removeLoan(index)}
@@ -230,14 +241,18 @@ export default function FinancialStep() {
                     placeholder="Asset type (e.g., House, Motorcycle)"
                     className="flex-1 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
                   />
-                  <input
-                    type="number"
-                    value={asset.value || ''}
-                    onChange={(e) => updateAsset(index, 'value', parseFloat(e.target.value) || 0)}
-                    placeholder="Value"
-                    min="0"
-                    className="w-32 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
-                  />
+                  <select
+                    value={asset.value}
+                    onChange={(e) => updateAsset(index, 'value', e.target.value)}
+                    className="w-48 px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-300 ease-in-out"
+                  >
+                    <option value="">Select value</option>
+                    {ASSET_VALUE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     onClick={() => removeAsset(index)}
