@@ -99,6 +99,35 @@ CREATE TABLE public.global_settings (
   CONSTRAINT global_settings_pkey PRIMARY KEY (id),
   CONSTRAINT global_settings_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.profiles(id)
 );
+CREATE TABLE public.kyc_applications (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  mobile_number text NOT NULL UNIQUE,
+  status USER-DEFINED NOT NULL DEFAULT 'pending'::kyc_status,
+  current_step integer DEFAULT 1,
+  completed_steps jsonb DEFAULT '[]'::jsonb,
+  kyc_level USER-DEFINED DEFAULT 'basic'::kyc_level,
+  rejection_reason text,
+  approved_by uuid,
+  approved_at timestamp with time zone,
+  submitted_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT kyc_applications_pkey PRIMARY KEY (id),
+  CONSTRAINT kyc_applications_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT kyc_applications_approved_by_fkey FOREIGN KEY (approved_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.legal_consents (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  consent_type USER-DEFINED NOT NULL,
+  version text NOT NULL,
+  accepted_at timestamp with time zone DEFAULT now(),
+  ip_address inet,
+  user_agent text,
+  CONSTRAINT legal_consents_pkey PRIMARY KEY (id),
+  CONSTRAINT legal_consents_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.loan_approvals (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   loan_id uuid NOT NULL,
@@ -140,6 +169,42 @@ CREATE TABLE public.loans (
   CONSTRAINT loans_disbursed_by_fkey FOREIGN KEY (disbursed_by) REFERENCES public.profiles(id),
   CONSTRAINT loans_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id)
 );
+CREATE TABLE public.member_addresses (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL,
+  house_number text,
+  street text,
+  barangay text NOT NULL,
+  city text NOT NULL,
+  province text NOT NULL,
+  zip_code text NOT NULL,
+  years_living integer,
+  housing_type USER-DEFINED,
+  is_primary boolean DEFAULT true,
+  landmark text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT member_addresses_pkey PRIMARY KEY (id),
+  CONSTRAINT member_addresses_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id)
+);
+CREATE TABLE public.member_businesses (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL,
+  business_name text NOT NULL,
+  business_type text NOT NULL,
+  business_address text NOT NULL,
+  years_operating numeric,
+  registration_type USER-DEFINED DEFAULT 'none'::business_registration_type,
+  registration_number text,
+  daily_sales numeric,
+  monthly_revenue numeric,
+  number_of_employees integer DEFAULT 0,
+  business_description text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT member_businesses_pkey PRIMARY KEY (id),
+  CONSTRAINT member_businesses_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id)
+);
 CREATE TABLE public.member_documents (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   member_id uuid NOT NULL,
@@ -159,6 +224,72 @@ CREATE TABLE public.member_documents (
   CONSTRAINT member_documents_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id),
   CONSTRAINT member_documents_verified_by_fkey FOREIGN KEY (verified_by) REFERENCES public.profiles(id),
   CONSTRAINT member_documents_uploaded_by_fkey FOREIGN KEY (uploaded_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.member_financial_info (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL UNIQUE,
+  monthly_income numeric,
+  other_income_sources text,
+  monthly_expenses numeric,
+  existing_loans jsonb DEFAULT '[]'::jsonb,
+  assets jsonb DEFAULT '[]'::jsonb,
+  bank_accounts jsonb DEFAULT '[]'::jsonb,
+  credit_score integer,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT member_financial_info_pkey PRIMARY KEY (id),
+  CONSTRAINT member_financial_info_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id)
+);
+CREATE TABLE public.member_guarantors (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL,
+  full_name text NOT NULL,
+  relationship text NOT NULL,
+  address text NOT NULL,
+  phone text NOT NULL,
+  occupation text,
+  monthly_income numeric,
+  id_document_url text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT member_guarantors_pkey PRIMARY KEY (id),
+  CONSTRAINT member_guarantors_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id)
+);
+CREATE TABLE public.member_identifications (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL,
+  id_type USER-DEFINED NOT NULL,
+  id_number text NOT NULL,
+  id_front_url text NOT NULL,
+  id_back_url text,
+  selfie_url text,
+  face_match_score numeric,
+  face_match_verified boolean DEFAULT false,
+  ocr_data jsonb,
+  verified_by uuid,
+  verified_at timestamp with time zone,
+  expiry_date date,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT member_identifications_pkey PRIMARY KEY (id),
+  CONSTRAINT member_identifications_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id),
+  CONSTRAINT member_identifications_verified_by_fkey FOREIGN KEY (verified_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.member_profiles (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  member_id uuid NOT NULL UNIQUE,
+  civil_status USER-DEFINED,
+  nationality text DEFAULT 'Filipino'::text,
+  mothers_maiden_name text,
+  number_of_dependents integer DEFAULT 0,
+  email text,
+  alternate_phone text,
+  place_of_birth text,
+  tin_number text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT member_profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT member_profiles_member_id_fkey FOREIGN KEY (member_id) REFERENCES public.members(id)
 );
 CREATE TABLE public.members (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -182,6 +313,11 @@ CREATE TABLE public.members (
   beneficiary_phone text,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  kyc_status USER-DEFINED DEFAULT 'pending'::kyc_status,
+  kyc_level USER-DEFINED DEFAULT 'basic'::kyc_level,
+  email text,
+  civil_status USER-DEFINED,
+  nationality text DEFAULT 'Filipino'::text,
   CONSTRAINT members_pkey PRIMARY KEY (id),
   CONSTRAINT members_center_id_fkey FOREIGN KEY (center_id) REFERENCES public.centers(id)
 );

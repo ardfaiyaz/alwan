@@ -19,7 +19,7 @@ export interface KYCFormData {
   civilStatus: 'single' | 'married' | 'widowed' | 'separated' | 'divorced' | ''
   nationality: string
   mothersMaidenName: string
-  numberOfDependents: number
+  numberOfDependents: string
   
   // Step 4: Contact Information
   email: string
@@ -32,7 +32,7 @@ export interface KYCFormData {
   city: string
   province: string
   zipCode: string
-  yearsLiving: number
+  yearsLiving: string
   housingType: 'owned' | 'renting' | 'living_with_family' | ''
   
   // Step 6: Identity Verification
@@ -47,19 +47,19 @@ export interface KYCFormData {
   businessName: string
   businessType: string
   businessAddress: string
-  yearsOperating: number
+  yearsOperating: string
   registrationType: 'dti' | 'barangay_permit' | 'sec' | 'none' | ''
   registrationNumber: string
-  dailySales: number
-  monthlyRevenue: number
-  numberOfEmployees: number
+  dailySales: string
+  monthlyRevenue: string
+  numberOfEmployees: string
   
   // Step 8: Financial Information
-  monthlyIncome: number
+  monthlyIncome: string
   otherIncomeSources: string
-  monthlyExpenses: number
-  existingLoans: Array<{ institution: string; amount: number }>
-  assets: Array<{ type: string; value: number }>
+  monthlyExpenses: string
+  existingLoans: Array<{ institution: string; amount: string }>
+  assets: Array<{ type: string; value: string }>
   
   // Step 9: Guarantor (Optional)
   guarantorFullName: string
@@ -105,7 +105,7 @@ const initialFormData: KYCFormData = {
   civilStatus: '',
   nationality: 'Filipino',
   mothersMaidenName: '',
-  numberOfDependents: 0,
+  numberOfDependents: '',
   email: '',
   alternatePhone: '',
   houseNumber: '',
@@ -114,7 +114,7 @@ const initialFormData: KYCFormData = {
   city: '',
   province: '',
   zipCode: '',
-  yearsLiving: 0,
+  yearsLiving: '',
   housingType: '',
   idType: '',
   idNumber: '',
@@ -125,15 +125,15 @@ const initialFormData: KYCFormData = {
   businessName: '',
   businessType: '',
   businessAddress: '',
-  yearsOperating: 0,
+  yearsOperating: '',
   registrationType: '',
   registrationNumber: '',
-  dailySales: 0,
-  monthlyRevenue: 0,
-  numberOfEmployees: 0,
-  monthlyIncome: 0,
+  dailySales: '',
+  monthlyRevenue: '',
+  numberOfEmployees: '',
+  monthlyIncome: '',
   otherIncomeSources: '',
-  monthlyExpenses: 0,
+  monthlyExpenses: '',
   existingLoans: [],
   assets: [],
   guarantorFullName: '',

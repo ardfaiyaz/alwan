@@ -1,8 +1,13 @@
-# Run KYC Metadata Migration
+# Run KYC Migrations
 
-The `metadata` column is missing from your `kyc_applications` table. You need to run the migration.
+You need to run TWO migrations to fix the KYC application submission:
+
+1. Add `metadata` column to store complete form data
+2. Add UNIQUE constraint to `user_id` for upsert operations
 
 ## Option 1: Via Supabase Dashboard (Recommended)
+
+### Step 1: Add metadata column
 
 1. Go to https://supabase.com/dashboard
 2. Select your project
@@ -11,6 +16,13 @@ The `metadata` column is missing from your `kyc_applications` table. You need to
 5. Copy the entire contents of `supabase/migrations/20240311_add_kyc_metadata.sql`
 6. Paste into the SQL Editor
 7. Click **Run** or press `Ctrl+Enter`
+
+### Step 2: Add user_id unique constraint
+
+1. In the same SQL Editor, click **New Query**
+2. Copy the entire contents of `supabase/migrations/20240311_add_user_id_unique.sql`
+3. Paste into the SQL Editor
+4. Click **Run** or press `Ctrl+Enter`
 
 ## Option 2: Via Supabase CLI
 

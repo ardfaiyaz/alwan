@@ -17,8 +17,7 @@ import {
     Menu,
     X,
     Building2,
-    CheckSquare,
-    UserCheck
+    CheckSquare
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -66,12 +65,6 @@ const navigationItems = [
         roles: ['admin', 'area_manager', 'branch_manager', 'field_officer'] as UserRole[]
     },
     { 
-        name: 'KYC Approvals', 
-        href: '/admin/kyc-approvals', 
-        icon: UserCheck,
-        roles: ['admin', 'area_manager', 'branch_manager'] as UserRole[]
-    },
-    { 
         name: 'Approvals', 
         href: '/admin/approvals', 
         icon: CheckSquare,
@@ -96,6 +89,7 @@ export function Sidebar() {
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [userRole, setUserRole] = useState<UserRole | null>(null)
+    const [pendingCount, setPendingCount] = useState(0)
     const { user, clearUser } = useAuthStore()
 
     // Get user role from database
@@ -119,6 +113,29 @@ export function Sidebar() {
 
         fetchUserRole()
     }, [user])
+
+    // Fetch pending approvals count
+    useEffect(() => {
+        async function fetchPendingCount() {
+            const supabase = createClient()
+            if (!supabase) return
+
+            const { count } = await supabase
+                .from('kyc_applications')
+                .select('*', { count: 'exact', head: true })
+                .in('status', ['pending', 'in_review'])
+
+            if (count !== null) {
+                setPendingCount(count)
+            }
+        }
+
+        fetchPendingCount()
+        
+        // Refresh count every 30 seconds
+        const interval = setInterval(fetchPendingCount, 30000)
+        return () => clearInterval(interval)
+    }, [])
 
     // Filter navigation items based on user role
     const visibleNavigation = navigationItems.filter(item => {
@@ -183,13 +200,15 @@ export function Sidebar() {
                         {visibleNavigation.length > 0 ? (
                             visibleNavigation.map((item) => {
                                 const isActive = pathname.startsWith(item.href)
+                                const showBadge = item.name === 'Approvals' && pendingCount > 0
+                                
                                 return (
                                     <Link
                                         key={item.name}
                                         href={item.href}
                                         onClick={() => setIsOpen(false)}
                                         className={cn(
-                                            "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
+                                            "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
                                             isActive
                                                 ? "bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md"
                                                 : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
@@ -200,6 +219,11 @@ export function Sidebar() {
                                             isActive ? "text-white" : "text-gray-500"
                                         )} />
                                         <span className="truncate">{item.name}</span>
+                                        {showBadge && (
+                                            <span className="absolute top-1 right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-green-500 rounded-full">
+                                                {pendingCount}
+                                            </span>
+                                        )}
                                     </Link>
                                 )
                             })
