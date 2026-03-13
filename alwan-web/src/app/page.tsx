@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 import MobileCTA from '@/components/sections/MobileCTA'
 import { ChevronDown, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -91,17 +91,6 @@ export default function HomePage() {
       if (cleanup) cleanup()
     }
   }, [demoVideos.length])
-
-  const { scrollYProgress: heroScrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  })
-
-  const heroY = useTransform(heroScrollYProgress, [0, 1], ['0%', '20%'])
-  const leftCardY = useTransform(heroScrollYProgress, [0, 1], ['0%', '-40%'])
-  const rightCardY = useTransform(heroScrollYProgress, [0, 1], ['0%', '-60%'])
-  const textY = useTransform(heroScrollYProgress, [0, 1], ['0%', '40%'])
-  const opacity = useTransform(heroScrollYProgress, [0, 0.5], [1, 0])
 
   return (
     <>
@@ -361,15 +350,12 @@ export default function HomePage() {
         </div>
 
         {/* ── Content — full bleed, only edge padding ── */}
-        <motion.div
-          style={{ y: heroY, opacity }}
-          className="relative z-10 w-full h-full"
-        >
+        <div className="relative z-10 w-full h-full">
           <div className="w-full h-full flex flex-col lg:flex-row gap-0 lg:gap-8">
 
             {/* LEFT: copy - with left padding, vertically centered */}
-            <motion.div
-              style={{ y: textY, flexBasis: '60%' }}
+            <div
+              style={{ flexBasis: '60%' }}
               className="flex flex-col justify-center items-center lg:items-start space-y-5 sm:space-y-6 lg:space-y-8
                             py-12 sm:py-16 lg:py-0 text-center lg:text-left"
             >
@@ -526,7 +512,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </motion.div>
-            </motion.div>
+            </div>
 
             {/* RIGHT: Phone — desktop only, aligned left, pinned to bottom */}
             <div className="relative hidden lg:flex items-end justify-start h-full"
@@ -557,7 +543,7 @@ export default function HomePage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7, delay: 1.0 }}
                   className="absolute z-20"
-                  style={{ top: '18%', left: '-18%', scale: 1.1, y: leftCardY }}
+                  style={{ top: '18%', left: '-18%', scale: 1.1 }}
                 >
                   <LeftOverlayCard />
                 </motion.div>
@@ -566,14 +552,14 @@ export default function HomePage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7, delay: 1.2 }}
                   className="absolute z-20"
-                  style={{ top: '42%', right: '-18%', scale: 1.1, y: rightCardY }}
+                  style={{ top: '42%', right: '-18%', scale: 1.1 }}
                 >
                   <RightOverlayCard />
                 </motion.div>
               </motion.div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Scroll cue */}
         <motion.div
