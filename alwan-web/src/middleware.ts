@@ -1,6 +1,12 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { canAccessPage, type UserRole } from '@/lib/rbac/permissions'
+import { validateTimeBasedAccess } from '@/lib/rbac/security-layers'
+
+// Security: Track failed login attempts
+const failedAttempts = new Map<string, { count: number; lastAttempt: number }>()
+const MAX_FAILED_ATTEMPTS = 5
+const LOCKOUT_DURATION = 15 * 60 * 1000 // 15 minutes
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
@@ -84,17 +90,43 @@ export async function middleware(request: NextRequest) {
 
   // Require authentication for /admin routes
   if (pathname.startsWith('/admin')) {
+    // Security Layer: Get client IP for tracking
+    const clientIp = request.headers.get('x-forwarded-for') || 
+                     request.headers.get('x-real-ip') || 
+                     'unknown'
+
     if (!user) {
+      // Track failed access attempts
+      const attempts = failedAttempts.get(clientIp) || { count: 0, lastAttempt: 0 }
+      const now = Date.now()
+
+      // Check if IP is locked out
+      if (attempts.count >= MAX_FAILED_ATTEMPTS && 
+          now - attempts.lastAttempt < LOCKOUT_DURATION) {
+        const response = NextResponse.json(
+          { error: 'Too many failed attempts. Please try again later.' },
+          { status: 429 }
+        )
+        response.headers.set('Retry-After', String(Math.ceil((LOCKOUT_DURATION - (now - attempts.lastAttempt)) / 1000)))
+        return response
+      }
+
+      // Update failed attempts
+      failedAttempts.set(clientIp, { count: attempts.count + 1, lastAttempt: now })
+
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/login'
       redirectUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(redirectUrl)
     }
 
+    // Clear failed attempts on successful auth
+    failedAttempts.delete(clientIp)
+
     // Get user profile to check role
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, is_active, last_password_change, mfa_enabled')
       .eq('id', user.id)
       .single()
 
@@ -104,14 +136,55 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    const userRole = profile.role as UserRole
-
-    // Check page access permissions
-    if (!canAccessPage(userRole, pathname)) {
+    // Security Layer: Check if account is active
+    if (profile.is_active === false) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/admin/dashboard'
+      redirectUrl.pathname = '/login'
+      redirectUrl.searchParams.set('error', 'account_disabled')
       return NextResponse.redirect(redirectUrl)
     }
+
+    const userRole = profile.role as UserRole
+
+    // Security Layer: Time-based access control
+    const timeCheck = validateTimeBasedAccess(userRole)
+    if (!timeCheck.allowed) {
+      return NextResponse.json(
+        { error: timeCheck.reason || 'Access not allowed at this time' },
+        { status: 403 }
+      )
+    }
+
+    // Security Layer: Check page access permissions
+    if (!canAccessPage(userRole, pathname)) {
+      // Log unauthorized access attempt
+      await supabase.from('security_audit_logs').insert({
+        user_id: user.id,
+        user_role: userRole,
+        action: 'unauthorized_access_attempt',
+        resource: 'page',
+        resource_id: pathname,
+        ip_address: clientIp,
+        user_agent: request.headers.get('user-agent') || 'unknown',
+        success: false,
+        failure_reason: 'Insufficient permissions',
+      })
+
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/admin/dashboard'
+      redirectUrl.searchParams.set('error', 'unauthorized')
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // Security Layer: Add security headers
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('X-Frame-Options', 'DENY')
+    response.headers.set('X-XSS-Protection', '1; mode=block')
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+    response.headers.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=()'
+    )
   }
 
   return response
