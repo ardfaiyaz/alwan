@@ -207,28 +207,27 @@ export default function HomePage() {
                 </motion.div>
               </div>
 
-              {/* Center Phone Mockup - Half Visible at Bottom */}
+              {/* Center Phone Mockup - Top to Mid Visible at Bottom */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
                 className="relative overflow-hidden order-first lg:order-none"
                 style={{ 
-                  height: '250px',
-                  maxHeight: '250px'
+                  height: '350px',
+                  maxHeight: '350px'
                 }}
               >
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full flex justify-center">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full flex justify-center">
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent blur-3xl" />
                   <Image
                     src="/images/mockups/phone.png"
                     alt="Alwan App"
-                    width={200}
-                    height={400}
-                    className="relative z-10 drop-shadow-2xl"
+                    width={280}
+                    height={560}
+                    className="relative z-10 drop-shadow-2xl sm:w-[320px] sm:h-[640px] md:w-[360px] md:h-[720px] lg:w-[400px] lg:h-[800px]"
                     style={{ 
                       width: 'auto',
-                      height: '500px',
                       objectFit: 'contain',
                       objectPosition: 'top center'
                     }}
