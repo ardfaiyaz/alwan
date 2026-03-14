@@ -64,11 +64,11 @@ export default function HomePage() {
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 
       {/* Hero Section - Waffle Style */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-t from-[#4dd88f]/50 via-[#4dd88f]/20 to-white">
+      <section className="relative min-h-screen flex flex-col bg-gradient-to-t from-[#4dd88f]/50 via-[#4dd88f]/20 to-white overflow-hidden">
         {/* Additional gradient overlay for more visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-200/40 via-emerald-100/20 to-transparent pointer-events-none" />
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-0 flex-1 flex flex-col">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -124,7 +124,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16 md:mb-20 px-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16 px-4"
           >
             <Link href="/signup">
               <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center justify-center gap-2">
@@ -138,9 +138,9 @@ export default function HomePage() {
             </button>
           </motion.div>
 
-          {/* Phone Mockup with Floating Cards */}
-          <div className="relative max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-end">
+          {/* Phone Mockup with Floating Cards - Flex Grow to Fill Space */}
+          <div className="relative max-w-6xl mx-auto px-4 flex-1 flex items-end pb-0">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-end w-full">
               
               {/* Left Floating Cards */}
               <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-end">
@@ -207,13 +207,12 @@ export default function HomePage() {
                 </motion.div>
               </div>
 
-              {/* Center Phone Mockup - Half Visible */}
+              {/* Center Phone Mockup - Extends to Bottom */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                className="relative overflow-hidden order-first lg:order-none"
-                style={{ maxHeight: '300px', height: '300px' }}
+                className="relative overflow-visible order-first lg:order-none h-full flex items-end"
               >
                 <div className="relative inline-block mx-auto">
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent blur-3xl" />
@@ -223,6 +222,7 @@ export default function HomePage() {
                     width={300}
                     height={600}
                     className="relative z-10 mx-auto drop-shadow-2xl sm:w-[350px] sm:h-[700px] lg:w-[400px] lg:h-[800px]"
+                    style={{ objectFit: 'cover', objectPosition: 'top' }}
                     priority
                   />
                 </div>
