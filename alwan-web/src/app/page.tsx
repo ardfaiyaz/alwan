@@ -64,20 +64,20 @@ export default function HomePage() {
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 
       {/* Hero Section - Waffle Style */}
-      <section className="relative min-h-screen flex flex-col bg-gradient-to-t from-[#4dd88f]/50 via-[#4dd88f]/20 to-white overflow-hidden">
+      <section className="relative h-screen flex flex-col bg-gradient-to-t from-[#4dd88f]/50 via-[#4dd88f]/20 to-white overflow-hidden">
         {/* Additional gradient overlay for more visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-200/40 via-emerald-100/20 to-transparent pointer-events-none" />
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-0 flex-1 flex flex-col">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 md:pt-20 pb-0 flex-1 flex flex-col">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-8"
+            className="text-center mb-4 sm:mb-6 md:mb-8"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-emerald-100 shadow-sm">
-              <span className="text-sm text-gray-600">🚀 Announcing our latest product launch</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white border border-emerald-100 shadow-sm">
+              <span className="text-xs sm:text-sm text-gray-600">🚀 Announcing our latest product launch</span>
             </div>
           </motion.div>
 
@@ -86,13 +86,13 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-center mb-4 sm:mb-6"
+            className="text-center mb-3 sm:mb-4 md:mb-6"
           >
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 whitespace-nowrap">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-gray-900 whitespace-nowrap">
                 From Application To
               </h1>
-              <div className="inline-flex items-center justify-center min-w-[200px] sm:min-w-[250px] md:min-w-[300px] lg:min-w-[350px] xl:min-w-[400px]">
+              <div className="inline-flex items-center justify-center min-w-[180px] sm:min-w-[200px] md:min-w-[250px] lg:min-w-[300px] xl:min-w-[350px] 2xl:min-w-[400px]">
                 <AnimatePresence mode="wait">
                   <motion.h2
                     key={currentWord}
@@ -100,7 +100,7 @@ export default function HomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.5 }}
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 whitespace-nowrap"
+                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 whitespace-nowrap"
                   >
                     {words[currentWord]}!
                   </motion.h2>
@@ -114,7 +114,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="text-center text-base sm:text-lg md:text-xl text-gray-600 mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto px-4"
+            className="text-center text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto px-4"
           >
             Fast, transparent microloans designed for Filipinos. Get approved in minutes, receive funds in hours.
           </motion.p>
@@ -124,40 +124,40 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16 px-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 md:mb-12 px-4"
           >
             <Link href="/signup">
-              <button className="group w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center justify-center gap-2">
+              <button className="group w-full sm:w-auto px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-sm sm:text-base md:text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center justify-center gap-2">
                 Get Started
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
-            <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-white hover:bg-gray-50 text-gray-900 rounded-full font-semibold text-base sm:text-lg transition-all duration-300 border-2 border-gray-200 hover:border-emerald-500 flex items-center justify-center gap-2">
+            <button className="w-full sm:w-auto px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 bg-white hover:bg-gray-50 text-gray-900 rounded-full font-semibold text-sm sm:text-base md:text-lg transition-all duration-300 border-2 border-gray-200 hover:border-emerald-500 flex items-center justify-center gap-2">
               <Play className="w-4 h-4 sm:w-5 sm:h-5" />
               Watch Demo
             </button>
           </motion.div>
 
           {/* Phone Mockup with Floating Cards - Flex Grow to Fill Space */}
-          <div className="relative max-w-6xl mx-auto px-4 flex-1 flex items-end pb-0">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-end w-full">
+          <div className="relative max-w-6xl mx-auto px-4 flex-1 flex items-end pb-0 min-h-0">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 items-end w-full">
               
               {/* Left Floating Cards */}
-              <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-end">
+              <div className="flex flex-row lg:flex-col gap-2 sm:gap-3 md:gap-4 lg:gap-6 justify-center lg:justify-end">
                 {/* Fast Approval - Compact Card */}
                 <motion.div
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.6 }}
-                  className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-xl border border-gray-100 w-36 sm:w-44 lg:w-48"
+                  className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 shadow-xl border border-gray-100 w-28 sm:w-32 md:w-40 lg:w-48"
                 >
-                  <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-                      <Clock className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-white" />
+                  <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg md:rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                      <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-5 lg:h-5 text-white" />
                     </div>
                     <div>
-                      <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">5 mins</div>
-                      <div className="text-[10px] sm:text-xs text-gray-600">Fast Approval</div>
+                      <div className="text-sm sm:text-base md:text-lg lg:text-2xl font-bold text-gray-900">5 mins</div>
+                      <div className="text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-gray-600">Fast Approval</div>
                     </div>
                   </div>
                 </motion.div>
@@ -167,19 +167,19 @@ export default function HomePage() {
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.7 }}
-                  className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 shadow-xl text-white flex-1 lg:flex-none"
+                  className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-5 lg:p-6 shadow-xl text-white flex-1 lg:flex-none"
                 >
-                  <div className="flex items-start justify-between mb-2 sm:mb-3">
+                  <div className="flex items-start justify-between mb-1.5 sm:mb-2 md:mb-3">
                     <div>
-                      <div className="text-2xl sm:text-2xl lg:text-3xl font-bold mb-1">3,590+</div>
-                      <div className="text-xs sm:text-sm text-emerald-100">Active Members</div>
+                      <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-0.5 sm:mb-1">3,590+</div>
+                      <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm text-emerald-100">Active Members</div>
                     </div>
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl bg-white/20 flex items-center justify-center">
-                      <Users className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-white" />
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-10 lg:h-10 rounded-md sm:rounded-lg md:rounded-xl bg-white/20 flex items-center justify-center">
+                      <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4.5 md:h-4.5 lg:w-5 lg:h-5 text-white" />
                     </div>
                   </div>
                   {/* Mini Sparkline */}
-                  <div className="h-8 sm:h-10 lg:h-12 flex items-end gap-0.5 sm:gap-1">
+                  <div className="h-6 sm:h-7 md:h-10 lg:h-12 flex items-end gap-0.5 sm:gap-1">
                     {[40, 60, 45, 70, 55, 80, 65, 75].map((height, i) => (
                       <div
                         key={i}
@@ -195,33 +195,37 @@ export default function HomePage() {
                   initial={{ opacity: 0, x: -50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.8 }}
-                  className="hidden lg:block bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg border border-emerald-100 w-32 sm:w-36 lg:w-40"
+                  className="hidden lg:block bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-lg border border-emerald-100 w-36 lg:w-40"
                 >
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
                     <div>
                       <div className="text-xs font-semibold text-gray-900">BSP</div>
-                      <div className="text-[10px] sm:text-xs text-gray-600">Compliant</div>
+                      <div className="text-[10px] md:text-xs text-gray-600">Compliant</div>
                     </div>
                   </div>
                 </motion.div>
               </div>
 
-              {/* Center Phone Mockup - Extends to Bottom */}
+              {/* Center Phone Mockup - Half Visible at Bottom */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                className="relative overflow-visible order-first lg:order-none h-full flex items-end"
+                className="relative overflow-hidden order-first lg:order-none"
+                style={{ 
+                  height: '250px',
+                  maxHeight: '250px'
+                }}
               >
-                <div className="relative inline-block mx-auto">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent blur-3xl" />
                   <Image
                     src="/images/mockups/phone.png"
                     alt="Alwan App"
-                    width={300}
-                    height={600}
-                    className="relative z-10 mx-auto drop-shadow-2xl sm:w-[350px] sm:h-[700px] lg:w-[400px] lg:h-[800px]"
+                    width={250}
+                    height={500}
+                    className="relative z-10 drop-shadow-2xl sm:w-[280px] sm:h-[560px] md:w-[320px] md:h-[640px] lg:w-[350px] lg:h-[700px] xl:w-[400px] xl:h-[800px]"
                     style={{ objectFit: 'cover', objectPosition: 'top' }}
                     priority
                   />
@@ -229,7 +233,74 @@ export default function HomePage() {
               </motion.div>
 
               {/* Right Floating Cards */}
-              <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-end lg:ml-auto">
+              <div className="flex flex-row lg:flex-col gap-2 sm:gap-3 md:gap-4 lg:gap-6 justify-center lg:justify-end lg:ml-auto">
+                {/* Success Rate - Tall Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.7 }}
+                  className="bg-white rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-5 lg:p-6 shadow-xl border border-gray-100 w-36 sm:w-40 md:w-48 lg:w-56"
+                >
+                  <div className="flex items-start justify-between mb-2 sm:mb-3 md:mb-4">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-lg sm:rounded-xl md:rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                      <Award className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5.5 md:h-5.5 lg:w-6 lg:h-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-1">98%</div>
+                  <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm text-gray-600 mb-3 sm:mb-4 md:mb-5 lg:mb-6">Success Rate</div>
+                  {/* Progress Bars */}
+                  <div className="space-y-1.5 sm:space-y-2 md:space-y-3">
+                    <div>
+                      <div className="flex justify-between text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-gray-600 mb-0.5 sm:mb-1">
+                        <span>Approved</span>
+                        <span>98%</span>
+                      </div>
+                      <div className="h-1 sm:h-1.5 md:h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full w-[98%] bg-gradient-to-r from-purple-500 to-purple-600 rounded-full" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-gray-600 mb-0.5 sm:mb-1">
+                        <span>Disbursed</span>
+                        <span>95%</span>
+                      </div>
+                      <div className="h-1 sm:h-1.5 md:h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full w-[95%] bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Secure Payment - Medium Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                  className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg sm:rounded-xl md:rounded-2xl p-2.5 sm:p-3 md:p-4 lg:p-5 shadow-xl text-white w-32 sm:w-36 md:w-44 lg:w-52"
+                >
+                  <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+                    <span className="text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs opacity-80">GCASH</span>
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                      <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
+                    </div>
+                  </div>
+                  <div className="text-sm sm:text-base md:text-lg font-mono mb-2 sm:mb-3 md:mb-4 tracking-wider">
+                    •••• 9999
+                  </div>
+                  <div className="text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs text-gray-400">Secure Payment</div>
+                </motion.div>
+
+                {/* Low Interest - Compact */}
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                  className="hidden lg:block bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl md:rounded-2xl p-3 md:p-4 shadow-lg text-white w-36 md:w-40 lg:w-44"
+                >
+                  <div className="text-xl md:text-2xl font-bold mb-1">2.5%</div>
+                  <div className="text-[10px] md:text-xs text-blue-100">Monthly Interest</div>
+                </motion.div>
+              </div>
                 {/* Success Rate - Tall Card */}
                 <motion.div
                   initial={{ opacity: 0, x: 50 }}
