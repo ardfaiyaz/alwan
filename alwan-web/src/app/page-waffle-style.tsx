@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Users, Clock, Award, CheckCircle, Play } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { ArrowRight, Users, Clock, TrendingUp, Award, CheckCircle, Zap } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import LoginModal from '@/components/ui/LoginModal'
 import SavingsSection from '@/components/sections/SavingsSection'
@@ -58,13 +58,17 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [])
 
+  const nextVideo = () => setCurrentVideoIndex((prev) => (prev + 1) % demoVideos.length)
+  const prevVideo = () => setCurrentVideoIndex((prev) => (prev - 1 + demoVideos.length) % demoVideos.length)
+
   return (
     <>
       <ScrollProgress />
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 
       {/* Hero Section - Waffle Style */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-t from-emerald-100 via-emerald-50 to-white">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(77,216,143,0.1),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(0,146,69,0.08),transparent_50%)]" />
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           {/* Badge */}
@@ -79,31 +83,29 @@ export default function HomePage() {
             </div>
           </motion.div>
 
-          {/* Main Headline - Single Line */}
+          {/* Main Headline */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-center mb-6"
           >
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900">
-                From Application To
-              </h1>
-              <div className="inline-flex items-center h-12 sm:h-14 md:h-16 lg:h-20">
-                <AnimatePresence mode="wait">
-                  <motion.h2
-                    key={currentWord}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600"
-                  >
-                    {words[currentWord]}!
-                  </motion.h2>
-                </AnimatePresence>
-              </div>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-900 mb-4">
+              From Application To
+            </h1>
+            <div className="h-20 flex items-center justify-center">
+              <AnimatePresence mode="wait">
+                <motion.h2
+                  key={currentWord}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-5xl sm:text-6xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600"
+                >
+                  {words[currentWord]}!
+                </motion.h2>
+              </AnimatePresence>
             </div>
           </motion.div>
 
@@ -117,23 +119,19 @@ export default function HomePage() {
             Fast, transparent microloans designed for Filipinos. Get approved in minutes, receive funds in hours.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
+            className="text-center mb-20"
           >
             <Link href="/signup">
-              <button className="group px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-2">
-                Get Started
+              <button className="group px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-2">
+                Join Waitlist
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
-            <button className="px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 rounded-full font-semibold text-lg transition-all duration-300 border-2 border-gray-200 hover:border-emerald-500 flex items-center gap-2">
-              <Play className="w-5 h-5" />
-              Watch Demo
-            </button>
           </motion.div>
 
           {/* Phone Mockup with Floating Cards */}
@@ -196,13 +194,12 @@ export default function HomePage() {
                 </motion.div>
               </div>
 
-              {/* Center Phone Mockup - Half Visible */}
+              {/* Center Phone Mockup */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-                className="relative overflow-hidden"
-                style={{ maxHeight: '400px' }}
+                className="relative"
               >
                 <div className="relative inline-block mx-auto">
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent blur-3xl" />
