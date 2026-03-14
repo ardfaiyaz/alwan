@@ -140,10 +140,10 @@ export default function HomePage() {
 
           {/* Phone Mockup with Floating Cards */}
           <div className="relative max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-end">
               
               {/* Left Floating Cards */}
-              <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-start">
+              <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-end">
                 {/* Fast Approval - Compact Card */}
                 <motion.div
                   initial={{ opacity: 0, x: -50 }}
@@ -229,7 +229,7 @@ export default function HomePage() {
               </motion.div>
 
               {/* Right Floating Cards */}
-              <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-start lg:ml-auto">
+              <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 lg:gap-6 justify-center lg:justify-end lg:ml-auto">
                 {/* Success Rate - Tall Card */}
                 <motion.div
                   initial={{ opacity: 0, x: 50 }}
