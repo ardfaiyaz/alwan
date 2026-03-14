@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ArrowRight, Check, Play, Zap, Shield, TrendingUp } from 'lucide-react'
-import { useRef, useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight, Users, Clock, Award, CheckCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import LoginModal from '@/components/ui/LoginModal'
 import SavingsSection from '@/components/sections/SavingsSection'
@@ -13,27 +13,6 @@ import CoreValuesSection from '@/components/sections/CoreValuesSection'
 
 const words = ['Dream Home', 'New Business', 'Education']
 
-const howItWorksSteps = [
-  {
-    num: '01',
-    title: 'Register & Orient',
-    desc: 'Create an account, watch the digital orientation, and join a center in your community.',
-    icon: '📝',
-  },
-  {
-    num: '02',
-    title: 'Submit & Verify',
-    desc: 'Submit your loan application and undergo our fast CIBI (Credit Investigation) process.',
-    icon: '✓',
-  },
-  {
-    num: '03',
-    title: 'Receive & Grow',
-    desc: 'Get your funds disbursed to your account and start building your business dream.',
-    icon: '🚀',
-  },
-]
-
 const demoVideos = [
   { id: 'F6b62ngcRzc', title: 'Alwan Introduction' },
   { id: '3JJmMVhuuc0', title: 'Mobile App Features' },
@@ -41,37 +20,28 @@ const demoVideos = [
   { id: '8mouV1XgCt0', title: 'Digital Financial Freedom' }
 ]
 
-const features = [
+const howItWorksSteps = [
   {
-    icon: Zap,
-    title: 'Fast Approval',
-    description: 'Get approved in minutes, not days'
+    num: '01',
+    title: 'Register & Orient',
+    desc: 'Create an account, watch the digital orientation, and join a center in your community.',
   },
   {
-    icon: Shield,
-    title: 'Secure & Safe',
-    description: 'Bank-level security for your data'
+    num: '02',
+    title: 'Submit & Verify',
+    desc: 'Submit your loan application and undergo our fast CIBI (Credit Investigation) process.',
   },
   {
-    icon: TrendingUp,
-    title: 'Build Credit',
-    description: 'Grow your financial future'
-  }
+    num: '03',
+    title: 'Receive & Grow',
+    desc: 'Get your funds disbursed to your account and start building your business dream.',
+  },
 ]
 
 export default function HomePage() {
-  const heroRef = useRef<HTMLDivElement>(null)
   const [currentWord, setCurrentWord] = useState(0)
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  })
-
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -88,175 +58,228 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [])
 
-  const nextVideo = () => setCurrentVideoIndex((prev) => (prev + 1) % demoVideos.length)
-  const prevVideo = () => setCurrentVideoIndex((prev) => (prev - 1 + demoVideos.length) % demoVideos.length)
-
   return (
     <>
       <ScrollProgress />
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 
-      {/* Hero Section - Apple Style */}
-      <section
-        ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white"
-      >
-        {/* Subtle gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/30 via-white to-white" />
+      {/* Hero Section - Waffle Style */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(77,216,143,0.1),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(0,146,69,0.08),transparent_50%)]" />
         
-        <motion.div
-          style={{ opacity, scale }}
-          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center"
-        >
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 mb-8"
+            className="text-center mb-8"
           >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-sm font-medium text-emerald-900">Best Capstone Website Designed in NU Dasmarinas</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-emerald-100 shadow-sm">
+              <span className="text-sm text-gray-600">🚀 Announcing our latest product launch</span>
+            </div>
           </motion.div>
 
           {/* Main Headline */}
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-gray-900 mb-6"
+            className="text-center mb-6"
           >
-            Agarang Alwan
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">
-              para sa iyong
-            </span>
-          </motion.h1>
-
-          {/* Rotating Words */}
-          <div className="h-24 sm:h-28 md:h-32 flex items-center justify-center mb-8">
-            <AnimatePresence mode="wait">
-              <motion.h2
-                key={currentWord}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -40 }}
-                transition={{ duration: 0.5 }}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600"
-              >
-                {words[currentWord]}!
-              </motion.h2>
-            </AnimatePresence>
-          </div>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-900 mb-4">
+              From Application To
+            </h1>
+            <div className="h-20 flex items-center justify-center">
+              <AnimatePresence mode="wait">
+                <motion.h2
+                  key={currentWord}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-5xl sm:text-6xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600"
+                >
+                  {words[currentWord]}!
+                </motion.h2>
+              </AnimatePresence>
+            </div>
+          </motion.div>
 
           {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="text-xl sm:text-2xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed"
+            className="text-center text-xl text-gray-600 mb-12 max-w-2xl mx-auto"
           >
-            Fast, transparent microloans designed for Filipinos.
-            <br className="hidden sm:block" />
-            Get approved in minutes, receive funds in hours.
+            Fast, transparent microloans designed for Filipinos. Get approved in minutes, receive funds in hours.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="text-center mb-20"
           >
             <Link href="/signup">
-              <button className="group relative px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2">
-                Get Started
+              <button className="group px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-2">
+                Join Waitlist
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
-            <button className="px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 rounded-full font-semibold text-lg transition-all duration-300 border-2 border-gray-200 hover:border-emerald-500 flex items-center gap-2">
-              <Play className="w-5 h-5" />
-              Watch Demo
-            </button>
           </motion.div>
 
-          {/* Trust Indicators */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-16 flex items-center justify-center gap-8 text-sm text-gray-600"
-          >
-            <div className="flex items-center gap-2">
-              <Check className="w-5 h-5 text-emerald-600" />
-              <span>3,590+ members funded</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-2">
-              <Check className="w-5 h-5 text-emerald-600" />
-              <span>BSP Compliant</span>
-            </div>
-          </motion.div>
+          {/* Phone Mockup with Floating Cards */}
+          <div className="relative max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+              
+              {/* Left Floating Cards */}
+              <div className="space-y-6 lg:space-y-8">
+                {/* Active Members Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.6 }}
+                  className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-xs text-emerald-600 font-semibold">+12%</span>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-1">3,590+</div>
+                  <div className="text-sm text-gray-600">Active Members</div>
+                  {/* Mini Chart */}
+                  <div className="mt-4 h-16 flex items-end gap-1">
+                    {[40, 60, 45, 70, 55, 80, 65].map((height, i) => (
+                      <div
+                        key={i}
+                        className="flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t"
+                        style={{ height: `${height}%` }}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
 
-          {/* Phone Mockup */}
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="mt-20 relative"
-          >
-            <div className="relative inline-block">
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent blur-3xl" />
-              <Image
-                src="/images/mockups/phone.png"
-                alt="Alwan App"
-                width={400}
-                height={800}
-                className="relative z-10 mx-auto drop-shadow-2xl"
-                priority
-              />
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
+                {/* Payment Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                  className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 shadow-xl text-white"
+                >
+                  <div className="flex items-center justify-between mb-8">
+                    <span className="text-sm opacity-80">GCASH</span>
+                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <div className="text-2xl font-mono mb-6 tracking-wider">
+                    •••• •••• •••• 9999
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-xs font-bold">
+                      N
+                    </div>
+                    <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-xs font-bold">
+                      A
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
 
-      {/* Features Section - Minimal Cards */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-              Why choose Alwan
-            </h2>
-            <p className="text-xl text-gray-600">Simple, fast, and secure microfinance</p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
+              {/* Center Phone Mockup */}
               <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group relative p-8 bg-white rounded-3xl hover:shadow-xl transition-all duration-300 border border-gray-100"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="relative"
               >
-                <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6 group-hover:bg-emerald-100 transition-colors">
-                  <feature.icon className="w-7 h-7 text-emerald-600" />
+                <div className="relative inline-block mx-auto">
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent blur-3xl" />
+                  <Image
+                    src="/images/mockups/phone.png"
+                    alt="Alwan App"
+                    width={400}
+                    height={800}
+                    className="relative z-10 mx-auto drop-shadow-2xl"
+                    priority
+                  />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
               </motion.div>
-            ))}
+
+              {/* Right Floating Cards */}
+              <div className="space-y-6 lg:space-y-8">
+                {/* Approval Time Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.7 }}
+                  className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-gray-900">5 mins</div>
+                      <div className="text-xs text-gray-600">Approval Time</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full w-4/5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
+                    </div>
+                    <span className="text-xs text-gray-600">Fast</span>
+                  </div>
+                </motion.div>
+
+                {/* Success Rate Card */}
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 0.9 }}
+                  className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                      <Award className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-1">98%</div>
+                  <div className="text-sm text-gray-600 mb-4">Success Rate</div>
+                  {/* Bar Chart */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 text-xs text-gray-600">Jan</div>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full w-full bg-gradient-to-r from-purple-500 to-purple-600" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 text-xs text-gray-600">Feb</div>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full w-11/12 bg-gradient-to-r from-purple-500 to-purple-600" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 text-xs text-gray-600">Mar</div>
+                      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full w-full bg-gradient-to-r from-purple-500 to-purple-600" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works - Clean Timeline */}
+      {/* How It Works - Minimal */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -271,10 +294,7 @@ export default function HomePage() {
             <p className="text-xl text-gray-600">Get funded in three simple steps</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-12 relative">
-            {/* Connection Line */}
-            <div className="hidden md:block absolute top-24 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-200" />
-
+          <div className="grid md:grid-cols-3 gap-12">
             {howItWorksSteps.map((step, index) => (
               <motion.div
                 key={step.num}
@@ -282,15 +302,12 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="relative text-center"
+                className="text-center"
               >
-                <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white text-4xl mb-6 shadow-lg">
-                  {step.icon}
-                </div>
-                <div className="absolute top-8 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-white border-4 border-emerald-500 flex items-center justify-center font-bold text-emerald-600 text-sm">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white text-2xl font-bold mb-6 shadow-lg">
                   {step.num}
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3 mt-4">{step.title}</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">{step.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{step.desc}</p>
               </motion.div>
             ))}
@@ -305,14 +322,14 @@ export default function HomePage() {
             <Link href="/signup">
               <button className="group px-8 py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl inline-flex items-center gap-2">
                 Start Your Journey
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* Video Section - Minimal */}
+      {/* Video Section */}
       <section className="py-24 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -356,7 +373,6 @@ export default function HomePage() {
               </AnimatePresence>
             </div>
 
-            {/* Video Navigation */}
             <div className="flex justify-center items-center gap-2 mt-8">
               {demoVideos.map((_, i) => (
                 <button
@@ -381,7 +397,7 @@ export default function HomePage() {
       {/* FAQ Section */}
       <FAQSection />
 
-      {/* Final CTA - Apple Style */}
+      {/* Final CTA */}
       <section className="py-32 bg-gradient-to-b from-white to-emerald-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
