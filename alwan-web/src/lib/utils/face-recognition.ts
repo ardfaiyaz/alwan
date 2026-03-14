@@ -13,9 +13,9 @@ export async function loadFaceModels() {
   try {
     await Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+      faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL), // More accurate detector
       faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
       faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-      faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
     ])
     modelsLoaded = true
     console.log('Face recognition models loaded')
@@ -26,14 +26,26 @@ export async function loadFaceModels() {
 }
 
 /**
- * Detect face in image
+ * Detect face in image with multiple strategies
  */
 export async function detectFace(imageElement: HTMLImageElement | HTMLVideoElement) {
   try {
-    const detection = await faceapi
-      .detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions())
+    // Try SSD MobileNet first (more accurate)
+    let detection = await faceapi
+      .detectSingleFace(imageElement, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
       .withFaceLandmarks()
       .withFaceDescriptor()
+
+    // Fallback to TinyFaceDetector if SSD fails
+    if (!detection) {
+      detection = await faceapi
+        .detectSingleFace(imageElement, new faceapi.TinyFaceDetectorOptions({ 
+          inputSize: 512,
+          scoreThreshold: 0.3 
+        }))
+        .withFaceLandmarks()
+        .withFaceDescriptor()
+    }
 
     return detection
   } catch (error) {
@@ -79,7 +91,7 @@ export async function compareFaces(
 }
 
 /**
- * Validate image has a clear face
+ * Validate image has a clear face with multiple detection strategies
  */
 export async function validateFaceImage(imageElement: HTMLImageElement): Promise<{
   valid: boolean
@@ -88,12 +100,23 @@ export async function validateFaceImage(imageElement: HTMLImageElement): Promise
   try {
     await loadFaceModels()
 
-    const detections = await faceapi
-      .detectAllFaces(imageElement, new faceapi.TinyFaceDetectorOptions())
+    // Try SSD MobileNet first
+    let detections = await faceapi
+      .detectAllFaces(imageElement, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
       .withFaceLandmarks()
 
+    // Fallback to TinyFaceDetector if SSD fails
     if (detections.length === 0) {
-      return { valid: false, message: 'No face detected in image' }
+      detections = await faceapi
+        .detectAllFaces(imageElement, new faceapi.TinyFaceDetectorOptions({ 
+          inputSize: 512,
+          scoreThreshold: 0.3 
+        }))
+        .withFaceLandmarks()
+    }
+
+    if (detections.length === 0) {
+      return { valid: false, message: 'No face detected. Please ensure your face is clearly visible and well-lit.' }
     }
 
     if (detections.length > 1) {
@@ -103,14 +126,14 @@ export async function validateFaceImage(imageElement: HTMLImageElement): Promise
     const detection = detections[0]
     
     // Check detection confidence
-    if (detection.detection.score < 0.5) {
-      return { valid: false, message: 'Face detection confidence too low. Please use a clearer image' }
+    if (detection.detection.score < 0.4) {
+      return { valid: false, message: 'Face detection confidence too low. Please use a clearer, well-lit image' }
     }
 
     return { valid: true, message: 'Face detected successfully' }
   } catch (error) {
     console.error('Error validating face:', error)
-    return { valid: false, message: 'Error validating image' }
+    return { valid: false, message: 'Error validating image. Please try again.' }
   }
 }
 
