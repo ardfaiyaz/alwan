@@ -218,15 +218,20 @@ export default function HomePage() {
                   maxHeight: '250px'
                 }}
               >
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full flex justify-center">
                   <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/20 to-transparent blur-3xl" />
                   <Image
                     src="/images/mockups/phone.png"
                     alt="Alwan App"
-                    width={250}
-                    height={500}
-                    className="relative z-10 drop-shadow-2xl sm:w-[280px] sm:h-[560px] md:w-[320px] md:h-[640px] lg:w-[350px] lg:h-[700px] xl:w-[400px] xl:h-[800px]"
-                    style={{ objectFit: 'cover', objectPosition: 'top' }}
+                    width={200}
+                    height={400}
+                    className="relative z-10 drop-shadow-2xl"
+                    style={{ 
+                      width: 'auto',
+                      height: '500px',
+                      objectFit: 'contain',
+                      objectPosition: 'top center'
+                    }}
                     priority
                   />
                 </div>
