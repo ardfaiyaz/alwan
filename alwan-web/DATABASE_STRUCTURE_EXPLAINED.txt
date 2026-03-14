@@ -1,0 +1,235 @@
+================================================================================
+                    DATABASE STRUCTURE EXPLANATION
+                         Alwan Microfinance System
+================================================================================
+
+UNDERSTANDING THE TWO USER TYPES
+================================================================================
+
+Your system has TWO types of users:
+
+1. STAFF/ADMIN USERS (profiles table)
+   - Field Officers
+   - Branch Managers
+   - Area Managers
+   - Admins
+   - These are EMPLOYEES who work for Alwan
+
+2. BORROWERS/CLIENTS (members table)
+   - Regular people who apply for loans
+   - They sign up through the website
+   - They go through KYC process
+   - These are CUSTOMERS of Alwan
+
+
+PROFILES TABLE - For Staff/Employees
+================================================================================
+
+Purpose: Stores information about Alwan STAFF members (not borrowers)
+
+Fields:
+- id: Links to auth.users (staff login account)
+- email: Staff email
+- full_name: Staff name
+- role: field_officer, branch_manager, area_manager, admin
+- area_id: Which area they manage
+- branch_id: Which branch they work at
+- phone: Staff contact number
+
+Who uses this:
+- Field officers who collect payments
+- Branch managers who oversee branches
+- Area managers who oversee multiple branches
+- Admins who approve loans and manage system
+
+
+MEMBERS TABLE - For Borrowers/Clients
+================================================================================
+
+Purpose: Stores information about BORROWERS (people who get loans)
+
+Fields:
+- id: Unique member ID
+- center_id: Which center they belong to
+- first_name, last_name, middle_name: Member's name
+- date_of_birth, gender: Personal info
+- phone, address: Contact info
+- business_name, business_type: Their business
+- cbu_balance: Capital Build-Up savings
+- kyc_status: KYC verification status
+
+Who uses this:
+- Regular people who sign up on the website
+- They apply for loans
+- They make weekly payments
+- They are the CUSTOMERS
+
+
+DUPLICATED FIELDS - Why They Exist
+================================================================================
+
+You noticed some fields appear in both members and member_profiles:
+
+MEMBERS table has:
+- kyc_status
+- kyc_level  
+- email
+- civil_status
+- nationality
+
+MEMBER_PROFILES table has:
+- civil_status
+- nationality
+- email
+
+WHY THE DUPLICATION?
+
+The members table was created FIRST with basic fields.
+Later, member_profiles was added for EXTENDED information.
+
+This is actually REDUNDANT and should be cleaned up!
+
+
+RECOMMENDED STRUCTURE
+================================================================================
+
+OPTION 1: Keep it simple (Recommended)
+---------------------------------------
+Remove member_profiles table entirely and keep everything in members table.
+
+Pros:
+- Simpler queries
+- No joins needed
+- Easier to understand
+- Less confusion
+
+Cons:
+- Members table gets bigger
+- But this is fine for your use case
+
+
+OPTION 2: Separate concerns (More complex)
+-------------------------------------------
+Keep member_profiles but remove duplicated fields from members table.
+
+Members table: Basic info only
+- id, center_id, first_name, last_name
+- phone, address, business info
+- cbu_balance, is_active
+
+Member_profiles table: Extended KYC info
+- civil_status, nationality, email
+- mothers_maiden_name, dependents
+- tin_number, place_of_birth
+
+
+CURRENT ISSUES IN YOUR SCHEMA
+================================================================================
+
+1. DUPLICATED FIELDS
+   - email exists in both members and member_profiles
+   - civil_status exists in both
+   - nationality exists in both
+   
+   FIX: Remove from one table (recommend keeping in members)
+
+2. MISSING UNIQUE CONSTRAINT
+   - members.phone should be UNIQUE
+   - members.email should be UNIQUE (if used)
+   
+   FIX: Add unique constraints
+
+3. INCONSISTENT NAMING
+   - Some tables use snake_case (member_profiles)
+   - Some use camelCase in code
+   
+   FIX: Stick to snake_case in database
+
+
+RELATIONSHIP DIAGRAM
+================================================================================
+
+auth.users (Supabase Auth)
+    |
+    ├─> profiles (Staff/Employees)
+    |       |
+    |       ├─> areas (manages)
+    |       ├─> branches (works at)
+    |       └─> centers (field officer for)
+    |
+    └─> kyc_applications (Borrower signup)
+            |
+            └─> members (Approved borrowers)
+                    |
+                    ├─> member_profiles (extended info)
+                    ├─> member_addresses (address details)
+                    ├─> member_identifications (ID verification)
+                    ├─> member_businesses (business details)
+                    ├─> member_financial_info (financial details)
+                    ├─> member_guarantors (co-borrowers)
+                    ├─> member_documents (uploaded files)
+                    └─> loans (loan applications)
+                            |
+                            ├─> repayment_schedules
+                            ├─> transactions (payments)
+                            └─> loan_approvals
+
+
+FLOW EXPLANATION
+================================================================================
+
+1. STAFF SIGNUP (Manual by Admin)
+   auth.users created → profiles created → assigned to branch/area
+
+2. BORROWER SIGNUP (Website)
+   auth.users created → kyc_applications created → 
+   admin approves → members created → all member_* tables populated
+
+3. LOAN APPLICATION
+   member applies → loans created → 
+   staff approves → repayment_schedules created
+
+4. WEEKLY PAYMENTS
+   field officer collects → transactions created → 
+   loan balance updated → cbu_balance updated
+
+
+RECOMMENDATION FOR YOUR PROJECT
+================================================================================
+
+Since you're confused about the duplication, I recommend:
+
+1. REMOVE member_profiles table
+2. Keep all fields in members table
+3. This makes queries simpler
+4. Less confusion for your team
+
+The member_profiles table was probably created following a "best practice"
+of separating concerns, but for a microfinance system of your size,
+it's unnecessary complexity.
+
+
+WHAT TO DO NOW
+================================================================================
+
+1. Don't worry about the duplication for now
+2. Your current structure works fine
+3. Focus on completing the signup flow with images
+4. After your capstone demo, you can clean up the schema
+
+The duplication won't cause any bugs, it's just not optimal.
+Your system will work perfectly fine as-is!
+
+
+SUMMARY
+================================================================================
+
+profiles = Staff/Employees who work for Alwan
+members = Borrowers/Customers who get loans from Alwan
+
+The duplication between members and member_profiles is unnecessary
+but won't break anything. You can clean it up later.
+
+================================================================================
+                              END OF DOCUMENT
+================================================================================

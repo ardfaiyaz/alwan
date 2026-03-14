@@ -1,0 +1,128 @@
+================================================================================
+                    HOW TO DELETE USER DATA FROM SUPABASE
+                         User ID: 078fa78b-4d48-420f-b386-46813d1adf52
+================================================================================
+
+STEP 1: DELETE DATABASE RECORDS
+================================================================================
+
+1. Go to your Supabase Dashboard
+   URL: https://supabase.com/dashboard/project/[your-project-id]
+
+2. Click on "SQL Editor" in the left sidebar
+
+3. Click "New Query"
+
+4. Copy and paste the contents of "QUICK_DELETE_USER.sql" file
+
+5. Click "Run" button (or press Ctrl+Enter)
+
+6. You should see success messages
+
+7. Run the verification query at the bottom to confirm deletion
+   (All counts should be 0)
+
+
+STEP 2: DELETE STORAGE FILES
+================================================================================
+
+1. In Supabase Dashboard, click on "Storage" in the left sidebar
+
+2. Click on "member-documents" bucket
+
+3. Navigate to: kyc/078fa78b-4d48-420f-b386-46813d1adf52/
+
+4. Select the entire folder
+
+5. Click "Delete" button
+
+6. Confirm deletion
+
+
+STEP 3: DELETE FROM AUTHENTICATION (If Step 1 failed for auth.users)
+================================================================================
+
+If you got a permission error when deleting from auth.users:
+
+1. In Supabase Dashboard, click on "Authentication" in the left sidebar
+
+2. Click on "Users" tab
+
+3. Search for user ID: 078fa78b-4d48-420f-b386-46813d1adf52
+
+4. Click on the user
+
+5. Click "Delete User" button
+
+6. Confirm deletion
+
+
+STEP 4: VERIFY DELETION
+================================================================================
+
+Run this query in SQL Editor to verify everything is deleted:
+
+    SELECT 
+        'kyc_applications' as table_name, 
+        COUNT(*) as count 
+    FROM public.kyc_applications 
+    WHERE user_id = '078fa78b-4d48-420f-b386-46813d1adf52'
+    UNION ALL
+    SELECT 'auth.users', COUNT(*) 
+    FROM auth.users 
+    WHERE id = '078fa78b-4d48-420f-b386-46813d1adf52';
+
+All counts should be 0.
+
+
+STEP 5: START FRESH SIGNUP
+================================================================================
+
+Now you can start the signup process again from the beginning:
+
+1. Go to: http://localhost:3000/signup
+
+2. Enter phone number: 9926451563 (or any new number)
+
+3. Complete all KYC steps with actual file uploads:
+   - Upload real ID images (front and back)
+   - Take a real selfie
+   - Upload utility bill
+   - Fill in all information
+
+4. Submit the application
+
+5. Check admin approvals page to see the new application with images
+
+
+TROUBLESHOOTING
+================================================================================
+
+If you get errors:
+
+1. "permission denied for table auth.users"
+   - Delete the user manually from Authentication > Users in dashboard
+
+2. "foreign key violation"
+   - The script deletes in the correct order, but if you get this error,
+     delete child tables first (member_documents, member_profiles, etc.)
+
+3. "relation does not exist"
+   - Some tables might not exist yet, that's okay, skip those errors
+
+4. Storage files still exist
+   - Delete manually from Storage > member-documents bucket
+
+
+IMPORTANT NOTES
+================================================================================
+
+- This deletion is PERMANENT and cannot be undone
+- Make sure you have the correct user ID before running
+- Always run verification queries after deletion
+- Storage files must be deleted separately
+- If user has loans or transactions, those need special handling
+
+================================================================================
+                              END OF GUIDE
+================================================================================

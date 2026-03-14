@@ -1,0 +1,205 @@
+================================================================================
+                    ADMIN APPROVALS PAGE - TEST CASES
+                         Alwan Microfinance System
+================================================================================
+
+TOTAL TEST CASES: 85
+
+================================================================================
+1. PAGE LOADING (5 test cases)
+================================================================================
+   1. Page loads with loading animation
+   2. Applications list appears after loading
+   3. Centers dropdown loads correctly
+   4. Statistics show up properly
+   5. Error message shows if loading fails
+
+================================================================================
+2. SEARCH FUNCTION (8 test cases)
+================================================================================
+   6. Search by name finds correct applicant
+   7. Search by phone number works
+   8. Search by business name works
+   9. "No results" message shows when nothing found
+   10. Advanced filters button opens modal
+   11. Filter by date range works
+   12. Filter by city/province works
+   13. Filter by business type works
+
+================================================================================
+3. SORTING (4 test cases)
+================================================================================
+   14. Sort by submitted date (newest first)
+   15. Sort by submitted date (oldest first)
+   16. Sort by created date (newest first)
+   17. Sort by created date (oldest first)
+
+================================================================================
+4. TABS (5 test cases)
+================================================================================
+   18. "Pending" tab shows only pending applications
+   19. "In Review" tab shows only in-review applications
+   20. "Approved" tab shows only approved applications
+   21. "Rejected" tab shows only rejected applications
+   22. "All" tab shows all applications
+   23. Tab numbers update correctly
+
+================================================================================
+5. APPLICATION CARD (6 test cases)
+================================================================================
+   24. All applicant info displays correctly
+   25. Status badge shows right color (yellow/blue/green/red)
+   26. Phone, email, business name show correctly
+   27. Address displays properly
+   28. Date and time format correctly
+   29. Rejection reason shows when rejected
+
+================================================================================
+6. VIEW DETAILS (7 test cases)
+================================================================================
+   30. "View" button opens detail modal
+   31. Personal info section shows correctly
+   32. Address section shows correctly
+   33. Business info section shows correctly
+   34. Financial info section shows correctly
+   35. ID verification details show correctly
+   36. ID images display (front, back, selfie)
+   37. Close button works
+
+================================================================================
+7. DOCUMENTS VIEWER (4 test cases)
+================================================================================
+   38. "Documents" button opens image viewer
+   39. ID front image displays
+   40. ID back image displays
+   41. Selfie image displays
+   42. Verification checklist checkboxes work
+
+================================================================================
+8. APPROVE APPLICATION (6 test cases)
+================================================================================
+   43. "Approve" button opens approval modal
+   44. Applicant summary shows in modal
+   45. Center dropdown shows all active centers
+   46. Cannot approve without selecting center
+   47. Success message shows after approval
+   48. Page refreshes and shows updated data
+   49. Audit trail records the approval
+
+================================================================================
+9. REJECT APPLICATION (5 test cases)
+================================================================================
+   50. "Reject" button opens rejection modal
+   51. Applicant summary shows in modal
+   52. Cannot reject without typing reason
+   53. Success message shows after rejection
+   54. Page refreshes and shows updated data
+   55. Audit trail records the rejection
+
+================================================================================
+10. BULK ACTIONS (4 test cases)
+================================================================================
+   56. Checkboxes select multiple applications
+   57. Bulk actions bar appears when items selected
+   58. Can select all applications at once
+   59. "Clear selection" button works
+
+================================================================================
+11. EXPORT DATA (3 test cases)
+================================================================================
+   60. CSV export downloads file with date/time in filename
+   61. Excel export downloads file with date/time in filename
+   62. Exported file contains all application data
+
+================================================================================
+12. PRINT (2 test cases)
+================================================================================
+   63. Print button opens print preview
+   64. Print layout looks good
+
+================================================================================
+13. NOTES & HISTORY (5 test cases)
+================================================================================
+   65. Existing notes display correctly
+   66. Can add new note
+   67. Notes show who wrote them and when
+   68. Audit trail shows all actions
+   69. Audit trail shows details and timestamps
+
+================================================================================
+14. RESPONSIVE DESIGN (6 test cases)
+================================================================================
+   70. Works on mobile phones (small screens)
+   71. Works on tablets (medium screens)
+   72. Works on laptops (large screens)
+   73. Works on desktop monitors (extra large screens)
+   74. Buttons position correctly on all screens
+   75. Tabs work on all screen sizes
+
+================================================================================
+15. REFRESH & UPDATES (3 test cases)
+================================================================================
+   76. Refresh button reloads latest data
+   77. Page title shows pending count (e.g., "(5) Approvals")
+   78. Counts update after approve/reject
+
+================================================================================
+16. ERROR HANDLING (4 test cases)
+================================================================================
+   79. Shows error if internet connection fails
+   80. Shows error if no center selected
+   81. Shows error if rejection reason is empty
+   82. Shows error if database problem occurs
+
+================================================================================
+17. SECURITY (3 test cases)
+================================================================================
+   83. Only admin users can access the page
+   84. Users can only see applications they're allowed to see
+   85. All actions require login
+
+================================================================================
+                              SUMMARY
+================================================================================
+
+CRITICAL (Must Test First): 35 test cases
+   - Approve/Reject applications
+   - View application details
+   - Load and display data
+   - Security and login
+
+HIGH PRIORITY: 30 test cases
+   - Search and filter
+   - View documents
+   - Export data
+
+MEDIUM PRIORITY: 20 test cases
+   - Mobile/tablet view
+   - Notes and history
+   - Bulk actions
+
+================================================================================
+                         TESTING CHECKLIST
+================================================================================
+
+[ ] Basic Functions (Test cases 1-29)
+[ ] Approval Process (Test cases 43-49)
+[ ] Rejection Process (Test cases 50-55)
+[ ] Search & Filter (Test cases 6-13)
+[ ] Export & Print (Test cases 60-64)
+[ ] Mobile View (Test cases 70-75)
+[ ] Security (Test cases 83-85)
+
+================================================================================
+                              NOTES
+================================================================================
+
+- Test on different browsers (Chrome, Firefox, Safari, Edge)
+- Test on different devices (phone, tablet, laptop)
+- Test with slow internet connection
+- Test with many applications (100+)
+- Test with no applications (empty state)
+
+================================================================================
+                           END OF DOCUMENT
+================================================================================
