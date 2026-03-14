@@ -362,10 +362,10 @@ export default function HomePage() {
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, delay: 0.9 }}
-                  className="hidden lg:block bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg text-white w-36 sm:w-40 lg:w-44"
+                  className="hidden lg:block bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl md:rounded-2xl p-3 md:p-4 shadow-lg text-white w-36 md:w-40 lg:w-44"
                 >
-                  <div className="text-xl sm:text-2xl font-bold mb-1">2.5%</div>
-                  <div className="text-[10px] sm:text-xs text-blue-100">Monthly Interest</div>
+                  <div className="text-xl md:text-2xl font-bold mb-1">2.5%</div>
+                  <div className="text-[10px] md:text-xs text-blue-100">Monthly Interest</div>
                 </motion.div>
               </div>
             </div>
