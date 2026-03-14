@@ -3,47 +3,15 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ArrowRight, Check, Play, Zap, Shield, TrendingUp, Users, Clock, Wallet, Award } from 'lucide-react'
+import { ChevronRight, ArrowRight, Check, Play, Zap, Shield, TrendingUp } from 'lucide-react'
 import { useRef, useEffect, useState } from 'react'
 import ScrollProgress from '@/components/ui/ScrollProgress'
 import LoginModal from '@/components/ui/LoginModal'
 import SavingsSection from '@/components/sections/SavingsSection'
 import FAQSection from '@/components/sections/FAQSection'
 import CoreValuesSection from '@/components/sections/CoreValuesSection'
-import { FloatingCard } from '@/components/hero/FloatingCard'
 
 const words = ['Dream Home', 'New Business', 'Education']
-
-const floatingCards = [
-  {
-    icon: Users,
-    title: 'Active Members',
-    value: '3,590+',
-    trend: '+12% this month',
-    position: 'top-left' as const,
-  },
-  {
-    icon: Clock,
-    title: 'Approval Time',
-    value: '5 mins',
-    trend: 'Average',
-    position: 'top-right' as const,
-  },
-  {
-    icon: Wallet,
-    title: 'Loans Disbursed',
-    value: '₱45M+',
-    trend: '+8% growth',
-    position: 'bottom-left' as const,
-  },
-  {
-    icon: Award,
-    title: 'Success Rate',
-    value: '98%',
-    trend: 'Approval rate',
-    position: 'bottom-right' as const,
-  },
-]
 
 const howItWorksSteps = [
   {
